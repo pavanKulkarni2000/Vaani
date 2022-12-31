@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/folder_media_action_favourite"
+        android:icon="@drawable/favorite_filled_24px"
+        android:title="@string/favourite_selector_label" />
+</menu>

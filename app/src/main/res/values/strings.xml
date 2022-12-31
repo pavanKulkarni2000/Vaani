@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">ವಾಣಿ</string>
+    <string name="fab_content_description">Reload list</string>
+    <string name="file_type_label">File type</string>
+    <string name="previous_desc">Play previous media</string>
+    <string name="rewind_desc">Rewind 10s</string>
+    <string name="play_pause_desc">Play/Pause</string>
+    <string name="fast_forward_desc">Fast-forward 10s</string>
+    <string name="next_desc">Play next media</string>
+    <string name="folder_subtext">%d media files</string>
+    <string name="list_item_sample_title">Download</string>
+    <string name="list_item_sample_subtext">50 media files</string>
+    <string name="favourite_selector_label">Add to favourites</string>
+    <string name="file_item_sample_subtext">05:45</string>
+    <string name="file_item_sample_text">Dwadasha Stotra.mp3</string>
+</resources>
