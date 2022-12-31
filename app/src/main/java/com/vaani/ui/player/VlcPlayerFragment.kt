@@ -3,16 +3,19 @@ package com.vaani.ui.player
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.vaani.R
 import com.vaani.models.File
 import com.vaani.models.PlayBack
+import com.vaani.util.TAG
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
 import org.videolan.libvlc.MediaPlayer
 import org.videolan.libvlc.util.VLCVideoLayout
+import kotlin.math.log
 
 
 class VlcPlayerFragment(private val file: File?) :
@@ -29,7 +32,6 @@ class VlcPlayerFragment(private val file: File?) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activity?.actionBar?.hide()
         // file not passed if not playing new media
         if (file != null) {
             updateCurrentPlayback(file)

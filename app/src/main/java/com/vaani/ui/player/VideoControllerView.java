@@ -24,9 +24,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
 import com.vaani.R;
-import com.vaani.ui.player.VideoGestureListener;
-import com.vaani.ui.player.ViewAnimator;
-import com.vaani.ui.player.ViewGestureListener;
 
 import java.lang.ref.WeakReference;
 import java.util.Formatter;
@@ -78,7 +75,6 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
     //top layout
     private View mTopLayout;
     private ImageButton mBackButton;
-    private TextView mTitleText;
 
     //center layout
     private View mCenterLayout;
@@ -276,9 +272,6 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
             mBackButton.requestFocus();
             mBackButton.setOnClickListener(mBackListener);
         }
-
-        mTitleText = mRootView.findViewById(R.id.top_title);
-
         //center layout
         mCenterLayout = mRootView.findViewById(R.id.layout_center);
         mCenterLayout.setVisibility(GONE);
@@ -466,7 +459,6 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
                 mCurrentTime.setText(stringToTime(duration));
             }
         }
-        mTitleText.setText(mVideoTitle);
         return position;
     }
 

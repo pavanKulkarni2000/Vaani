@@ -20,16 +20,6 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:src="@drawable/close_40px" />
-
-        <TextView
-            android:id="@+id/top_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="直播直播"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
     </RelativeLayout>
 
     <LinearLayout
