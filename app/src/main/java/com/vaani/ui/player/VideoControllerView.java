@@ -21,7 +21,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
 
 import com.vaani.R;
 
@@ -53,28 +52,21 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
     private GestureDetector mGestureDetector;//gesture detector
 
     private Activity mContext;
-    private boolean mCanSeekVideo;
-    private boolean mCanControlVolume;
-    private boolean mCanControlBrightness;
-    private String mVideoTitle;
     private MediaPlayerControlListener mMediaPlayerControlListener;
     private ViewGroup mAnchorView;
     private SurfaceView mSurfaceView;
 
     @DrawableRes
-    private int mExitIcon;
+    private int mPauseIcon=R.drawable.mediacontroller_pause_40px;
     @DrawableRes
-    private int mPauseIcon;
+    private int mPlayIcon=R.drawable.mediacontroller_play_arrow_40px;
     @DrawableRes
-    private int mPlayIcon;
+    private int mShrinkIcon = R.drawable.mediacontroller_fullscreen_exit_40px;
     @DrawableRes
-    private int mShrinkIcon;
-    @DrawableRes
-    private int mStretchIcon;
+    private int mStretchIcon = R.drawable.mediacontroller_fullscreen_40px;
 
     //top layout
     private View mTopLayout;
-    private ImageButton mBackButton;
 
     //center layout
     private View mCenterLayout;
@@ -90,126 +82,18 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
     private ImageButton mPauseButton;
     private ImageButton mFullscreenButton;
 
-    private Handler mHandler = new ControllerViewHandler(this);
+    private final Handler mHandler = new ControllerViewHandler(this);
 
-    public VideoControllerView(Builder builder) {
-        super(builder.context);
-        this.mContext = builder.context;
-        this.mMediaPlayerControlListener = builder.mediaPlayerControlListener;
-
-        this.mVideoTitle = builder.videoTitle;
-        this.mCanSeekVideo = builder.canSeekVideo;
-        this.mCanControlVolume = builder.canControlVolume;
-        this.mCanControlBrightness = builder.canControlBrightness;
-        this.mExitIcon = builder.exitIcon;
-        this.mPauseIcon = builder.pauseIcon;
-        this.mPlayIcon = builder.playIcon;
-        this.mStretchIcon = builder.stretchIcon;
-        this.mShrinkIcon = builder.shrinkIcon;
-        this.mSurfaceView = builder.surfaceView;
-
-        setAnchorView(builder.anchorView);
-        this.mSurfaceView.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                toggleControllerView();
-                return false;
-            }
+    public VideoControllerView(Activity context, SurfaceView surfaceView, ViewGroup anchorView, MediaPlayerControlListener mediaPlayerControlListener) {
+        super(context);
+        this.mContext = context;
+        this.mMediaPlayerControlListener = mediaPlayerControlListener;
+        this.mSurfaceView = surfaceView;
+        setAnchorView(anchorView);
+        this.mSurfaceView.setOnTouchListener((v, event) -> {
+            toggleControllerView();
+            return false;
         });
-    }
-
-    public static class Builder {
-
-        private Activity context;
-        private boolean canSeekVideo = true;
-        private boolean canControlVolume = true;
-        private boolean canControlBrightness = true;
-        private String videoTitle = "";
-        private MediaPlayerControlListener mediaPlayerControlListener;
-        private ViewGroup anchorView;
-        private SurfaceView surfaceView;
-        @DrawableRes
-        private int exitIcon = R.drawable.close_40px;
-        @DrawableRes
-        private int pauseIcon = R.drawable.pause_48px;
-        @DrawableRes
-        private int playIcon = R.drawable.play_arrow_48px;
-        @DrawableRes
-        private int shrinkIcon = R.drawable.fullscreen_exit_40px;
-        @DrawableRes
-        private int stretchIcon = R.drawable.fullscreen_40px;
-
-        //Required
-        public Builder(@Nullable Activity context,@Nullable MediaPlayerControlListener mediaControlListener){
-            this.context = context;
-            this.mediaPlayerControlListener = mediaControlListener;
-        }
-        public Builder with(@Nullable Activity context) {
-            this.context = context;
-            return this;
-        }
-
-        public Builder withMediaControlListener(@Nullable MediaPlayerControlListener mediaControlListener) {
-            this.mediaPlayerControlListener = mediaControlListener;
-            return this;
-        }
-
-        //Options
-        public Builder withVideoTitle(String videoTitle) {
-            this.videoTitle = videoTitle;
-            return this;
-        }
-
-        public Builder withVideoSurfaceView(@Nullable SurfaceView surfaceView){
-            this.surfaceView = surfaceView;
-            return this;
-        }
-
-        public Builder exitIcon(@DrawableRes int exitIcon) {
-            this.exitIcon = exitIcon;
-            return this;
-        }
-
-        public Builder pauseIcon(@DrawableRes int pauseIcon) {
-            this.pauseIcon = pauseIcon;
-            return this;
-        }
-
-        public Builder playIcon(@DrawableRes int playIcon) {
-            this.playIcon = playIcon;
-            return this;
-        }
-
-        public Builder shrinkIcon(@DrawableRes int shrinkIcon) {
-            this.shrinkIcon = shrinkIcon;
-            return this;
-        }
-
-        public Builder stretchIcon(@DrawableRes int stretchIcon) {
-            this.stretchIcon = stretchIcon;
-            return this;
-        }
-
-        public Builder canSeekVideo(boolean canSeekVideo) {
-            this.canSeekVideo = canSeekVideo;
-            return this;
-        }
-
-        public Builder canControlVolume(boolean canControlVolume) {
-            this.canControlVolume = canControlVolume;
-            return this;
-        }
-
-        public Builder canControlBrightness(boolean canControlBrightness) {
-            this.canControlBrightness = canControlBrightness;
-            return this;
-        }
-
-        public VideoControllerView build(@Nullable ViewGroup anchorView) {
-            this.anchorView = anchorView;
-            return new VideoControllerView(this);
-        }
-
     }
 
     /**
@@ -266,11 +150,10 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
     private void initControllerView() {
         //top layout
         mTopLayout = mRootView.findViewById(R.id.layout_top);
-        mBackButton = mRootView.findViewById(R.id.top_back);
-        mBackButton.setImageResource(mExitIcon);
-        if (mBackButton != null) {
-            mBackButton.requestFocus();
-            mBackButton.setOnClickListener(mBackListener);
+        ImageButton closeButton = mRootView.findViewById(R.id.top_back);
+        if (closeButton != null) {
+            closeButton.requestFocus();
+            closeButton.setOnClickListener(mBackListener);
         }
         //center layout
         mCenterLayout = mRootView.findViewById(R.id.layout_center);
@@ -644,10 +527,8 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
      */
     private void setGestureListener() {
 
-        if(mCanControlVolume) {
             mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        }
 
         mGestureDetector = new GestureDetector(mContext, new ViewGestureListener(mContext, this));
     }
@@ -660,13 +541,11 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
 
     @Override
     public void onHorizontalScroll(boolean seekForward) {
-        if (mCanSeekVideo) {
             if (seekForward) {// seek forward
                 seekForWard();
             } else {  //seek backward
                 seekBackWard();
             }
-        }
     }
 
     private void seekBackWard() {
@@ -698,15 +577,11 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
     @Override
     public void onVerticalScroll(float percent, int direction) {
         if (direction == ViewGestureListener.SWIPE_LEFT) {
-            if(mCanControlBrightness) {
-                mCenterImage.setImageResource(R.drawable.brightness_medium_48px);
+                mCenterImage.setImageResource(R.drawable.mediacontroller_brightness_medium_48px);
                 updateBrightness(percent);
-            }
         } else {
-            if(mCanControlVolume) {
-                mCenterImage.setImageResource(R.drawable.volume_up_48px);
+                mCenterImage.setImageResource(R.drawable.mediacontroller_volume_up_48px);
                 updateVolume(percent);
-            }
         }
     }
 

@@ -58,8 +58,8 @@ class FavouriteAdapter(
             fileText.text = file.name
             fileIcon.setImageResource(
                 when (file.isAudio) {
-                    true -> R.drawable.music_note_40px
-                    false -> R.drawable.movie_40px
+                    true -> R.drawable.foldermedia_music_note_40px
+                    false -> R.drawable.foldermedia_movie_40px
                 }
             )
         }

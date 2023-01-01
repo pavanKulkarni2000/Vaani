@@ -16,7 +16,6 @@
 
 package com.vaani.ui.folderMediaList
 
-import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.Menu
@@ -27,8 +26,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
 import com.vaani.models.File
-import com.vaani.util.TAG
-import kotlin.math.log
 
 class FileAdapter(
     private var files: List<File>,
@@ -65,8 +62,8 @@ class FileAdapter(
             fileText.text = file.name
             fileIcon.setImageResource(
                 when (file.isAudio) {
-                    true -> R.drawable.music_note_40px
-                    false -> R.drawable.movie_40px
+                    true -> R.drawable.foldermedia_music_note_40px
+                    false -> R.drawable.foldermedia_movie_40px
                 }
             )
             itemView.setOnCreateContextMenuListener { contextMenu, _, _ ->

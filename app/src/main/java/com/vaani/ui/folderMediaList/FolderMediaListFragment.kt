@@ -1,17 +1,9 @@
 package com.vaani.ui.folderMediaList
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
-import android.text.style.ImageSpan
-import android.util.TypedValue
-import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import androidx.appcompat.view.menu.MenuBuilder
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -56,7 +48,7 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
         override fun onOptions(file: File, view: View) {
             val popup = PopupMenu(context!!, view)
             popup.menu.add(getString(R.string.favourite_selector_label)).apply {
-                setIcon(R.drawable.favorite_filled_24px)
+                setIcon(R.drawable.foldermedia_favorite_filled_24px)
                 setOnMenuItemClickListener {
                     try {
                         favouriteViewModel.addFavourite(file)

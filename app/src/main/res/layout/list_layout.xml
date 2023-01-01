@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:contentDescription="@string/fab_content_description"
-        android:src="@drawable/play_arrow_40px"
+        android:src="@drawable/mediacontroller_play_arrow_48px"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

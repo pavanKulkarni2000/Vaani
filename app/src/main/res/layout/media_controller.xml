@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:background="#CC000000"
         android:minHeight="42dp"
         android:padding="9dp">
 
@@ -18,28 +17,25 @@
             android:id="@+id/top_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@null"
-            android:src="@drawable/close_40px" />
+            android:background="@drawable/mediacontroller_round_bg"
+            android:layout_alignParentEnd="true"
+            android:padding="6dp"
+            android:src="@drawable/mediacontroller_close_40px" />
     </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:background="#aa000000"
+        android:padding="9dp">
 
     <LinearLayout
         android:id="@+id/layout_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#CC000000"
-        android:gravity="center"
-        android:minHeight="42dp"
-        android:orientation="horizontal"
-        android:padding="9dp">
-
-        <ImageButton
-            android:id="@+id/bottom_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
-            android:background="@null"
-            android:src="@drawable/play_arrow_48px" />
+        android:orientation="horizontal">
 
 
         <TextView
@@ -73,13 +69,52 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/bottom_fullscreen"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:background="@null"
-            android:src="@drawable/fullscreen_40px" />
+    </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/bottom_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:paddingHorizontal="16dp"
+                android:background="@null"
+                android:src="@drawable/mediacontroller_play_arrow_40px" />
+
+
+            <ImageButton
+                android:id="@+id/previous_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/bottom_pause"
+                android:layout_centerInParent="true"
+                android:paddingHorizontal="16dp"
+                android:background="@null"
+                android:src="@drawable/mediacontroller_skip_previous_40px" />
+
+
+            <ImageButton
+                android:id="@+id/next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/bottom_pause"
+                android:layout_centerInParent="true"
+                android:paddingHorizontal="16dp"
+                android:background="@null"
+                android:src="@drawable/mediacontroller_skip_next_40px" />
+
+            <ImageButton
+                android:id="@+id/bottom_fullscreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerInParent="true"
+                android:background="@null"
+                android:src="@drawable/mediacontroller_fullscreen_40px" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 
@@ -95,7 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/volume_up_48px" />
+            android:src="@drawable/mediacontroller_volume_up_48px" />
 
         <ProgressBar
             android:id="@+id/progress_center"
@@ -106,7 +141,7 @@
             android:layout_marginTop="35dp"
             android:max="100"
             android:progress="20"
-            android:progressDrawable="@drawable/layer_progress"
+            android:progressDrawable="@drawable/mediacontroller_layer_progress"
             android:visibility="visible" />
     </FrameLayout>
 

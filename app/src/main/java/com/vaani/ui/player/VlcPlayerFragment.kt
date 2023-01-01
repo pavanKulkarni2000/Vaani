@@ -49,9 +49,7 @@ class VlcPlayerFragment(private val file: File?) :
         mediaPlayer.attachViews(vlcVideoLayout, null, false, false)
 
         controller =
-            VideoControllerView.Builder(requireActivity(), playerInterface)
-                .withVideoSurfaceView(vlcVideoLayout.findViewById(org.videolan.R.id.surface_video))
-                .build(vlcVideoLayout)
+            VideoControllerView(requireActivity(),vlcVideoLayout.findViewById(org.videolan.R.id.surface_video),vlcVideoLayout, playerInterface)
     }
 
     private fun updateCurrentPlayback(file: File) {

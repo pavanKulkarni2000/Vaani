@@ -34,7 +34,7 @@
             android:contentDescription="@string/file_type_label"
             android:paddingVertical="4dp"
             android:paddingHorizontal="12dp"
-            android:src="@drawable/folder_48px" />
+            android:src="@drawable/folders_folder_48px" />
 
         <TextView
             style="@style/TextAppearance.Material3.BodyLarge"
