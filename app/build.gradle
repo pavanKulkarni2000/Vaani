@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.kapt'
-    id 'io.objectbox'
+    id 'io.realm.kotlin'
 }
 
 android {
@@ -45,7 +45,10 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.5.5"
     // VLC - to play media
     implementation 'org.videolan.android:libvlc-all:3.1.12'
+    // realm DB
+    implementation 'io.realm.kotlin:library-base:1.5.1'
 
+    // test dependency
     testImplementation 'junit:junit:4.13.2'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'

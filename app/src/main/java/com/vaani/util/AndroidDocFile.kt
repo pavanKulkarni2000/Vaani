@@ -6,6 +6,7 @@ import com.vaani.models.FileType
 import com.vaani.models.Folder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.mongodb.kbson.ObjectId
 
 class AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     override suspend fun listFolder(folder: DocumentFile): List<DocumentFile> {
@@ -19,7 +20,8 @@ class AndroidDocFile : AndroidGenericFileType<DocumentFile> {
             name = androidFile.name ?: Constants.UNNAMED_FILE,
             isAudio = isAudio,
             path = androidFile.uri.toString(),
-            isUri = true
+            isUri = true,
+            folderId = ObjectId.invoke()
         )
     }
 

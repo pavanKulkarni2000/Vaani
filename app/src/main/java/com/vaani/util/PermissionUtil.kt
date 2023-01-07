@@ -15,60 +15,60 @@ import com.vaani.MainActivity
 
 object PermissionUtil {
 
-fun managePermissions(mainActivity: MainActivity) {
-    if (!checkAllFileAccess()) {
-        requestAllFilesPermission(mainActivity.packageName, mainActivity.activityWithResultLauncher)
+    fun managePermissions(mainActivity: MainActivity) {
+        if (!checkAllFileAccess()) {
+            requestAllFilesPermission(mainActivity.packageName, mainActivity.activityWithResultLauncher)
+        }
+        if (!checkOtherFilePermissions(mainActivity.applicationContext)) {
+            requestOtherFilePermissions(mainActivity.requestPermissionLauncher)
+        }
+        if (!checkAndroidFolderAccess("data", mainActivity.contentResolver)) {
+            requestAndroidFolderPermission("data", mainActivity.docTreeLauncher)
+        }
+        if (!checkAndroidFolderAccess("obb", mainActivity.contentResolver)) {
+            requestAndroidFolderPermission("obb", mainActivity.docTreeLauncher)
+        }
     }
-    if (!checkOtherFilePermissions(mainActivity.applicationContext)) {
-        requestOtherFilePermissions(mainActivity.requestPermissionLauncher)
+
+    private fun checkAllFileAccess(): Boolean {
+        return Environment.isExternalStorageManager()
     }
-    if (!checkAndroidFolderAccess("data", mainActivity.contentResolver)) {
-        requestAndroidFolderPermission("data", mainActivity.docTreeLauncher)
+
+    private fun checkOtherFilePermissions(context: Context): Boolean {
+        return context.checkSelfPermission(READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                context.checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
     }
-    if (!checkAndroidFolderAccess("obb", mainActivity.contentResolver)) {
-        requestAndroidFolderPermission("obb", mainActivity.docTreeLauncher)
+
+    private fun checkAndroidFolderAccess(folder: String, contentResolver: ContentResolver): Boolean {
+        val uri = Uri.parse(FileUtil.androidFolderTreeUriStr(folder))
+        return contentResolver.persistedUriPermissions.any { element: UriPermission ->
+            element.uri == uri &&
+                    element.isReadPermission &&
+                    element.isWritePermission
+        }
     }
-}
 
-private fun checkAllFileAccess(): Boolean {
-    return Environment.isExternalStorageManager()
-}
-
-private fun checkOtherFilePermissions(context: Context): Boolean {
-    return context.checkSelfPermission(READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-            context.checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-}
-
-private fun checkAndroidFolderAccess(folder: String, contentResolver: ContentResolver): Boolean {
-    val uri = Uri.parse(FileUtil.androidFolderTreeUriStr(folder))
-    return contentResolver.persistedUriPermissions.any { element: UriPermission ->
-        element.uri == uri &&
-                element.isReadPermission &&
-                element.isWritePermission
+    private fun requestAllFilesPermission(
+        packageName: String,
+        activityWithResultLauncher: ActivityResultLauncher<Intent>
+    ) {
+        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+        intent.addCategory("android.intent.category.DEFAULT")
+        intent.data = Uri.fromParts("package", packageName, null)
+        activityWithResultLauncher.launch(intent)
     }
-}
 
-private fun requestAllFilesPermission(
-    packageName: String,
-    activityWithResultLauncher: ActivityResultLauncher<Intent>
-) {
-    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-    intent.addCategory("android.intent.category.DEFAULT")
-    intent.data = Uri.fromParts("package", packageName, null)
-    activityWithResultLauncher.launch(intent)
-}
+    private fun requestAndroidFolderPermission(
+        folder: String,
+        docTreeLauncher: ActivityResultLauncher<Uri?>,
+    ) {
+        val uri = Uri.parse(FileUtil.androidFolderTreeUriStr(folder).replace("tree", "document"))
+        docTreeLauncher.launch(uri)
 
-private fun requestAndroidFolderPermission(
-    folder: String,
-    docTreeLauncher: ActivityResultLauncher<Uri?>,
-) {
-    val uri = Uri.parse(FileUtil.androidFolderTreeUriStr(folder).replace("tree", "document"))
-    docTreeLauncher.launch(uri)
+    }
 
-}
-
-private fun requestOtherFilePermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
-    requestPermissionLauncher.launch(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
-}
+    private fun requestOtherFilePermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
+        requestPermissionLauncher.launch(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
+    }
 
 }

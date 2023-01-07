@@ -37,10 +37,10 @@ class FileAdapter(
     inner class FileViewHolder(
         itemView: View, fileCallbacks: FileCallbacks
     ) :
-        RecyclerView.ViewHolder(itemView) , View.OnCreateContextMenuListener{
+        RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener {
         private val fileText: TextView = itemView.findViewById(R.id.file_text)
         private val fileIcon: ImageView = itemView.findViewById(R.id.file_image)
-        private val optionsIcon : ImageView = itemView.findViewById(R.id.options_icon)
+        private val optionsIcon: ImageView = itemView.findViewById(R.id.options_icon)
         private var currentFile: File? = null
 
         init {
@@ -50,7 +50,7 @@ class FileAdapter(
                 }
             }
             optionsIcon.setOnClickListener {
-                currentFile?.let { file->
+                currentFile?.let { file ->
                     fileCallbacks.onOptions(file, it)
                 }
             }
@@ -75,7 +75,7 @@ class FileAdapter(
         }
 
         override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-            menu?.add(Menu.NONE,v?.id?:0,Menu.NONE,"Favourite")
+            menu?.add(Menu.NONE, v?.id ?: 0, Menu.NONE, "Favourite")
         }
     }
 

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
+import com.vaani.models.Favourite
 import com.vaani.models.File
 import com.vaani.ui.player.VlcPlayerFragment
 import com.vaani.util.EmptyItemDecoration
@@ -20,9 +21,24 @@ import kotlinx.coroutines.Job
 class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
 
     private lateinit var refreshLayout: SwipeRefreshLayout
-    private val favouriteViewModel: FavouriteViewModel by viewModels()
+    private val favouriteViewModel: FavouriteViewModel by viewModels{
+        FavouriteViewModel.Factory(requireActivity().application)
+    }
     private val job = Job()
     private val scope = CoroutineScope(job)
+    private val favouriteCallbacks = object : FavouriteCallbacks{
+        override fun onClick(favourite: Favourite) {
+            requireParentFragment().parentFragmentManager.commit {
+            add(R.id.fragment_container_view, VlcPlayerFragment(favourite.file), TAG)
+            addToBackStack(null)
+        }
+        }
+
+        override fun onFavRemove(favourite: Favourite) {
+            favouriteViewModel.removeFavourite(favourite)
+        }
+
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,7 +47,8 @@ class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
 
 
     private fun initChildViews(view: View) {
-        val adapter = FavouriteAdapter(favouriteViewModel.favouriteMediaList.value?: emptyList(), ::mediaOnClick, ::favClick)
+        val adapter =
+            FavouriteAdapter(favouriteViewModel.favouriteMediaList.value ?: emptyList(),favouriteCallbacks)
 
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
@@ -47,19 +64,8 @@ class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
 //        refreshLayout.setOnRefreshListener(::refreshData)
     }
 
-    private fun favClick(file: File) {
-
-    }
-
     private fun playMedia() {
         TODO("Not yet implemented")
-    }
-
-    private fun mediaOnClick(file: File) {
-        parentFragmentManager.commit {
-            add(R.id.fragment_container_view, VlcPlayerFragment(file), TAG)
-            addToBackStack(null)
-        }
     }
 
 }

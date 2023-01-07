@@ -3,19 +3,17 @@ package com.vaani.ui.player
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.vaani.R
 import com.vaani.models.File
 import com.vaani.models.PlayBack
-import com.vaani.util.TAG
+import org.videolan.libvlc.IVLCVout
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
 import org.videolan.libvlc.MediaPlayer
 import org.videolan.libvlc.util.VLCVideoLayout
-import kotlin.math.log
 
 
 class VlcPlayerFragment(private val file: File?) :
@@ -46,15 +44,22 @@ class VlcPlayerFragment(private val file: File?) :
 
         vlcVideoLayout = view.findViewById(R.id.video_layout)
 
+        if(currentPlayBack?.file?.isAudio == false)
         mediaPlayer.attachViews(vlcVideoLayout, null, false, false)
 
         controller =
-            VideoControllerView(requireActivity(),vlcVideoLayout.findViewById(org.videolan.R.id.surface_video),vlcVideoLayout, playerInterface)
+            VideoControllerView(
+                requireActivity(),
+                vlcVideoLayout.findViewById(org.videolan.R.id.surface_video),
+                vlcVideoLayout,
+                playerInterface
+            )
     }
 
     private fun updateCurrentPlayback(file: File) {
         currentPlayBack?.let {
             if (it.file == file) {
+                it.mediaPlayer.play()
                 return
             }
             it.mediaPlayer.release()
@@ -97,33 +102,27 @@ class VlcPlayerFragment(private val file: File?) :
             mediaPlayer.pause()
         }
 
-        override fun getDuration(): Int {
-            return mediaPlayer.length.toInt()
-        }
+        override val duration: Int
+            get() =  mediaPlayer.length.toInt()
 
-        override fun getCurrentPosition(): Int {
-            return (mediaPlayer.position * duration).toInt()
-        }
+        override val currentPosition: Int
+            get() = (mediaPlayer.position * duration).toInt()
 
         override fun seekTo(pos: Int) {
             mediaPlayer.position = pos.toFloat() / duration
         }
 
-        override fun isPlaying(): Boolean {
-            return mediaPlayer.isPlaying
-        }
+        override val isPlaying: Boolean
+            get() = mediaPlayer.isPlaying
 
-        override fun isComplete(): Boolean {
-            return currentPosition == duration
-        }
+        override val isComplete: Boolean
+            get() = currentPosition == duration
 
-        override fun getBufferPercentage(): Int {
-            return 0
-        }
+        override val bufferPercentage: Int
+            get() = 0
 
-        override fun isFullScreen(): Boolean {
-            return requireActivity().requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        }
+        override val isFullScreen: Boolean
+            get() =  requireActivity().requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         override fun toggleFullScreen() {
             if (isFullScreen) {
@@ -135,6 +134,14 @@ class VlcPlayerFragment(private val file: File?) :
         }
 
         override fun exit() {
+            currentPlayBack?.let {
+                it.vlc.compiler()
+                it.mediaPlayer.apply {
+                    stop()
+                    release()
+                }
+                currentPlayBack = null
+            }
             parentFragmentManager.popBackStack()
         }
 

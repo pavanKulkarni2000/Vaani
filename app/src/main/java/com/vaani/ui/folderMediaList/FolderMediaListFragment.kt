@@ -17,7 +17,6 @@ import com.vaani.ui.home.favouriteList.FavouriteViewModel
 import com.vaani.ui.player.VlcPlayerFragment
 import com.vaani.util.EmptyItemDecoration
 import com.vaani.util.TAG
-import io.objectbox.exception.UniqueViolationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,7 +29,9 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
     private val folderMediaViewModel: FolderMediaViewModel by viewModels {
         FolderMediaViewModel.Factory(requireActivity().application, currentFolder)
     }
-    private val favouriteViewModel: FavouriteViewModel by viewModels()
+    private val favouriteViewModel: FavouriteViewModel by viewModels{
+        FavouriteViewModel.Factory(requireActivity().application)
+    }
     private val job = Job()
     private val scope = CoroutineScope(job)
     private val fileCallbacks = object : FileCallbacks {
@@ -50,11 +51,7 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
             popup.menu.add(getString(R.string.favourite_selector_label)).apply {
                 setIcon(R.drawable.foldermedia_favorite_filled_24px)
                 setOnMenuItemClickListener {
-                    try {
                         favouriteViewModel.addFavourite(file)
-                    }catch (_:UniqueViolationException){
-                        Toast.makeText(requireContext(), "Already favourite", Toast.LENGTH_SHORT).show()
-                    }
                     true
                 }
             }

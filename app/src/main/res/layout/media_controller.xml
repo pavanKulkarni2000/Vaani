@@ -14,15 +14,16 @@
         android:padding="9dp">
 
         <ImageButton
-            android:id="@+id/top_back"
+            android:id="@+id/close_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/mediacontroller_round_bg"
+            android:background="@drawable/mediacontroller_circle"
             android:layout_alignParentEnd="true"
             android:padding="6dp"
             android:src="@drawable/mediacontroller_close_40px" />
     </RelativeLayout>
     <LinearLayout
+        android:id="@+id/layout_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -32,7 +33,6 @@
         android:padding="9dp">
 
     <LinearLayout
-        android:id="@+id/layout_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -49,10 +49,9 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <SeekBar
+        <com.google.android.material.slider.Slider
             android:id="@+id/bottom_seekbar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="0dip"
+            android:layout_width="0dp"
             android:layout_height="32dip"
             android:layout_gravity="center_vertical"
             android:layout_weight="1" />
@@ -123,6 +122,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:background="@drawable/mediacontroller_sqaure"
+        android:padding="16dp"
         android:visibility="visible">
 
         <ImageView
@@ -130,18 +131,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:padding="8dp"
             android:src="@drawable/mediacontroller_volume_up_48px" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_center"
-            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="80dp"
-            android:layout_height="5dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="35dp"
+            android:layout_height="16dp"
+            android:layout_gravity="bottom"
             android:max="100"
-            android:progress="20"
-            android:progressDrawable="@drawable/mediacontroller_layer_progress"
+            android:progress="80"
             android:visibility="visible" />
     </FrameLayout>
 

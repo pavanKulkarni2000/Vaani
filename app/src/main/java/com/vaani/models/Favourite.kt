@@ -1,15 +1,12 @@
 package com.vaani.models
 
-import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Id
-import io.objectbox.annotation.Unique
+import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
-@Entity
-data class Favourite(
-    @Id
-    var id:Long = 0,
-    @Unique
-    var fileId:Long = 0,
-    @Unique
-    var rank: Int =0
-)
+class Favourite(
+    var file: File? = null
+) : RealmObject {
+    @PrimaryKey
+    var rank: Int = 0
+    constructor() : this(File())
+}

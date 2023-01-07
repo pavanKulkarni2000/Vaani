@@ -1,22 +1,22 @@
-package com.vaani.ui.player;
+package com.vaani.ui.player
 
 /**
  * Created by Brucetoo
  * On 2015/10/21
  * At 10:48
  */
-public interface VideoGestureListener {
+interface VideoGestureListener {
     /**
      * single tap controller view
      */
-    void onSingleTap();
+    fun onSingleTap()
 
     /**
      * Horizontal scroll to control progress of video
      *
      * @param seekForward seek to forward or not
      */
-    void onHorizontalScroll(boolean seekForward);
+    fun onHorizontalScroll(seekForward: Boolean)
 
     /**
      * vertical scroll listen
@@ -24,5 +24,5 @@ public interface VideoGestureListener {
      * @param percent   swipe percent
      * @param direction left or right edge for control brightness or volume
      */
-    void onVerticalScroll(float percent, int direction);
+    fun onVerticalScroll(percent: Float, direction: Int)
 }

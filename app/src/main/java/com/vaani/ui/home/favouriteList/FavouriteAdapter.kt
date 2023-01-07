@@ -24,40 +24,38 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
-import com.vaani.models.File
+import com.vaani.models.Favourite
 import com.vaani.util.TAG
 
 class FavouriteAdapter(
-    private var files: List<File>,
-    private val onClick: (File) -> Unit,
-    private val onFavClick: (File) -> Unit
+    private var files: List<Favourite>,
+    private val favouriteCallbacks: FavouriteCallbacks
 ) :
-    RecyclerView.Adapter<FavouriteAdapter.FileViewHolder>() {
+    RecyclerView.Adapter<FavouriteAdapter.FavouriteViewHolder>() {
 
     /* ViewHolder for Flower, takes in the inflated view and the onClick behavior. */
-    inner class FileViewHolder(
-        itemView: View, val onClick: (File) -> Unit,
-        private val onFavClick: (File) -> Unit
+    inner class FavouriteViewHolder(
+        itemView: View, private val favouriteCallbacks: FavouriteCallbacks
     ) :
         RecyclerView.ViewHolder(itemView) {
         private val fileText: TextView = itemView.findViewById(R.id.file_text)
         private val fileIcon: ImageView = itemView.findViewById(R.id.file_image)
-        private var currentFile: File? = null
+        private var currentFile: Favourite? = null
 
         init {
             itemView.setOnClickListener {
                 currentFile?.let {
-                    onClick(it)
+                    favouriteCallbacks.onClick(it)
                 }
             }
         }
 
         /* Bind flower name and image. */
-        fun bind(file: File) {
-            currentFile = file
-            fileText.text = file.name
+        fun bind(favourite: Favourite) {
+            currentFile = favourite
+            fileText.text = favourite.file!!.name
             fileIcon.setImageResource(
-                when (file.isAudio) {
+                when (favourite.file!!.isAudio) {
                     true -> R.drawable.foldermedia_music_note_40px
                     false -> R.drawable.foldermedia_movie_40px
                 }
@@ -65,21 +63,21 @@ class FavouriteAdapter(
         }
     }
 
-    fun updateList(newList: List<File>) {
+    fun updateList(newList: List<Favourite>) {
         Log.d(TAG, "updateList: update")
         files = newList
         notifyDataSetChanged()
     }
 
     /* Creates and inflates view and return FlowerViewHolder. */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavouriteViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.file_item, parent, false)
-        return FileViewHolder(view, onClick, onFavClick)
+        return FavouriteViewHolder(view, favouriteCallbacks)
     }
 
     /* Gets current flower and uses it to bind view. */
-    override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: FavouriteViewHolder, position: Int) {
         val flower = files[position]
         holder.bind(flower)
 

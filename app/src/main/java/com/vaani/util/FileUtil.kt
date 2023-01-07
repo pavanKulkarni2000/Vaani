@@ -9,7 +9,7 @@ import com.vaani.models.FileType
 import com.vaani.models.Folder
 import java.nio.file.Paths
 
-object FileUtil{
+object FileUtil {
 
     private const val primaryStorageRootPath = "/storage/emulated/0/"
 
@@ -17,11 +17,11 @@ object FileUtil{
 
     private val androidDocFile = AndroidDocFile()
 
-    suspend fun updatePrimaryStorageList(): List<Folder> {
+    suspend fun updatePrimaryStorageList(): Map<Folder, List<File>> {
         return androidPath.discoverRecursive(Paths.get(primaryStorageRootPath))
     }
 
-    suspend fun updateSecondaryStorageList(context: Context): List<Folder> {
+    suspend fun updateSecondaryStorageList(context: Context): Map<Folder, List<File>> {
         try {
             val externalCacheDirs: Array<java.io.File> = context.getExternalFilesDirs(null)
             for (file in externalCacheDirs) {
@@ -32,10 +32,10 @@ object FileUtil{
             }
         } catch (_: Exception) {
         }
-        return emptyList()
+        return emptyMap()
     }
 
-    suspend fun updateAndroidFolderList(context: Context): List<Folder> {
+    suspend fun updateAndroidFolderList(context: Context): Map<Folder, List<File>> {
         val data = DocumentFile.fromTreeUri(context, Uri.parse(androidFolderTreeUriStr("data")))!!
         return androidDocFile.discoverRecursive(data)
     }
@@ -62,7 +62,7 @@ object FileUtil{
         } ?: FileType.OTHER
     }
 
-     fun androidFolderTreeUriStr(folder: String): String {
+    fun androidFolderTreeUriStr(folder: String): String {
         return "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2F$folder"
     }
 }

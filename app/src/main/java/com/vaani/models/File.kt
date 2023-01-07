@@ -16,21 +16,23 @@
 
 package com.vaani.models
 
-import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Id
-import io.objectbox.annotation.Unique
+import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
+import org.mongodb.kbson.BsonObjectId
+import org.mongodb.kbson.ObjectId
 
-@Entity
-data class File(
-    @Id
-    var id: Long = 0,
-    var name: String = "",
-    var isAudio: Boolean = false,
-    @Unique
-    var path: String = "",
-    var isUri: Boolean = false,
-    var folderId: Long = -1
-) {
+class File(
+    var name: String ,
+    var isAudio: Boolean ,
+    var path: String ,
+    var isUri: Boolean ,
+    var folderId: BsonObjectId
+) : RealmObject {
+    @PrimaryKey
+    var id = ObjectId.invoke()
+    private set
+
+    constructor() : this("",false,"",false,ObjectId.invoke())
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as File).path == path)
 

@@ -16,15 +16,14 @@ import kotlinx.coroutines.launch
 
 class FolderMediaViewModel(application: Application, private val folder: Folder) : AndroidViewModel(application) {
 
-    private val _folderMediaList = MutableLiveData(DB.getFolderMediaList(folder))
+    private val _folderMediaList = MutableLiveData(DB.CRUD.getFolderMediaList(folder))
     val folderMediaList: LiveData<List<File>> = _folderMediaList
 
-    // You should call this to update you liveData
     suspend fun updateFolderMedia() {
         val mediaList = FileUtil.getMediaInFolder(getApplication(), folder)
-        DB.updateFolderMediaList(folder, mediaList)
+
         viewModelScope.launch(Dispatchers.Main) {
-            _folderMediaList.value = mediaList
+            _folderMediaList.value = DB.CRUD.upsertFolderMediaList(folder, mediaList)
         }
     }
 

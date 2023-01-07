@@ -16,17 +16,19 @@ import kotlinx.coroutines.launch
 
 class FoldersViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var _folderList = MutableLiveData(DB.getFolders())
+    private var _folderList = MutableLiveData(DB.CRUD.getFolders())
     val folderList = _folderList
 
     suspend fun refreshAllData() {
         coroutineScope {
             val differed1 = async { FileUtil.updatePrimaryStorageList() }
-            val differed2 = async { FileUtil.updateSecondaryStorageList(getApplication<Application>().applicationContext) }
+            val differed2 =
+                async { FileUtil.updateSecondaryStorageList(getApplication<Application>().applicationContext) }
             val differed3 = async { FileUtil.updateAndroidFolderList(getApplication<Application>().applicationContext) }
-            val list = (differed1.await() + differed2.await() + differed3.await())
+            val folderMedias = (differed1.await()  + differed2.await() + differed3.await())
+            val folders = DB.CRUD.upsertFolders(folderMedias.keys)
             viewModelScope.launch(Dispatchers.Main) {
-                _folderList.value = list
+                _folderList.value = folders
             }
         }
     }

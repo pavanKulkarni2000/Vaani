@@ -5,6 +5,7 @@ import com.vaani.models.FileType
 import com.vaani.models.Folder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.mongodb.kbson.ObjectId
 import java.net.URLConnection
 import java.nio.file.AccessDeniedException
 import java.nio.file.Files
@@ -35,7 +36,8 @@ class AndroidPath : AndroidGenericFileType<Path> {
             name = androidFile.fileName.toString(),
             isAudio = isAudio,
             path = androidFile.toString(),
-            isUri = false
+            isUri = false,
+            folderId = ObjectId.invoke()
         )
     }
 

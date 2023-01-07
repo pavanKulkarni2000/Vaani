@@ -7,11 +7,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import com.vaani.db.DB
-import com.vaani.db.ObjectBox
+import com.vaani.db.RealmDB
 import com.vaani.ui.home.HomePagerFragment
 import com.vaani.util.PermissionUtil
 import com.vaani.util.TAG
-
 
 class MainActivity : AppCompatActivity(R.layout.main_layout) {
 
@@ -20,7 +19,7 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
 
         PermissionUtil.managePermissions(this)
 
-        DB.init(applicationContext, ObjectBox)
+        DB.init(applicationContext,RealmDB)
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {

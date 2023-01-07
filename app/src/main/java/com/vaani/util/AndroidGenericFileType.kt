@@ -5,6 +5,8 @@ import com.vaani.models.File
 import com.vaani.models.FileType
 import com.vaani.models.Folder
 import java.util.*
+import kotlin.collections.LinkedHashMap
+import kotlin.collections.Map
 
 interface AndroidGenericFileType<T> {
     suspend fun listFolder(folder: T): List<T>
@@ -12,8 +14,8 @@ interface AndroidGenericFileType<T> {
     fun mimeType(file: T): FileType
     fun makeFolder(file: T, count: Int): Folder
 
-    suspend fun discoverRecursive(root: T): List<Folder> {
-        val result = LinkedList<Folder>()
+    suspend fun discoverRecursive(root: T): Map<Folder,List<File>> {
+        val result = LinkedHashMap<Folder,List<File>>()
         val stack = Stack<T>()
         stack.add(root)
         while (stack.isNotEmpty()) {
@@ -30,13 +32,10 @@ interface AndroidGenericFileType<T> {
                 }
             }
             if (mediaList.isNotEmpty()) {
-                val folderDBObj = makeFolder(folder, mediaList.size)
-                DB.updateFolder(folderDBObj)
-                DB.updateFolderMediaList(folderDBObj, mediaList)
-                result.add(folderDBObj)
+                val folderObj = makeFolder(folder, mediaList.size)
+                result[folderObj] = mediaList
             }
         }
-        DB.deleteFolderList(DB.getFolders() - result)
         return result
     }
 
