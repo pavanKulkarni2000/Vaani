@@ -3,13 +3,14 @@ package com.vaani.ui.player
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.vaani.R
 import com.vaani.models.File
 import com.vaani.models.PlayBack
-import org.videolan.libvlc.IVLCVout
+import com.vaani.util.TAG
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
 import org.videolan.libvlc.MediaPlayer
@@ -29,7 +30,6 @@ class VlcPlayerFragment(private val file: File?) :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // file not passed if not playing new media
         if (file != null) {
             updateCurrentPlayback(file)
@@ -44,8 +44,9 @@ class VlcPlayerFragment(private val file: File?) :
 
         vlcVideoLayout = view.findViewById(R.id.video_layout)
 
-        if(currentPlayBack?.file?.isAudio == false)
         mediaPlayer.attachViews(vlcVideoLayout, null, false, false)
+
+        mediaPlayer.setEventListener(vlcPlayerListener)
 
         controller =
             VideoControllerView(
@@ -64,10 +65,11 @@ class VlcPlayerFragment(private val file: File?) :
             }
             it.mediaPlayer.release()
         }
-        val vlc = LibVLC(requireContext())
+        val vlc = LibVLC(requireContext().applicationContext)
         val mediaPlayer = MediaPlayer(vlc)
         mediaPlayer.media = createMedia(file, vlc)
         mediaPlayer.play()
+        Log.d(TAG, "updateCurrentPlayback: ${mediaPlayer.position}")
         currentPlayBack = PlayBack(mediaPlayer, file, vlc)
     }
 
@@ -93,6 +95,13 @@ class VlcPlayerFragment(private val file: File?) :
         }
     }
 
+    private val vlcPlayerListener = MediaPlayer.EventListener{
+        event ->
+        when(event.type){
+            MediaPlayer.Event.Playing, MediaPlayer.Event.EndReached, MediaPlayer.Event.Paused, MediaPlayer.Event.Stopped -> {}
+        }
+    }
+
     private val playerInterface = object : VideoControllerView.MediaPlayerControlListener {
         override fun start() {
             mediaPlayer.play()
@@ -108,8 +117,8 @@ class VlcPlayerFragment(private val file: File?) :
         override val currentPosition: Int
             get() = (mediaPlayer.position * duration).toInt()
 
-        override fun seekTo(pos: Int) {
-            mediaPlayer.position = pos.toFloat() / duration
+        override fun seekTo(position: Int) {
+            mediaPlayer.position = position.toFloat() / duration
         }
 
         override val isPlaying: Boolean
