@@ -13,12 +13,8 @@ object FileUtil {
 
     private const val primaryStorageRootPath = "/storage/emulated/0/"
 
-    private val androidPath = AndroidPath()
-
-    private val androidDocFile = AndroidDocFile()
-
     suspend fun updatePrimaryStorageList(): Map<Folder, List<File>> {
-        return androidPath.discoverRecursive(Paths.get(primaryStorageRootPath))
+        return AndroidPath.discoverRecursive(Paths.get(primaryStorageRootPath))
     }
 
     suspend fun updateSecondaryStorageList(context: Context): Map<Folder, List<File>> {
@@ -27,7 +23,7 @@ object FileUtil {
             for (file in externalCacheDirs) {
                 if (Environment.isExternalStorageRemovable(file)) {
                     val path = file.path.split("/Android").toTypedArray()[0]
-                    return androidPath.discoverRecursive(Paths.get(path))
+                    return AndroidPath.discoverRecursive(Paths.get(path))
                 }
             }
         } catch (_: Exception) {
@@ -37,16 +33,16 @@ object FileUtil {
 
     suspend fun updateAndroidFolderList(context: Context): Map<Folder, List<File>> {
         val data = DocumentFile.fromTreeUri(context, Uri.parse(androidFolderTreeUriStr("data")))!!
-        return androidDocFile.discoverRecursive(data)
+        return AndroidDocFile.discoverRecursive(data)
     }
 
 
     suspend fun getMediaInFolder(context: Context, folder: Folder): List<File> {
         return if (folder.isUri) {
-            DocumentFile.fromTreeUri(context, Uri.parse(folder.path))?.let { androidDocFile.listFolderMedia(it) }
+            DocumentFile.fromTreeUri(context, Uri.parse(folder.path))?.let { AndroidDocFile.listFolderMedia(it) }
                 ?: emptyList()
         } else {
-            androidPath.listFolderMedia(Paths.get(folder.path))
+            AndroidPath.listFolderMedia(Paths.get(folder.path))
         }
     }
 
