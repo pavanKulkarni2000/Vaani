@@ -14,7 +14,7 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.name
 import kotlin.streams.toList
 
-class AndroidPath : AndroidGenericFileType<Path> {
+object AndroidPath : AndroidGenericFileType<Path> {
     override suspend fun listFolder(folder: Path): List<Path> {
         return try {
             withContext(Dispatchers.IO) {

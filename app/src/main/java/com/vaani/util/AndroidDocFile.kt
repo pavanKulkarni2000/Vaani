@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mongodb.kbson.ObjectId
 
-class AndroidDocFile : AndroidGenericFileType<DocumentFile> {
+object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     override suspend fun listFolder(folder: DocumentFile): List<DocumentFile> {
         return withContext(Dispatchers.IO) {
             folder.listFiles().toList()
@@ -26,6 +26,8 @@ class AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     }
 
     override fun mimeType(file: DocumentFile): FileType {
+        if(file.isDirectory)
+            return FileType.DIR
         return FileUtil.fileType(file.type)
     }
 
