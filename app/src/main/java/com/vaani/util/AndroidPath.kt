@@ -1,5 +1,9 @@
 package com.vaani.util
 
+import android.media.MediaMetadataRetriever
+import android.util.Log
+import com.bumptech.glide.Glide
+import com.vaani.MainActivity
 import com.vaani.models.File
 import com.vaani.models.FileType
 import com.vaani.models.Folder
@@ -32,16 +36,31 @@ object AndroidPath : AndroidGenericFileType<Path> {
     }
 
     override fun makeFile(androidFile: Path, isAudio: Boolean): File {
-        return File(
-            name = androidFile.fileName.toString(),
-            isAudio = isAudio,
-            path = androidFile.toString(),
-            isUri = false,
-            folderId = ObjectId.invoke()
-        )
+        var image : ByteArray?
+        try {
+            MediaMetadataRetriever().use {
+                it.setDataSource(androidFile.toString())
+                image = it.embeddedPicture
+                Log.d(TAG, "makeFile: ${image.toString()}")
+            }
+        }catch (e:Exception){
+            Log.e(TAG, "makeFile: exception",e )
+        }
+
+        return File().apply {
+            this.name = androidFile.fileName.toString()
+            this.isAudio = isAudio
+            this.path = androidFile.toString()
+            this.isUri = false
+        }
     }
 
     override fun makeFolder(file: Path, count: Int): Folder {
-        return Folder(name = file.fileName.toString(), path = file.toString(), isUri = false, items = count)
+        return Folder().apply {
+            this.name = file.fileName.toString()
+            this.path = file.toString()
+            this.isUri = false
+            this.items = count
+        }
     }
 }

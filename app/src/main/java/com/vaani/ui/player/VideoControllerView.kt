@@ -479,6 +479,11 @@ class VideoControllerView(
         }
     }
 
+    fun exit(){
+        mHandler.removeMessages(HANDLER_ANIMATE_OUT)
+        mHandler.removeMessages(HANDLER_UPDATE_PROGRESS)
+    }
+
     /**
      * Interface of Media Controller View Which can be callBack
      * when [android.media.MediaPlayer] or some other media

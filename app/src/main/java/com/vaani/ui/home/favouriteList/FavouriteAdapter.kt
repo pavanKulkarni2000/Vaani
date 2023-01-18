@@ -53,9 +53,9 @@ class FavouriteAdapter(
         /* Bind flower name and image. */
         fun bind(favourite: Favourite) {
             currentFile = favourite
-            fileText.text = favourite.file!!.name
+            fileText.text = favourite.file.target.name
             fileIcon.setImageResource(
-                when (favourite.file!!.isAudio) {
+                when (favourite.file.target.isAudio) {
                     true -> R.drawable.foldermedia_music_note_40px
                     false -> R.drawable.foldermedia_movie_40px
                 }

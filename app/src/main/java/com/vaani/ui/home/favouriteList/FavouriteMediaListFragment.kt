@@ -29,7 +29,7 @@ class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
     private val favouriteCallbacks = object : FavouriteCallbacks{
         override fun onClick(favourite: Favourite) {
             requireParentFragment().parentFragmentManager.commit {
-            add(R.id.fragment_container_view, VlcPlayerFragment(favourite.file), TAG)
+            add(R.id.fragment_container_view, VlcPlayerFragment(favourite.file.target), TAG)
             addToBackStack(null)
         }
         }

@@ -2,6 +2,7 @@ package com.vaani.util
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -10,24 +11,73 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.vaani.MainActivity
 
 object PermissionUtil {
 
-    fun managePermissions(mainActivity: MainActivity) {
+    fun managePermissions() {
+        val (activityWithResultLauncher, docTreeLauncher, requestPermissionLauncher) =
+        initLaunchers()
+
         if (!checkAllFileAccess()) {
-            requestAllFilesPermission(mainActivity.packageName, mainActivity.activityWithResultLauncher)
+            requestAllFilesPermission(MainActivity.application.packageName, activityWithResultLauncher)
         }
-        if (!checkOtherFilePermissions(mainActivity.applicationContext)) {
-            requestOtherFilePermissions(mainActivity.requestPermissionLauncher)
+        if (!checkOtherFilePermissions(MainActivity.context)) {
+            requestOtherFilePermissions(requestPermissionLauncher)
         }
-        if (!checkAndroidFolderAccess("data", mainActivity.contentResolver)) {
-            requestAndroidFolderPermission("data", mainActivity.docTreeLauncher)
+        if (!checkAndroidFolderAccess("data", MainActivity.contentResolver)) {
+            requestAndroidFolderPermission("data",docTreeLauncher)
         }
-        if (!checkAndroidFolderAccess("obb", mainActivity.contentResolver)) {
-            requestAndroidFolderPermission("obb", mainActivity.docTreeLauncher)
+        if (!checkAndroidFolderAccess("obb", MainActivity.contentResolver)) {
+            requestAndroidFolderPermission("obb", docTreeLauncher)
         }
+    }
+
+    private fun initLaunchers(): Triple<ActivityResultLauncher<Intent>, ActivityResultLauncher<Uri?>, ActivityResultLauncher<Array<String>>> {
+
+        val activityWithResultLauncher =
+            MainActivity.fragmentActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == AppCompatActivity.RESULT_OK) {
+                    val data: Intent? = result.data
+                    if (data != null) {
+                        data.data?.let { treeUri ->
+                            MainActivity.contentResolver.takePersistableUriPermission(
+                                treeUri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                            )
+                        }
+                    }
+                }
+            }
+
+        val docTreeLauncher =
+            MainActivity.fragmentActivity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { treeUri ->
+                if (treeUri != null) {
+                    MainActivity.contentResolver.takePersistableUriPermission(
+                        treeUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                }
+            }
+
+        val requestPermissionLauncher =
+            MainActivity.fragmentActivity.registerForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions()
+            ) {
+                it.forEach { entry: Map.Entry<String, Boolean> ->
+                    if (!entry.value) {
+                        Log.d(TAG, "${entry.key}: not allowed")
+                        MainActivity.fragmentActivity.finish()
+                    }
+                }
+            }
+        return Triple(activityWithResultLauncher, docTreeLauncher, requestPermissionLauncher)
     }
 
     private fun checkAllFileAccess(): Boolean {

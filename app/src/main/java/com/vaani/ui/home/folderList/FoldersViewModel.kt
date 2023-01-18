@@ -26,9 +26,16 @@ class FoldersViewModel(application: Application) : AndroidViewModel(application)
                 async { FileUtil.updateSecondaryStorageList(getApplication<Application>().applicationContext) }
             val differed3 = async { FileUtil.updateAndroidFolderList(getApplication<Application>().applicationContext) }
             val folderMedias = (differed1.await()  + differed2.await() + differed3.await())
-            val folders = DB.CRUD.upsertFolders(folderMedias.keys)
+            val dbFolders = DB.CRUD.upsertFolders(folderMedias.keys)
             viewModelScope.launch(Dispatchers.Main) {
-                _folderList.value = folders
+                _folderList.value = dbFolders
+            }
+            folderMedias.forEach{ (folder, mediaList) ->
+                dbFolders.first( folder::equals ).let {
+                    dbFolder ->
+                    mediaList.forEach { file -> file.folderId = dbFolder.id }
+                    DB.CRUD.upsertFolderMediaList(dbFolder, mediaList)
+                }
             }
         }
     }

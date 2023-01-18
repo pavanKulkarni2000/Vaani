@@ -16,6 +16,8 @@
 
 package com.vaani.ui.folderMediaList
 
+import android.graphics.BitmapFactory
+import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.Menu
@@ -26,6 +28,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
 import com.vaani.models.File
+import com.vaani.util.TAG
 
 class FileAdapter(
     private var files: List<File>,
@@ -60,12 +63,19 @@ class FileAdapter(
         fun bind(file: File) {
             currentFile = file
             fileText.text = file.name
-            fileIcon.setImageResource(
-                when (file.isAudio) {
-                    true -> R.drawable.foldermedia_music_note_40px
-                    false -> R.drawable.foldermedia_movie_40px
-                }
-            )
+            if(file.image==null) {
+                fileIcon.setImageResource(
+                    when (file.isAudio) {
+                        true -> R.drawable.foldermedia_music_note_40px
+                        false -> R.drawable.foldermedia_movie_40px
+                    }
+                )
+            }else{
+                Log.d(TAG, "bind: album art ")
+                fileIcon.setImageBitmap(
+                    BitmapFactory.decodeByteArray(file.image,0, file.image!!.size)
+                )
+            }
             itemView.setOnCreateContextMenuListener { contextMenu, _, _ ->
                 contextMenu.add("Add to favourites").setOnMenuItemClickListener {
                     fileCallbacks.onFavourite(file)

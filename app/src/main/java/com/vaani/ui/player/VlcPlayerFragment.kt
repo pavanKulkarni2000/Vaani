@@ -1,12 +1,18 @@
 package com.vaani.ui.player
 
 import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.vaani.MainActivity
 import com.vaani.R
 import com.vaani.models.File
 import com.vaani.models.PlayBack
@@ -21,7 +27,7 @@ class VlcPlayerFragment(private val file: File?) :
     Fragment(R.layout.vlc_player_layout) {
 
     companion object {
-        var currentPlayBack: PlayBack? = null
+        var currentPlayBack: PlayBack = PlayBack(null,null,null)
     }
 
     private lateinit var vlcVideoLayout: VLCVideoLayout
@@ -33,14 +39,14 @@ class VlcPlayerFragment(private val file: File?) :
         // file not passed if not playing new media
         if (file != null) {
             updateCurrentPlayback(file)
-        } else if (currentPlayBack == null) {
+        } else if (currentPlayBack.file == null) {
             // no file, no existing playback info
             Toast.makeText(requireContext(), "Nothing to play", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
             return
         }
 
-        mediaPlayer = currentPlayBack!!.mediaPlayer
+        mediaPlayer = currentPlayBack.mediaPlayer!!
 
         vlcVideoLayout = view.findViewById(R.id.video_layout)
 
@@ -48,29 +54,86 @@ class VlcPlayerFragment(private val file: File?) :
 
         mediaPlayer.setEventListener(vlcPlayerListener)
 
+        val surfaceView: SurfaceView = vlcVideoLayout.findViewById(org.videolan.R.id.surface_video)
+
+        if(currentPlayBack.file?.isAudio == true){
+            MainActivity.context.assets.run {
+                val imageName = list("player_images")!!.random()
+                open("player_images/$imageName").use {
+                    surfaceView.holder.addCallback(object : SurfaceHolder.Callback{
+                        val bitmap = BitmapFactory.decodeStream(it)
+                        override fun surfaceCreated(holder: SurfaceHolder) {
+                            val canvas = holder.lockCanvas()
+                            val scaleFactor =
+                                Math.min(canvas.width.toFloat() / bitmap.width, canvas.height.toFloat() / bitmap.height)
+                            val scaledBitmap = Bitmap.createScaledBitmap(
+                                bitmap,
+                                (bitmap.width * scaleFactor).toInt(),
+                                (bitmap.height * scaleFactor).toInt(),
+                                true
+                            )
+
+                            val x = (canvas.width - scaledBitmap.width).toFloat() / 2
+                            val y = (canvas.height - scaledBitmap.height).toFloat() / 2
+                            canvas.drawBitmap(scaledBitmap, x, y, null)
+                            holder.unlockCanvasAndPost(canvas)
+                            scaledBitmap.recycle()
+                        }
+
+                        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+                            val canvas: Canvas = holder.lockCanvas()
+                            val scaleFactor =
+                                Math.min(canvas.width.toFloat() / bitmap.width, canvas.height.toFloat() / bitmap.height)
+                            val scaledBitmap = Bitmap.createScaledBitmap(
+                                bitmap,
+                                (bitmap.width * scaleFactor).toInt(),
+                                (bitmap.height * scaleFactor).toInt(),
+                                true
+                            )
+
+                            val x = (canvas.width - scaledBitmap.width).toFloat() / 2
+                            val y = (canvas.height - scaledBitmap.height).toFloat() / 2
+                            canvas.drawBitmap(scaledBitmap, x, y, null)
+                            holder.unlockCanvasAndPost(canvas)
+                            scaledBitmap.recycle()
+                        }
+
+                        override fun surfaceDestroyed(holder: SurfaceHolder) {
+                            bitmap.recycle()
+                        }
+
+                    })
+                }
+            }
+        }
+
         controller =
             VideoControllerView(
                 requireActivity(),
-                vlcVideoLayout.findViewById(org.videolan.R.id.surface_video),
+                surfaceView,
                 vlcVideoLayout,
                 playerInterface
             )
     }
 
     private fun updateCurrentPlayback(file: File) {
-        currentPlayBack?.let {
-            if (it.file == file) {
-                it.mediaPlayer.play()
+        currentPlayBack.file?.let {
+            if (it == file) {
+                currentPlayBack.mediaPlayer?.play()
                 return
             }
-            it.mediaPlayer.release()
+            currentPlayBack.mediaPlayer?.release()
         }
         val vlc = LibVLC(requireContext().applicationContext)
         val mediaPlayer = MediaPlayer(vlc)
         mediaPlayer.media = createMedia(file, vlc)
         mediaPlayer.play()
         Log.d(TAG, "updateCurrentPlayback: ${mediaPlayer.position}")
-        currentPlayBack = PlayBack(mediaPlayer, file, vlc)
+        currentPlayBack.let {
+            it.vlc = vlc
+            it.file=file
+            it.mediaPlayer=mediaPlayer
+        }
     }
 
     private fun createMedia(file: File, vlc: LibVLC): Media? {
@@ -93,6 +156,23 @@ class VlcPlayerFragment(private val file: File?) :
         } else {
             Media(vlc, file.path)
         }
+    }
+
+    private fun finishPlayer() {
+        controller.exit()
+        currentPlayBack.file?.let {
+            currentPlayBack.vlc?.release()
+            currentPlayBack.mediaPlayer?.apply {
+                stop()
+                release()
+            }
+            currentPlayBack.let {
+                it.vlc=null
+                it.mediaPlayer=null
+                it.file=null
+            }
+        }
+        parentFragmentManager.popBackStack()
     }
 
     private val vlcPlayerListener = MediaPlayer.EventListener{
@@ -143,15 +223,7 @@ class VlcPlayerFragment(private val file: File?) :
         }
 
         override fun exit() {
-            currentPlayBack?.let {
-                it.vlc.compiler()
-                it.mediaPlayer.apply {
-                    stop()
-                    release()
-                }
-                currentPlayBack = null
-            }
-            parentFragmentManager.popBackStack()
+            finishPlayer()
         }
 
     }

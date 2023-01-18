@@ -1,25 +1,46 @@
 package com.vaani
 
+import android.app.Application
+import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import com.vaani.db.DB
-import com.vaani.db.RealmDB
+import com.vaani.db.ObjectBox
 import com.vaani.ui.home.HomePagerFragment
 import com.vaani.util.PermissionUtil
 import com.vaani.util.TAG
 
 class MainActivity : AppCompatActivity(R.layout.main_layout) {
 
+    companion object {
+        private lateinit var instance : FragmentActivity
+
+        val context : Context
+            get() = instance
+
+        val fragmentActivity : FragmentActivity
+            get() = instance
+
+        val contentResolver : ContentResolver
+            get() = instance.contentResolver
+
+        val application : Application
+            get() = instance.application
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
 
-        PermissionUtil.managePermissions(this)
+        PermissionUtil.managePermissions()
 
-        DB.init(applicationContext,RealmDB)
+        DB.init(ObjectBox)
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
@@ -29,44 +50,10 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
         }
     }
 
-    val activityWithResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val data: Intent? = result.data
-                if (data != null) {
-                    data.data?.let { treeUri ->
-                        contentResolver.takePersistableUriPermission(
-                            treeUri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        )
-                    }
-                }
-            }
-        }
-
-    val docTreeLauncher =
-        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { treeUri ->
-            if (treeUri != null) {
-                contentResolver.takePersistableUriPermission(
-                    treeUri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-            }
-        }
-
-    val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) {
-            it.forEach { entry: Map.Entry<String, Boolean> ->
-                if (!entry.value) {
-                    Log.d(TAG, "${entry.key}: not allowed")
-                    finish()
-                }
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        DB.close()
+    }
 
 }
 

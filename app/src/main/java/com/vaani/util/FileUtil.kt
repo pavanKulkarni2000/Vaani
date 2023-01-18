@@ -3,6 +3,7 @@ package com.vaani.util
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.vaani.models.File
 import com.vaani.models.FileType
@@ -39,8 +40,7 @@ object FileUtil {
 
     suspend fun getMediaInFolder(context: Context, folder: Folder): List<File> {
         return if (folder.isUri) {
-            DocumentFile.fromTreeUri(context, Uri.parse(folder.path))?.let { AndroidDocFile.listFolderMedia(it) }
-                ?: emptyList()
+            AndroidDocFile.listFolderMedia(DocumentFile.fromTreeUri(context, Uri.parse(folder.path))!!)
         } else {
             AndroidPath.listFolderMedia(Paths.get(folder.path))
         }

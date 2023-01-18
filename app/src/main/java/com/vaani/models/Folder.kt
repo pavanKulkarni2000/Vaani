@@ -16,31 +16,24 @@
 
 package com.vaani.models
 
-import io.realm.kotlin.types.RealmObject
-import io.realm.kotlin.types.annotations.PrimaryKey
-import org.mongodb.kbson.ObjectId
+import io.objectbox.annotation.Entity
+import io.objectbox.annotation.Id
+import io.objectbox.annotation.Unique
 
-class Folder(
-    var name: String ,
-    var path: String ,
-    var isUri: Boolean ,
-    var items: Int ,
-) : RealmObject {
-    @PrimaryKey
-    var id = ObjectId.invoke()
-    private set
+@Entity
+data class Folder(
+    @Id
+    var id: Long =0,
+    var name: String="" ,
+    @Unique
+    var path: String = "",
+    var isUri: Boolean = false,
+    var items: Int = 0,
+) {
 
-    constructor() : this("","",false,0)
+    constructor() : this(0,"","",false,0)
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as Folder).path == path)
 
     override fun hashCode(): Int = path.hashCode()
-
-    fun fieldsEqual(folder: Folder):Boolean{
-        return folder.items == items
-    }
-
-    override fun toString(): String {
-        return "Folder(name=$name, path=$path, items=$items)"
-    }
 }

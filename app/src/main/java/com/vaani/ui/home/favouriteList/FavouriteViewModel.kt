@@ -24,7 +24,10 @@ class FavouriteViewModel(application: Application) : AndroidViewModel(applicatio
             launch(Dispatchers.Main) {
                 _favouriteMediaList.value = mutableListOf<Favourite>().apply {
                     _favouriteMediaList.value?.let { addAll(it) }
-                    add(DB.CRUD.upsertFavourite(Favourite(favFile).apply { rank = _favouriteMediaList.value?.size ?: 0 }))
+                    add(DB.CRUD.upsertFavourite(Favourite().apply {
+                        file.target = favFile
+                        rank = _favouriteMediaList.value?.size ?: 0
+                    }))
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.vaani.util
 
+import android.util.Log
 import com.vaani.db.DB
 import com.vaani.models.File
 import com.vaani.models.FileType

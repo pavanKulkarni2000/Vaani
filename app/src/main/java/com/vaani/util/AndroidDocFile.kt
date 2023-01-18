@@ -1,6 +1,9 @@
 package com.vaani.util
 
+import android.media.MediaMetadataRetriever
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import com.vaani.MainActivity
 import com.vaani.models.File
 import com.vaani.models.FileType
 import com.vaani.models.Folder
@@ -16,13 +19,24 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     }
 
     override fun makeFile(androidFile: DocumentFile, isAudio: Boolean): File {
-        return File(
-            name = androidFile.name ?: Constants.UNNAMED_FILE,
-            isAudio = isAudio,
-            path = androidFile.uri.toString(),
-            isUri = true,
-            folderId = ObjectId.invoke()
-        )
+        var image : ByteArray? = null
+        try {
+            MediaMetadataRetriever().use {
+                it.setDataSource(MainActivity.context, androidFile.uri)
+                image = it.embeddedPicture
+                Log.d(TAG, "makeFile: ${image.toString()}")
+            }
+        }catch (e:Exception){
+            Log.e(TAG, "makeFile: exception",e )
+        }
+
+        return File().apply {
+            this.name = androidFile.name ?: Constants.UNNAMED_FILE
+            this.isAudio = isAudio
+            this.path = androidFile.uri.toString()
+            this.isUri = true
+            this.image = image
+        }
     }
 
     override fun mimeType(file: DocumentFile): FileType {
@@ -32,11 +46,11 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     }
 
     override fun makeFolder(file: DocumentFile, count: Int): Folder {
-        return Folder(
-            name = file.name ?: Constants.UNNAMED_FILE,
-            path = file.uri.toString(),
-            isUri = true,
-            items = count
-        )
+        return Folder().apply {
+            this.name = file.name ?: Constants.UNNAMED_FILE
+            this.path = file.uri.toString()
+            this.isUri = true
+            this.items = count
+        }
     }
 }
