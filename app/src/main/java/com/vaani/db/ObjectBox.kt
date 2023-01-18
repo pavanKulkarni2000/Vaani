@@ -29,15 +29,15 @@ object ObjectBox : DBOperations {
     }
 
     override fun getFolders(): List<Folder> {
-       return folderBox.all
+       return folderBox.all.sortedBy(Folder::name)
     }
 
     override fun getFolderMediaList(folder: Folder): List<File> {
-        fileBox.query(File_.folderId.equal(folder.id)).build().use { return it.find() }
+        fileBox.query(File_.folderId.equal(folder.id)).build().use { return it.find().sortedBy(File::name) }
     }
 
     override fun getFavourites(): List<Favourite> {
-        return favouriteBox.all
+        return favouriteBox.all.sortedBy(Favourite::rank)
     }
 
     override suspend fun upsertFolderMediaList(folder: Folder, files: List<File>): List<File> {
