@@ -16,8 +16,6 @@
 
 package com.vaani.ui.folderMediaList
 
-import android.graphics.BitmapFactory
-import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.Menu
@@ -28,7 +26,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
 import com.vaani.models.File
-import com.vaani.util.TAG
+import com.vaani.util.PlayBackUtil
 
 class FileAdapter(
     private var files: List<File>,
@@ -40,52 +38,31 @@ class FileAdapter(
     inner class FileViewHolder(
         itemView: View, fileCallbacks: FileCallbacks
     ) :
-        RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener {
-        private val fileText: TextView = itemView.findViewById(R.id.file_text)
-        private val fileIcon: ImageView = itemView.findViewById(R.id.file_image)
-        private val optionsIcon: ImageView = itemView.findViewById(R.id.options_icon)
+        RecyclerView.ViewHolder(itemView){
         private var currentFile: File? = null
 
-        init {
+
+        /* Bind flower name and image. */
+        fun bind(file: File) {
+            currentFile = file
             itemView.setOnClickListener {
                 currentFile?.let {
                     fileCallbacks.onClick(it)
                 }
             }
-            optionsIcon.setOnClickListener {
+            itemView.findViewById<TextView>(R.id.file_text).text = file.name
+            itemView.findViewById<TextView>(R.id.file_subtext).text = PlayBackUtil.stringToTime(file.duration.toInt())
+            itemView.findViewById<ImageView>(R.id.file_image).setImageResource(
+                when (file.isAudio) {
+                    true -> R.drawable.foldermedia_music_note_40px
+                    false -> R.drawable.foldermedia_movie_40px
+                }
+            )
+            itemView.findViewById<ImageView>(R.id.options_icon).setOnClickListener {
                 currentFile?.let { file ->
                     fileCallbacks.onOptions(file, it)
                 }
             }
-        }
-
-        /* Bind flower name and image. */
-        fun bind(file: File) {
-            currentFile = file
-            fileText.text = file.name
-            if(file.image==null) {
-                fileIcon.setImageResource(
-                    when (file.isAudio) {
-                        true -> R.drawable.foldermedia_music_note_40px
-                        false -> R.drawable.foldermedia_movie_40px
-                    }
-                )
-            }else{
-                Log.d(TAG, "bind: album art ")
-                fileIcon.setImageBitmap(
-                    BitmapFactory.decodeByteArray(file.image,0, file.image!!.size)
-                )
-            }
-            itemView.setOnCreateContextMenuListener { contextMenu, _, _ ->
-                contextMenu.add("Add to favourites").setOnMenuItemClickListener {
-                    fileCallbacks.onFavourite(file)
-                    true
-                }
-            }
-        }
-
-        override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-            menu?.add(Menu.NONE, v?.id ?: 0, Menu.NONE, "Favourite")
         }
     }
 

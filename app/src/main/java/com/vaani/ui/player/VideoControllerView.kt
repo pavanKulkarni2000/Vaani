@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.media.AudioManager
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.view.GestureDetector
@@ -15,14 +16,13 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.SeekBar
-import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.slider.Slider
 import com.vaani.R
 import com.vaani.ui.player.ViewAnimator.Listeners
+import com.vaani.util.PlayBackUtil
 import com.vaani.util.TAG
 import java.lang.ref.WeakReference
 import java.util.*
@@ -36,7 +36,8 @@ class VideoControllerView(
     private val mContext: Activity,
     mSurfaceView: SurfaceView,
     private val mAnchorView: ViewGroup,
-    private val mMediaPlayerControlListener: MediaPlayerControlListener ) : FrameLayout(mContext), VideoGestureListener {
+    private val viewListener: PlayerViewListener
+) : FrameLayout(mContext), VideoGestureListener {
 
     /**
      * if [VideoControllerView] is visible
@@ -45,11 +46,7 @@ class VideoControllerView(
      */
     var isShowing = false
         private set
-    private var mIsDragging  = false
-
-    //init formatter
-    private var mFormatBuilder: StringBuilder =  StringBuilder()
-    private var mFormatter: Formatter = Formatter(mFormatBuilder, Locale.getDefault())
+    private var mIsDragging = false
 
     // Root view
     private lateinit var mRootView: View
@@ -60,7 +57,7 @@ class VideoControllerView(
     private lateinit var mCurrentTime: TextView
 
     // gestures
-    private lateinit var mGestureDetector : GestureDetector
+    private lateinit var mGestureDetector: GestureDetector
 
     @DrawableRes
     private val mPauseIcon = R.drawable.mediacontroller_pause_40px
@@ -76,6 +73,7 @@ class VideoControllerView(
 
     //top layout
     private lateinit var mTopLayout: View
+    private lateinit var titleTextView: TextView
 
     //center layout
     private lateinit var mCenterLayout: View
@@ -95,9 +93,8 @@ class VideoControllerView(
     init {
         initControllerView()
         initGestureListener()
-        mSurfaceView.setOnTouchListener { v: View?, event: MotionEvent? ->
+        mSurfaceView.setOnClickListener {
             toggleControllerView()
-            false
         }
     }
 
@@ -115,9 +112,14 @@ class VideoControllerView(
         mTopLayout = mRootView.findViewById(R.id.layout_top)
         val closeButton = mRootView.findViewById<ImageButton>(R.id.close_button)
         closeButton.requestFocus()
-        closeButton.setOnClickListener{
-            mMediaPlayerControlListener.exit()
+        closeButton.setOnClickListener {
+            exit()
+            Player.mediaPlayerService.stop()
+            viewListener.exit()
         }
+        titleTextView = mTopLayout.findViewById(R.id.controller_title)
+        titleTextView.text = Player.mediaPlayerService.currentMediaFile?.name ?: ""
+
         //center layout
         mCenterLayout = mRootView.findViewById(R.id.layout_center)
         mCenterLayout.visibility = GONE
@@ -128,10 +130,12 @@ class VideoControllerView(
         mBottomLayout = mRootView.findViewById(R.id.layout_bottom)
         mPauseButton = mRootView.findViewById(R.id.bottom_pause)
         mPauseButton.requestFocus()
-        mPauseButton.setOnClickListener{
+        mPauseButton.setOnClickListener {
             doPauseResume()
             show()
         }
+        mBottomLayout.findViewById<ImageButton>(R.id.next_button).setOnClickListener { Player.mediaPlayerService.playNext() }
+        mBottomLayout.findViewById<ImageButton>(R.id.previous_button).setOnClickListener { Player.mediaPlayerService.playPrevious() }
 
         mFullscreenButton = mRootView.findViewById(R.id.bottom_fullscreen)
         mFullscreenButton.requestFocus()
@@ -156,15 +160,15 @@ class VideoControllerView(
                 mHandler.sendEmptyMessage(HANDLER_UPDATE_PROGRESS)
             }
         })
-        slider.addOnChangeListener { slider, value, fromUser ->
+        slider.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
-                val duration = mMediaPlayerControlListener.duration.toLong()
+                val duration = Player.mediaPlayerService.duration.toLong()
                 val newPosition = duration * value / 1000L
-                mMediaPlayerControlListener.seekTo(newPosition.toInt())
+                Player.mediaPlayerService.seekTo(newPosition.toInt())
             }
         }
-        slider.setLabelFormatter {
-            value -> stringToTime((mMediaPlayerControlListener.duration * value / 1000).toInt())
+        slider.setLabelFormatter { value ->
+            PlayBackUtil.stringToTime((Player.mediaPlayerService.duration * value / 1000).toInt())
         }
         slider.valueTo = 0.0F
         slider.valueTo = 1000.0F
@@ -213,6 +217,7 @@ class VideoControllerView(
                         })
                 }
         }
+        titleTextView.text = Player.mediaPlayerService.currentMediaFile?.name ?: ""
         setSeekProgress()
         mPauseButton.requestFocus()
         setPlayPauseIcon()
@@ -257,25 +262,6 @@ class VideoControllerView(
     }
 
     /**
-     * convert string to time
-     *
-     * @param timeMs time to be formatted
-     * @return 00:00:00
-     */
-    private fun stringToTime(timeMs: Int): String {
-        val totalSeconds = timeMs / 1000
-        val seconds = totalSeconds % 60
-        val minutes = totalSeconds / 60 % 60
-        val hours = totalSeconds / 3600
-        mFormatBuilder.setLength(0)
-        return if (hours > 0) {
-            mFormatter.format("%d:%02d:%02d", hours, minutes, seconds).toString()
-        } else {
-            mFormatter.format("%02d:%02d", minutes, seconds).toString()
-        }
-    }
-
-    /**
      * set [.mSeekBar] progress
      * and video play time [.mCurrentTime]
      *
@@ -285,18 +271,15 @@ class VideoControllerView(
         if (mIsDragging) {
             return 0
         }
-        val position = mMediaPlayerControlListener.currentPosition
-        val duration = mMediaPlayerControlListener.duration
+        val position = Player.mediaPlayerService.currentPosition
+        val duration = Player.mediaPlayerService.duration
         if (duration > 0) {
             // use long to avoid overflow
             slider.value = (1000 * position / duration).toFloat()
         }
-        mEndTime.text = stringToTime(duration)
+        mEndTime.text = PlayBackUtil.stringToTime(duration)
         Log.e(TAG, "position:$position -> duration:$duration")
-        mCurrentTime.text = stringToTime(position)
-        if (mMediaPlayerControlListener.isComplete) {
-            mCurrentTime.text = stringToTime(duration)
-        }
+        mCurrentTime.text = PlayBackUtil.stringToTime(position)
         return position
     }
 
@@ -317,7 +300,7 @@ class VideoControllerView(
      * set pause or play icon
      */
     private fun setPlayPauseIcon() {
-        if (mMediaPlayerControlListener.isPlaying) {
+        if (Player.mediaPlayerService.isPlaying) {
             mPauseButton.setImageResource(mPauseIcon)
         } else {
             mPauseButton.setImageResource(mPlayIcon)
@@ -328,7 +311,7 @@ class VideoControllerView(
      * set stretch screen or shrink screen icon
      */
     private fun setStretchShrinkScreenIcon() {
-        if (mMediaPlayerControlListener.isFullScreen) {
+        if (viewListener.isFullScreen) {
             mFullscreenButton.setImageResource(mShrinkIcon)
         } else {
             mFullscreenButton.setImageResource(mStretchIcon)
@@ -339,10 +322,10 @@ class VideoControllerView(
      * play or pause listener invoke
      */
     private fun doPauseResume() {
-        if (mMediaPlayerControlListener.isPlaying) {
-            mMediaPlayerControlListener.pause()
+        if (Player.mediaPlayerService.isPlaying) {
+            Player.mediaPlayerService.pause()
         } else {
-            mMediaPlayerControlListener.start()
+            Player.mediaPlayerService.start()
         }
         setPlayPauseIcon()
     }
@@ -351,7 +334,7 @@ class VideoControllerView(
      * toggle full screen listener invoke
      */
     private fun doToggleFullscreen() {
-        mMediaPlayerControlListener.toggleFullScreen()
+        viewListener.toggleFullScreen()
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -374,17 +357,17 @@ class VideoControllerView(
     }
 
     private fun seekBackWard() {
-        var pos = mMediaPlayerControlListener.currentPosition
+        var pos = Player.mediaPlayerService.currentPosition
         pos -= PROGRESS_SEEK.toInt()
-        mMediaPlayerControlListener.seekTo(pos)
+        Player.mediaPlayerService.seekTo(pos)
         setSeekProgress()
         show()
     }
 
     private fun seekForWard() {
-        var pos = mMediaPlayerControlListener.currentPosition
+        var pos = Player.mediaPlayerService.currentPosition
         pos += PROGRESS_SEEK.toInt()
-        mMediaPlayerControlListener.seekTo(pos)
+        Player.mediaPlayerService.seekTo(pos)
         setSeekProgress()
         show()
     }
@@ -450,11 +433,10 @@ class VideoControllerView(
     }
 
 
-
     /**
      * Handler prevent leak memory.
      */
-    private class ControllerViewHandler(view: VideoControllerView) : Handler() {
+    private class ControllerViewHandler(view: VideoControllerView) : Handler(Looper.getMainLooper()) {
         private val mView: WeakReference<VideoControllerView>
 
         init {
@@ -462,102 +444,30 @@ class VideoControllerView(
         }
 
         override fun handleMessage(msg: Message) {
-            var msg = msg
+            var message = msg
             val view = mView.get() ?: return
             val pos: Int
-            when (msg.what) {
+            when (message.what) {
                 HANDLER_ANIMATE_OUT -> view.hide()
                 HANDLER_UPDATE_PROGRESS -> {
                     pos = view.setSeekProgress()
-                    if (!view.mIsDragging && view.isShowing && view.mMediaPlayerControlListener.isPlaying) { //just in case
+                    if (!view.mIsDragging && view.isShowing && Player.mediaPlayerService.isPlaying) { //just in case
                         //cycle update
-                        msg = obtainMessage(HANDLER_UPDATE_PROGRESS)
-                        sendMessageDelayed(msg, (1000 - pos % 1000).toLong())
+                        message = obtainMessage(HANDLER_UPDATE_PROGRESS)
+                        sendMessageDelayed(message, (1000 - pos % 1000).toLong())
                     }
                 }
             }
         }
     }
 
-    fun exit(){
+    private fun exit() {
         mHandler.removeMessages(HANDLER_ANIMATE_OUT)
         mHandler.removeMessages(HANDLER_UPDATE_PROGRESS)
     }
 
-    /**
-     * Interface of Media Controller View Which can be callBack
-     * when [android.media.MediaPlayer] or some other media
-     * players work
-     */
-    interface MediaPlayerControlListener {
-        /**
-         * start play video
-         */
-        fun start()
-
-        /**
-         * pause video
-         */
-        fun pause()
-
-        /**
-         * get video total time
-         *
-         * @return total time
-         */
-        val duration: Int
-
-        /**
-         * get video current position
-         *
-         * @return current position
-         */
-        val currentPosition: Int
-
-        /**
-         * seek video to exactly position
-         *
-         * @param position position
-         */
-        fun seekTo(position: Int)
-
-        /**
-         * video is playing state
-         *
-         * @return is video playing
-         */
-        val isPlaying: Boolean
-
-        /**
-         * video is complete
-         * @return complete or not
-         */
-        val isComplete: Boolean
-
-        /**
-         * get buffer percent
-         *
-         * @return percent
-         */
-        val bufferPercentage: Int
-
-        /**
-         * video is full screen
-         * in order to control image src...
-         *
-         * @return fullScreen
-         */
-        val isFullScreen: Boolean
-
-        /**
-         * toggle fullScreen
-         */
-        fun toggleFullScreen()
-
-        /**
-         * exit media player
-         */
-        fun exit()
+    fun mediaChanged() {
+        show()
     }
 
     companion object {

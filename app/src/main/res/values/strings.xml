@@ -13,4 +13,6 @@
     <string name="favourite_selector_label">Add to favourites</string>
     <string name="file_item_sample_subtext">05:45</string>
     <string name="file_item_sample_text">Dwadasha Stotra.mp3</string>
+    <string name="sample_controller_title">Hari kathaamrutaSaara - Mangalaacharana Sandhi by Ananta kulakarni</string>
+    <string name="close_button_description">Close the player</string>
 </resources>

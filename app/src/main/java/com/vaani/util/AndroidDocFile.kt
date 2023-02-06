@@ -7,9 +7,9 @@ import com.vaani.MainActivity
 import com.vaani.models.File
 import com.vaani.models.FileType
 import com.vaani.models.Folder
+import com.vaani.ui.player.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mongodb.kbson.ObjectId
 
 object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     override suspend fun listFolder(folder: DocumentFile): List<DocumentFile> {
@@ -19,38 +19,43 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     }
 
     override fun makeFile(androidFile: DocumentFile, isAudio: Boolean): File {
-        var image : ByteArray? = null
-        try {
-            MediaMetadataRetriever().use {
-                it.setDataSource(MainActivity.context, androidFile.uri)
-                image = it.embeddedPicture
-                Log.d(TAG, "makeFile: ${image.toString()}")
-            }
-        }catch (e:Exception){
-            Log.e(TAG, "makeFile: exception",e )
-        }
 
         return File().apply {
             this.name = androidFile.name ?: Constants.UNNAMED_FILE
             this.isAudio = isAudio
             this.path = androidFile.uri.toString()
             this.isUri = true
-            this.image = image
+            this.duration = getDuration(androidFile)
         }
     }
 
     override fun mimeType(file: DocumentFile): FileType {
-        if(file.isDirectory)
+        if (file.isDirectory)
             return FileType.DIR
         return FileUtil.fileType(file.type)
     }
 
     override fun makeFolder(file: DocumentFile, count: Int): Folder {
-        return Folder().apply {
-            this.name = file.name ?: Constants.UNNAMED_FILE
-            this.path = file.uri.toString()
-            this.isUri = true
-            this.items = count
+        return Folder(
+            id = 0,
+            name = file.name ?: Constants.UNNAMED_FILE,
+            path = file.uri.toString(),
+            isUri = true,
+            items = count
+        )
+    }
+
+    override fun getDuration(file: DocumentFile): Long {
+        try {
+            MediaMetadataRetriever().use {
+                it.setDataSource(MainActivity.context, file.uri)
+                val dur = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+                Log.d(TAG, "makeFile: duration $dur")
+                return dur
+            }
+        }catch (e:Exception){
+            Log.e(TAG, "getDuration: error",e )
+            return 0
         }
     }
 }

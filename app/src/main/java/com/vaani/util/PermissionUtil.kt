@@ -2,7 +2,6 @@ package com.vaani.util
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -21,7 +20,7 @@ object PermissionUtil {
 
     fun managePermissions() {
         val (activityWithResultLauncher, docTreeLauncher, requestPermissionLauncher) =
-        initLaunchers()
+            initLaunchers()
 
         if (!checkAllFileAccess()) {
             requestAllFilesPermission(MainActivity.application.packageName, activityWithResultLauncher)
@@ -30,7 +29,7 @@ object PermissionUtil {
             requestOtherFilePermissions(requestPermissionLauncher)
         }
         if (!checkAndroidFolderAccess("data", MainActivity.contentResolver)) {
-            requestAndroidFolderPermission("data",docTreeLauncher)
+            requestAndroidFolderPermission("data", docTreeLauncher)
         }
         if (!checkAndroidFolderAccess("obb", MainActivity.contentResolver)) {
             requestAndroidFolderPermission("obb", docTreeLauncher)

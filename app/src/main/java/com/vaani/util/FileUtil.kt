@@ -3,7 +3,6 @@ package com.vaani.util
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.vaani.models.File
 import com.vaani.models.FileType

@@ -3,7 +3,6 @@ package com.vaani.ui.folderMediaList
 import android.os.Bundle
 import android.view.View
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -29,7 +28,7 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
     private val folderMediaViewModel: FolderMediaViewModel by viewModels {
         FolderMediaViewModel.Factory(requireActivity().application, currentFolder)
     }
-    private val favouriteViewModel: FavouriteViewModel by viewModels{
+    private val favouriteViewModel: FavouriteViewModel by viewModels {
         FavouriteViewModel.Factory(requireActivity().application)
     }
     private val job = Job()
@@ -51,7 +50,7 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
             popup.menu.add(getString(R.string.favourite_selector_label)).apply {
                 setIcon(R.drawable.foldermedia_favorite_filled_24px)
                 setOnMenuItemClickListener {
-                        favouriteViewModel.addFavourite(file)
+                    favouriteViewModel.addFavourite(file)
                     true
                 }
             }
@@ -76,7 +75,7 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
 
         val fab: FloatingActionButton = view.findViewById(R.id.fab)
         fab.setOnClickListener {
-            playMedia()
+            onPlayClicked()
         }
 
         refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
@@ -90,7 +89,10 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
         }
     }
 
-    private fun playMedia() {
-        TODO("Not yet implemented")
+    private fun onPlayClicked() {
+        parentFragmentManager.commit {
+            add(R.id.fragment_container_view, VlcPlayerFragment(null), TAG)
+            addToBackStack(null)
+        }
     }
 }

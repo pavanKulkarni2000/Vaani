@@ -23,15 +23,15 @@ import io.objectbox.annotation.Unique
 @Entity
 data class Folder(
     @Id
-    var id: Long =0,
-    var name: String="" ,
+    var id: Long = 0,
+    var name: String = "",
     @Unique
     var path: String = "",
     var isUri: Boolean = false,
     var items: Int = 0,
 ) {
 
-    constructor() : this(0,"","",false,0)
+    constructor() : this(0, "", "", false, 0)
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as Folder).path == path)
 

@@ -23,17 +23,17 @@ import io.objectbox.annotation.Unique
 @Entity
 data class File(
     @Id
-    var id: Long=0,
-    var name: String ,
-    var isAudio: Boolean ,
+    var id: Long = 0,
+    var name: String,
+    var isAudio: Boolean,
     @Unique
-    var path: String ,
-    var isUri: Boolean ,
-    var folderId: Long ,
-    var image: ByteArray? ,
+    var path: String,
+    var isUri: Boolean,
+    var duration: Long,
+    var folderId: Long
 ) {
 
-    constructor() : this(0,"",false,"",false,0, null)
+    constructor() : this(0, "", false, "", false, 0,0)
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as File).path == path)
 

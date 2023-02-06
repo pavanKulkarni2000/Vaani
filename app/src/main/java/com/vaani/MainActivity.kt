@@ -3,34 +3,31 @@ package com.vaani
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import com.vaani.db.DB
 import com.vaani.db.ObjectBox
 import com.vaani.ui.home.HomePagerFragment
+import com.vaani.ui.player.Player
 import com.vaani.util.PermissionUtil
-import com.vaani.util.TAG
 
 class MainActivity : AppCompatActivity(R.layout.main_layout) {
 
     companion object {
-        private lateinit var instance : FragmentActivity
+        private lateinit var instance: FragmentActivity
 
-        val context : Context
+        val context: Context
             get() = instance
 
-        val fragmentActivity : FragmentActivity
+        val fragmentActivity: FragmentActivity
             get() = instance
 
-        val contentResolver : ContentResolver
+        val contentResolver: ContentResolver
             get() = instance.contentResolver
 
-        val application : Application
+        val application: Application
             get() = instance.application
     }
 
@@ -41,6 +38,7 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
         PermissionUtil.managePermissions()
 
         DB.init(ObjectBox)
+        Player.init(this)
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {

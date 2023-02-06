@@ -36,11 +36,13 @@
             android:src="@drawable/foldermedia_music_note_40px" />
 
         <TextView
-            style="@style/TextAppearance.Material3.BodyLarge"
+            style="@style/TextAppearance.Material3.BodyMedium"
             android:id="@+id/file_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/file_image"
+            android:layout_toStartOf="@id/options_icon"
+            android:singleLine="true"
             android:maxLines="1"
             android:paddingTop="10dp"
             android:text="@string/file_item_sample_text" />

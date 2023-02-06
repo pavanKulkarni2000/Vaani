@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.WindowManager
+import kotlin.math.abs
 
 /**
  * Created by Brucetoo
@@ -22,12 +23,12 @@ class ViewGestureListener(private val context: Context, private val listener: Vi
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         val deltaX = e1.rawX - e2.rawX
         val deltaY = e1.rawY - e2.rawY
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+        if (abs(deltaX) > abs(deltaY)) {
+            if (abs(deltaX) > SWIPE_THRESHOLD) {
                 listener.onHorizontalScroll(deltaX < 0)
             }
         } else {
-            if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
+            if (abs(deltaY) > SWIPE_THRESHOLD) {
                 Log.i(TAG, "deltaY->$deltaY")
                 if (e1.x < getDeviceWidth(context) * 1.0 / 5) { //left edge
                     listener.onVerticalScroll(deltaY / getDeviceHeight(context), SWIPE_LEFT)
@@ -45,9 +46,11 @@ class ViewGestureListener(private val context: Context, private val listener: Vi
         private const val TAG = "ViewGestureListener"
         private const val SWIPE_THRESHOLD = 60 //threshold of swipe
         fun getDeviceWidth(context: Context): Int {
+            
             val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val mDisplayMetrics = DisplayMetrics()
             wm.defaultDisplay.getMetrics(mDisplayMetrics)
+            Log.d(TAG, "getDeviceWidth: comparing ${context.applicationInfo.compatibleWidthLimitDp} and ${mDisplayMetrics.widthPixels}")
             return mDisplayMetrics.widthPixels
         }
 

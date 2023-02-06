@@ -4,24 +4,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
-
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/layout_top"
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:minHeight="42dp"
-        android:padding="9dp">
+        android:background="@drawable/mediacontroller_sqaure"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:layout_height="wrap_content"
+            android:id="@+id/controller_title"
+            android:ellipsize="marquee"
+            android:padding="8dp"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:text="@string/sample_controller_title"/>
 
         <ImageButton
             android:id="@+id/close_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/mediacontroller_circle"
-            android:layout_alignParentEnd="true"
-            android:padding="6dp"
-            android:src="@drawable/mediacontroller_close_40px" />
-    </RelativeLayout>
+            android:layout_gravity="center"
+            android:background="@null"
+            android:padding="8dp"
+            android:src="@drawable/mediacontroller_close_40px"
+            android:contentDescription="@string/close_button_description" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_bottom"
         android:layout_width="match_parent"

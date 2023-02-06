@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:2087610433907192190",
-      "lastPropertyId": "7:1381445627816464053",
+      "lastPropertyId": "8:652570415143877708",
       "name": "File",
       "properties": [
         {
@@ -42,9 +42,9 @@
           "type": 6
         },
         {
-          "id": "7:1381445627816464053",
-          "name": "image",
-          "type": 23
+          "id": "8:652570415143877708",
+          "name": "duration",
+          "type": 6
         }
       ],
       "relations": []
@@ -113,10 +113,77 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "6:7280048752549386731",
+      "lastPropertyId": "4:4464613379237504648",
+      "name": "PlayBack",
+      "properties": [
+        {
+          "id": "1:6456022773881472123",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8501542896930487300",
+          "name": "fileId",
+          "indexId": "10:7623739255866431810",
+          "type": 6,
+          "flags": 40
+        },
+        {
+          "id": "3:4672356634596146381",
+          "name": "progress",
+          "type": 7
+        },
+        {
+          "id": "4:4464613379237504648",
+          "name": "speed",
+          "type": 7
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "7:2996701351250310444",
+      "lastPropertyId": "5:7912073282520135712",
+      "name": "CollectionPreference",
+      "properties": [
+        {
+          "id": "1:7614843105245482910",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1559354042360549717",
+          "name": "collectionId",
+          "indexId": "9:795171448156989453",
+          "type": 6,
+          "flags": 40
+        },
+        {
+          "id": "3:7651096155801549194",
+          "name": "shuffle",
+          "type": 1
+        },
+        {
+          "id": "4:5016061123690463391",
+          "name": "single",
+          "type": 1
+        },
+        {
+          "id": "5:7912073282520135712",
+          "name": "loopAtEnd",
+          "type": 1
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "5:31277392511691048",
-  "lastIndexId": "8:5079950544933140431",
+  "lastEntityId": "7:2996701351250310444",
+  "lastIndexId": "10:7623739255866431810",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
@@ -139,7 +206,8 @@
     6463092110050587724,
     7805905048604064558,
     5839364786063974200,
-    760113216087382775
+    760113216087382775,
+    1381445627816464053
   ],
   "retiredRelationUids": [],
   "version": 1

@@ -1,8 +1,12 @@
 package com.vaani.ui.player
 
-import com.vaani.MainActivity
-import org.videolan.libvlc.LibVLC
+import android.app.Activity
+import android.content.Intent
 
 object Player {
-//    var libVLC: LibVLC = LibVLC(MainActivity.context)
+    lateinit var mediaPlayerService: PlayerServiceListener
+    fun init(activity: Activity) {
+        val intent = Intent(activity.applicationContext, PlayerService::class.java)
+        activity.startService(intent)
+    }
 }

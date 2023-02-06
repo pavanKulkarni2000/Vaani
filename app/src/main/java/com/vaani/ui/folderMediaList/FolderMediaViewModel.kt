@@ -21,7 +21,7 @@ class FolderMediaViewModel(application: Application, private val folder: Folder)
 
     suspend fun updateFolderMedia() {
         val mediaList = FileUtil.getMediaInFolder(getApplication(), folder)
-        mediaList.forEach{ it.folderId = folder.id }
+        mediaList.forEach { it.folderId = folder.id }
         viewModelScope.launch(Dispatchers.Main) {
             _folderMediaList.value = DB.CRUD.upsertFolderMediaList(folder, mediaList)
         }

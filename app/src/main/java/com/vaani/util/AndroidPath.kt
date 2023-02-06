@@ -2,14 +2,12 @@ package com.vaani.util
 
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import com.bumptech.glide.Glide
-import com.vaani.MainActivity
 import com.vaani.models.File
 import com.vaani.models.FileType
 import com.vaani.models.Folder
+import com.vaani.ui.player.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mongodb.kbson.ObjectId
 import java.net.URLConnection
 import java.nio.file.AccessDeniedException
 import java.nio.file.Files
@@ -36,31 +34,36 @@ object AndroidPath : AndroidGenericFileType<Path> {
     }
 
     override fun makeFile(androidFile: Path, isAudio: Boolean): File {
-        var image : ByteArray?
-        try {
-            MediaMetadataRetriever().use {
-                it.setDataSource(androidFile.toString())
-                image = it.embeddedPicture
-                Log.d(TAG, "makeFile: ${image.toString()}")
-            }
-        }catch (e:Exception){
-            Log.e(TAG, "makeFile: exception",e )
-        }
-
         return File().apply {
             this.name = androidFile.fileName.toString()
             this.isAudio = isAudio
             this.path = androidFile.toString()
             this.isUri = false
+            this.duration = getDuration(androidFile)
         }
     }
 
     override fun makeFolder(file: Path, count: Int): Folder {
-        return Folder().apply {
-            this.name = file.fileName.toString()
-            this.path = file.toString()
-            this.isUri = false
-            this.items = count
+        return Folder(
+            id = 0,
+            name = file.fileName.toString(),
+            path = file.toString(),
+            isUri = false,
+            items = count,
+        )
+    }
+
+    override fun getDuration(file: Path): Long {
+        try {
+            MediaMetadataRetriever().use {
+                it.setDataSource(file.toString())
+                val dur = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+                Log.d(TAG, "makeFile: duration $dur")
+                return dur
+            }
+        }catch (e:Exception){
+            Log.e(TAG, "getDuration: error",e )
+            return 0
         }
     }
 }
