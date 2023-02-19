@@ -60,16 +60,29 @@ class VideoControllerView(
     private lateinit var mGestureDetector: GestureDetector
 
     @DrawableRes
-    private val mPauseIcon = R.drawable.mediacontroller_pause_40px
+    private val mPauseIcon = R.drawable.media_controller__pause
 
     @DrawableRes
-    private val mPlayIcon = R.drawable.mediacontroller_play_arrow_40px
+    private val mPlayIcon = R.drawable.media_controller__play_arrow
+
 
     @DrawableRes
     private val mShrinkIcon = R.drawable.mediacontroller_fullscreen_exit_40px
 
     @DrawableRes
     private val mStretchIcon = R.drawable.mediacontroller_fullscreen_40px
+
+    @DrawableRes
+    private val mShuffleIcon = R.drawable.media_controller__shuffle
+
+    @DrawableRes
+    private val mShuffleDisabledIcon = R.drawable.media_controller__shuffle_disabled
+
+    @DrawableRes
+    private val mLoopIcon = R.drawable.media_controller__loop
+
+    @DrawableRes
+    private val mLoopDisabledIcon = R.drawable.media_controller__loop_disabled
 
     //top layout
     private lateinit var mTopLayout: View
@@ -84,6 +97,8 @@ class VideoControllerView(
     private var mCurVolume = -1
     private var mMaxVolume = 0
 
+    //speed selector
+
     //bottom layout
     private lateinit var mBottomLayout: View
     private lateinit var mPauseButton: ImageButton
@@ -92,7 +107,7 @@ class VideoControllerView(
 
     init {
         initControllerView()
-        initGestureListener()
+        initGestureListener(mSurfaceView)
         mSurfaceView.setOnClickListener {
             toggleControllerView()
         }
@@ -108,23 +123,14 @@ class VideoControllerView(
         mRootView = (mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
             .inflate(R.layout.media_controller, null)
         addView(mRootView)
-        //top layout
-        mTopLayout = mRootView.findViewById(R.id.layout_top)
-        val closeButton = mRootView.findViewById<ImageButton>(R.id.close_button)
-        closeButton.requestFocus()
-        closeButton.setOnClickListener {
-            exit()
-            Player.mediaPlayerService.stop()
-            viewListener.exit()
-        }
-        titleTextView = mTopLayout.findViewById(R.id.controller_title)
-        titleTextView.text = Player.mediaPlayerService.currentMediaFile?.name ?: ""
+        initTopLayout()
+        initCentralLayout()
+        initSpeedSelectorLayout()
+        initBottomLayout()
 
-        //center layout
-        mCenterLayout = mRootView.findViewById(R.id.layout_center)
-        mCenterLayout.visibility = GONE
-        mCenterImage = mRootView.findViewById(R.id.image_center_bg)
-        mCenterProgress = mRootView.findViewById(R.id.progress_center)
+    }
+
+    private fun initBottomLayout() {
 
         //bottom layout
         mBottomLayout = mRootView.findViewById(R.id.layout_bottom)
@@ -175,7 +181,32 @@ class VideoControllerView(
 
         mEndTime = mRootView.findViewById(R.id.bottom_time)
         mCurrentTime = mRootView.findViewById(R.id.bottom_time_current)
+    }
 
+    private fun initSpeedSelectorLayout() {
+
+    }
+
+    private fun initCentralLayout() {
+        //center layout
+        mCenterLayout = mRootView.findViewById(R.id.layout_center)
+        mCenterLayout.visibility = GONE
+        mCenterImage = mRootView.findViewById(R.id.image_center_bg)
+        mCenterProgress = mRootView.findViewById(R.id.progress_center)
+    }
+
+    private fun initTopLayout() {
+        //top layout
+        mTopLayout = mRootView.findViewById(R.id.layout_top)
+        val closeButton = mRootView.findViewById<ImageButton>(R.id.close_button)
+        closeButton.requestFocus()
+        closeButton.setOnClickListener {
+            exit()
+            Player.mediaPlayerService.stop()
+            viewListener.exit()
+        }
+        titleTextView = mTopLayout.findViewById(R.id.controller_title)
+        titleTextView.text = Player.mediaPlayerService.currentMediaFile?.name ?: ""
     }
 
     /**
@@ -183,10 +214,10 @@ class VideoControllerView(
      * include screen brightness and volume of video
      * and seek video play
      */
-    private fun initGestureListener() {
+    private fun initGestureListener(surfaceView: SurfaceView) {
         mAudioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        mGestureDetector = GestureDetector(mContext, ViewGestureListener(mContext, this))
+        mGestureDetector = GestureDetector(surfaceView.context, ViewGestureListener(mContext, this))
     }
 
     /**
@@ -209,12 +240,10 @@ class VideoControllerView(
                         .andAnimate(mBottomLayout)
                         .translationY(mBottomLayout.height.toFloat(), 0f)
                         .duration(ANIMATE_TIME)
-                        .start(object : Listeners.Start {
-                            override fun onStart() {
-                                isShowing = true
-                                mHandler.sendEmptyMessage(HANDLER_UPDATE_PROGRESS)
-                            }
-                        })
+                        .start {
+                            isShowing = true
+                            mHandler.sendEmptyMessage(HANDLER_UPDATE_PROGRESS)
+                        }
                 }
         }
         titleTextView.text = Player.mediaPlayerService.currentMediaFile?.name ?: ""
@@ -234,11 +263,9 @@ class VideoControllerView(
         if (!isShowing) {
             show()
         } else {
-            //animate out controller view
-            val msg = mHandler.obtainMessage(HANDLER_ANIMATE_OUT)
             //remove exist one first
             mHandler.removeMessages(HANDLER_ANIMATE_OUT)
-            mHandler.sendMessageDelayed(msg, 100)
+            mHandler.sendEmptyMessageDelayed(HANDLER_ANIMATE_OUT, 100)
         }
     }
 
@@ -261,12 +288,6 @@ class VideoControllerView(
             }
     }
 
-    /**
-     * set [.mSeekBar] progress
-     * and video play time [.mCurrentTime]
-     *
-     * @return current play position
-     */
     private fun setSeekProgress(): Int {
         if (mIsDragging) {
             return 0
@@ -443,8 +464,7 @@ class VideoControllerView(
             mView = WeakReference(view)
         }
 
-        override fun handleMessage(msg: Message) {
-            var message = msg
+        override fun handleMessage(message: Message) {
             val view = mView.get() ?: return
             val pos: Int
             when (message.what) {
@@ -453,15 +473,14 @@ class VideoControllerView(
                     pos = view.setSeekProgress()
                     if (!view.mIsDragging && view.isShowing && Player.mediaPlayerService.isPlaying) { //just in case
                         //cycle update
-                        message = obtainMessage(HANDLER_UPDATE_PROGRESS)
-                        sendMessageDelayed(message, (1000 - pos % 1000).toLong())
+                        sendEmptyMessageDelayed(HANDLER_UPDATE_PROGRESS, (1000 - pos % 1000).toLong())
                     }
                 }
             }
         }
     }
 
-    private fun exit() {
+     fun exit() {
         mHandler.removeMessages(HANDLER_ANIMATE_OUT)
         mHandler.removeMessages(HANDLER_UPDATE_PROGRESS)
     }

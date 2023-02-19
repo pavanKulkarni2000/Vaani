@@ -11,6 +11,8 @@ data class CollectionPreference(
     @Unique
     var collectionId: Long,
     var shuffle: Boolean,
-    var single: Boolean,
-    var loopAtEnd: Boolean
+    var lastPlayedId: Long
 )
+{
+    constructor() : this(0,0,false,0)
+}

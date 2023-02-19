@@ -10,49 +10,25 @@ import org.videolan.libvlc.util.VLCVideoLayout
  * players work
  */
 interface PlayerServiceListener {
-    /**
-     * start play video
-     */
+    val speed: Float
+
     fun start()
 
-    /**
-     * pause video
-     */
     fun pause()
 
-    /**
-     * get video total time
-     *
-     * @return total time
-     */
     val duration: Int
 
-    /**
-     * get video current position
-     *
-     * @return current position
-     */
     val currentPosition: Int
 
-    /**
-     * seek video to exactly position
-     *
-     * @param position position
-     */
     fun seekTo(position: Int)
 
-    /**
-     * video is playing state
-     *
-     * @return is video playing
-     */
     val isPlaying: Boolean
 
-    fun startMedia(file: File)
+    fun startNewMedia(file: File)
 
     fun stop()
 
-    fun attachVlcVideoView(vlcVideoLayout: VLCVideoLayout)
+    fun attachVlcVideoView(vlcVideoLayout: VLCVideoLayout, videoListener: PlayerViewListener)
 
     fun playNext()
 
@@ -62,9 +38,9 @@ interface PlayerServiceListener {
 
     val currentMediaFile: File?
 
-    fun bind(vlcPlayerFragment: VlcPlayerFragment)
-
     fun createMedia(file: File): Media
 
-    fun getDuration(file:File) :Long
+    fun recallCurrentPlayback()
+
+    fun persistCurrentPlayback()
 }

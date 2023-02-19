@@ -2,8 +2,8 @@ package com.vaani.ui.home
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.vaani.ui.home.favouriteList.FavouriteMediaListFragment
-import com.vaani.ui.home.folderList.FolderListFragment
+import com.vaani.ui.favouriteList.FavouriteMediaListFragment
+import com.vaani.ui.folderList.FolderListFragment
 
 class HomePagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 

@@ -10,11 +10,6 @@ import androidx.core.view.ViewPropertyAnimatorCompat;
 import androidx.core.view.ViewPropertyAnimatorListener;
 import androidx.core.view.ViewPropertyAnimatorUpdateListener;
 
-/**
- * Created by Bruce Too
- * On 7/12/16.
- * At 15:44
- */
 public class ViewAnimator {
 
     View view;

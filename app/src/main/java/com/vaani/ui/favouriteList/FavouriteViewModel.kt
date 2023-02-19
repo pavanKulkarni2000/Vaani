@@ -1,6 +1,7 @@
-package com.vaani.ui.home.favouriteList
+package com.vaani.ui.favouriteList
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,9 +11,11 @@ import com.vaani.db.DB
 import com.vaani.models.Favourite
 import com.vaani.models.File
 import com.vaani.util.Constants
+import com.vaani.util.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.LinkedList
 
 class FavouriteViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -21,14 +24,16 @@ class FavouriteViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun addFavourite(favFile: File) {
         CoroutineScope(Dispatchers.IO).launch {
-            launch(Dispatchers.Main) {
-                _favouriteMediaList.value = mutableListOf<Favourite>().apply {
-                    _favouriteMediaList.value?.let { addAll(it) }
-                    add(DB.CRUD.upsertFavourite(Favourite().apply {
-                        file.target = favFile
-                        rank = _favouriteMediaList.value?.size ?: 0
-                    }))
+            try {
+                val newFav = DB.CRUD.upsertFavourite(Favourite().apply {
+                    file.target = favFile
+                    rank = _favouriteMediaList.value?.size ?: 0
+                })
+                launch(Dispatchers.Main) {
+                    _favouriteMediaList.value = _favouriteMediaList.value?.plus(listOf(newFav))
                 }
+            }catch (_:Exception){
+                Log.e(TAG, "addFavourite: Fav creation error ")
             }
         }
     }

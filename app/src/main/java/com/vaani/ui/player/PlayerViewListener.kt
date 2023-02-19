@@ -1,5 +1,7 @@
 package com.vaani.ui.player
 
+import com.vaani.models.File
+
 /**
  * Interface of Media Controller View Which can be callBack
  * when [android.media.MediaPlayer] or some other media
@@ -24,4 +26,6 @@ interface PlayerViewListener {
      * exit media player
      */
     fun exit()
+
+    fun mediaChanged(file: File)
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vaani.ui.home.folderList
+package com.vaani.ui.folderList
 
 import android.content.Context
 import android.view.LayoutInflater

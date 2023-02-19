@@ -1,4 +1,4 @@
-package com.vaani.ui.home.folderList
+package com.vaani.ui.folderList
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -30,11 +30,14 @@ class FoldersViewModel(application: Application) : AndroidViewModel(application)
             viewModelScope.launch(Dispatchers.Main) {
                 _folderList.value = dbFolders
             }
-            folderMedias.forEach { (folder, mediaList) ->
-                dbFolders.first(folder::equals).let { dbFolder ->
-                    mediaList.forEach { file -> file.folderId = dbFolder.id }
-                    DB.CRUD.upsertFolderMediaList(dbFolder, mediaList)
+            launch(Dispatchers.IO) {
+                folderMedias.forEach { (folder, mediaList) ->
+                    dbFolders.first(folder::equals).let { dbFolder ->
+                        mediaList.forEach { file -> file.folderId = dbFolder.id }
+                        DB.CRUD.upsertFolderMediaList(dbFolder, mediaList)
+                    }
                 }
+                DB.CRUD.updatePlaybacks(folderMedias.values.flatten().toSet())
             }
         }
     }

@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class FolderMediaViewModel(application: Application, private val folder: Folder) : AndroidViewModel(application) {
 
-    private val _folderMediaList = MutableLiveData(DB.CRUD.getFolderMediaList(folder))
+    private val _folderMediaList = MutableLiveData(DB.CRUD.getFolderMediaList(folder.id))
     val folderMediaList: LiveData<List<File>> = _folderMediaList
 
     suspend fun updateFolderMedia() {

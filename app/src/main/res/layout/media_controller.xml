@@ -9,32 +9,45 @@
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/mediacontroller_sqaure"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:marqueeRepeatLimit="marquee_forever"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/controller_title"
-            android:ellipsize="marquee"
-            android:padding="8dp"
-            android:layout_gravity="center"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:text="@string/sample_controller_title"/>
+            android:background="@drawable/mediacontroller_sqaure">
 
-        <ImageButton
-            android:id="@+id/close_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@null"
-            android:padding="8dp"
-            android:src="@drawable/mediacontroller_close_40px"
-            android:contentDescription="@string/close_button_description" />
+            <ImageButton
+                android:id="@+id/speed_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:padding="6dp"
+                android:src="@drawable/media_controller__arrow_back" />
+
+            <TextView
+                android:id="@+id/controller_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:padding="8dp"
+                android:singleLine="true"
+                android:text="@string/sample_controller_title"
+                android:textAlignment="center"
+                android:textColor="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/close_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:contentDescription="@string/close_button_description"
+                android:padding="6dp"
+                android:src="@drawable/mediacontroller_close_40px" />
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_bottom"
@@ -49,6 +62,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingEnd="4dip"
+        android:paddingStart="4dip"
         android:orientation="horizontal">
 
 
@@ -57,7 +72,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingRight="4dip"
             android:text="00:00"
             android:textColor="@android:color/white"
             android:textSize="14sp"
@@ -75,8 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="4dp"
-            android:paddingLeft="4dip"
+            android:layout_marginEnd="4dp"
             android:text="11:00"
             android:textColor="@android:color/white"
             android:textSize="14sp"
@@ -94,7 +107,7 @@
                 android:layout_centerInParent="true"
                 android:paddingHorizontal="16dp"
                 android:background="@null"
-                android:src="@drawable/mediacontroller_play_arrow_40px" />
+                android:src="@drawable/media_controller__pause" />
 
 
             <ImageButton
@@ -105,7 +118,7 @@
                 android:layout_centerInParent="true"
                 android:paddingHorizontal="16dp"
                 android:background="@null"
-                android:src="@drawable/mediacontroller_skip_previous_40px" />
+                android:src="@drawable/media_controller__skip_previous" />
 
 
             <ImageButton
@@ -116,7 +129,36 @@
                 android:layout_centerInParent="true"
                 android:paddingHorizontal="16dp"
                 android:background="@null"
-                android:src="@drawable/mediacontroller_skip_next_40px" />
+                android:src="@drawable/media_controller__skip_next" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.00x"
+                android:layout_toEndOf="@+id/next_button"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:layout_centerInParent="true"/>
+
+            <ImageButton
+                android:id="@+id/loop_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/previous_button"
+                android:layout_centerInParent="true"
+                android:paddingHorizontal="8dp"
+                android:background="@null"
+                android:src="@drawable/media_controller__loop" />
+
+            <ImageButton
+                android:id="@+id/shuffle_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_toStartOf="@id/loop_button"
+                android:background="@null"
+                android:paddingHorizontal="8dp"
+                android:src="@drawable/media_controller__shuffle" />
 
             <ImageButton
                 android:id="@+id/bottom_fullscreen"
@@ -131,12 +173,71 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_speed_selector"
+        android:layout_above="@id/layout_bottom"
+        android:background="@drawable/media_controller__rounded_sqaure"
+        android:orientation="vertical"
+        android:layout_margin="8dp">
+        <com.google.android.material.slider.Slider
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/speed_selector"
+            android:valueFrom="0"
+            android:valueTo="4.00"
+            android:stepSize="0.50"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:layout_marginHorizontal="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textAlignment="center"
+                android:layout_weight="1"
+                android:text="0.25"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textAlignment="textStart"
+                android:layout_weight="1"
+                android:text="1.00"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textAlignment="center"
+                android:layout_weight="1"
+                android:text="2.00"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textAlignment="textEnd"
+                android:layout_weight="1"
+                android:text="3.00"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textAlignment="textEnd"
+                android:layout_weight="1"
+                android:text="4.00"/>
+        </LinearLayout>
+    </LinearLayout>
+
     <FrameLayout
         android:id="@+id/layout_center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="@drawable/mediacontroller_sqaure"
+        android:background="@drawable/media_controller__rounded_sqaure"
         android:padding="16dp"
         android:visibility="visible">
 

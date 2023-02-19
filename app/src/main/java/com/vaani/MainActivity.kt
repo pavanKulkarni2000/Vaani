@@ -12,6 +12,7 @@ import com.vaani.db.ObjectBox
 import com.vaani.ui.home.HomePagerFragment
 import com.vaani.ui.player.Player
 import com.vaani.util.PermissionUtil
+import com.vaani.util.PreferenceUtil
 
 class MainActivity : AppCompatActivity(R.layout.main_layout) {
 
@@ -37,8 +38,9 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
 
         PermissionUtil.managePermissions()
 
-        DB.init(ObjectBox)
+        DB.init(ObjectBox,applicationContext)
         Player.init(this)
+        PreferenceUtil.init(applicationContext)
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
@@ -46,11 +48,6 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
                 add(R.id.fragment_container_view, HomePagerFragment())
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        DB.close()
     }
 
 }

@@ -44,7 +44,7 @@
         {
           "id": "8:652570415143877708",
           "name": "duration",
-          "type": 5
+          "type": 6
         }
       ],
       "relations": []
@@ -116,7 +116,7 @@
     },
     {
       "id": "6:7280048752549386731",
-      "lastPropertyId": "4:4464613379237504648",
+      "lastPropertyId": "5:3508587800720119543",
       "name": "PlayBack",
       "properties": [
         {
@@ -141,13 +141,18 @@
           "id": "4:4464613379237504648",
           "name": "speed",
           "type": 7
+        },
+        {
+          "id": "5:3508587800720119543",
+          "name": "loop",
+          "type": 1
         }
       ],
       "relations": []
     },
     {
       "id": "7:2996701351250310444",
-      "lastPropertyId": "5:7912073282520135712",
+      "lastPropertyId": "6:3123953948487557907",
       "name": "CollectionPreference",
       "properties": [
         {
@@ -177,6 +182,11 @@
           "id": "5:7912073282520135712",
           "name": "loopAtEnd",
           "type": 1
+        },
+        {
+          "id": "6:3123953948487557907",
+          "name": "lastPlayedId",
+          "type": 6
         }
       ],
       "relations": []

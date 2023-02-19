@@ -1,4 +1,4 @@
-package com.vaani.ui.home.favouriteList
+package com.vaani.ui.favouriteList
 
 import com.vaani.models.Favourite
 

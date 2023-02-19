@@ -10,9 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
+import com.vaani.db.DB
 import com.vaani.models.File
 import com.vaani.models.Folder
-import com.vaani.ui.home.favouriteList.FavouriteViewModel
+import com.vaani.ui.favouriteList.FavouriteViewModel
+import com.vaani.ui.player.Player
 import com.vaani.ui.player.VlcPlayerFragment
 import com.vaani.util.EmptyItemDecoration
 import com.vaani.util.TAG
@@ -90,9 +92,20 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
     }
 
     private fun onPlayClicked() {
-        parentFragmentManager.commit {
-            add(R.id.fragment_container_view, VlcPlayerFragment(null), TAG)
-            addToBackStack(null)
+        var file:File?=null
+        if(Player.mediaPlayerService.isPlaying && Player.mediaPlayerService.currentMediaFile?.folderId == currentFolder.id){
+            file = Player.mediaPlayerService.currentMediaFile
+        } else {
+            DB.CRUD.getCollectionPreference(currentFolder.id)?.let {
+                collPref->
+                file = folderMediaViewModel.folderMediaList.value?.find { it.id == collPref.lastPlayedId }
+            }
+        }
+        file?.let{
+            parentFragmentManager.commit {
+                add(R.id.fragment_container_view, VlcPlayerFragment(it), TAG)
+                addToBackStack(null)
+            }
         }
     }
 }

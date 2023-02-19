@@ -18,30 +18,17 @@ import com.vaani.util.TAG
 import org.videolan.libvlc.util.VLCVideoLayout
 
 
-class VlcPlayerFragment(  fileToPlay: File?) :
+class VlcPlayerFragment( var file:File ) :
     Fragment(R.layout.vlc_player_layout), PlayerViewListener {
     private lateinit var surfaceView: SurfaceView
-    private lateinit var file:File
     private lateinit var videoControllerView: VideoControllerView
-    init {
-        fileToPlay?.let {
-            file = it
-        }?:run {
-            Player.mediaPlayerService.currentMediaFile?.let {
-                file = it
-            } ?: run {
-                exit()
-            }
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val vlcVideoLayout: VLCVideoLayout = view.findViewById(R.id.video_layout)
         Player.mediaPlayerService.apply {
-            attachVlcVideoView(vlcVideoLayout)
-            startMedia(file)
-            bind(this@VlcPlayerFragment)
+            attachVlcVideoView(vlcVideoLayout,this@VlcPlayerFragment)
+            startNewMedia(file)
         }
         surfaceView = vlcVideoLayout.findViewById(org.videolan.R.id.surface_video)
         if (file.isAudio) {
@@ -131,9 +118,10 @@ class VlcPlayerFragment(  fileToPlay: File?) :
     override fun onDestroy() {
         super.onDestroy()
         Player.mediaPlayerService.detachViews()
+        videoControllerView.exit()
     }
 
-    fun mediaChanged(file: File) {
+    override fun mediaChanged(file: File) {
         this.file = file
         videoControllerView.mediaChanged()
         if(file.isAudio) {

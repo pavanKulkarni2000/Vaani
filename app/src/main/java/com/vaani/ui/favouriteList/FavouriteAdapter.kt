@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vaani.ui.home.favouriteList
+package com.vaani.ui.favouriteList
 
 import android.util.Log
 import android.view.LayoutInflater
