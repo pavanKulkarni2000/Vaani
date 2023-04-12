@@ -2,6 +2,7 @@ package com.vaani.ui.player
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
@@ -18,14 +19,16 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.slider.Slider
 import com.vaani.R
-import com.vaani.ui.player.ViewAnimator.Listeners
+import com.vaani.player.Player
 import com.vaani.util.PlayBackUtil
 import com.vaani.util.TAG
 import java.lang.ref.WeakReference
-import java.util.*
 
 /**
  * Created by Bruce Too
@@ -35,9 +38,8 @@ import java.util.*
 class VideoControllerView(
     private val mContext: Activity,
     mSurfaceView: SurfaceView,
-    private val mAnchorView: ViewGroup,
-    private val viewListener: PlayerViewListener
-) : FrameLayout(mContext), VideoGestureListener {
+    private val mAnchorView: ViewGroup
+) : FrameLayout(mContext), VideoGestureListener, LifecycleOwner {
 
     /**
      * if [VideoControllerView] is visible
@@ -48,23 +50,16 @@ class VideoControllerView(
         private set
     private var mIsDragging = false
 
-    // Root view
-    private lateinit var mRootView: View
-
     // seek views
     private lateinit var slider: Slider
     private lateinit var mEndTime: TextView
     private lateinit var mCurrentTime: TextView
-
-    // gestures
-    private lateinit var mGestureDetector: GestureDetector
 
     @DrawableRes
     private val mPauseIcon = R.drawable.media_controller__pause
 
     @DrawableRes
     private val mPlayIcon = R.drawable.media_controller__play_arrow
-
 
     @DrawableRes
     private val mShrinkIcon = R.drawable.mediacontroller_fullscreen_exit_40px
@@ -87,6 +82,7 @@ class VideoControllerView(
     //top layout
     private lateinit var mTopLayout: View
     private lateinit var titleTextView: TextView
+    private lateinit var mBackButton: ImageButton
 
     //center layout
     private lateinit var mCenterLayout: View
@@ -98,19 +94,24 @@ class VideoControllerView(
     private var mMaxVolume = 0
 
     //speed selector
+    private lateinit var mSpeedSelectorLayout: View
+    private lateinit var mSpeedSelector: Slider
 
     //bottom layout
     private lateinit var mBottomLayout: View
     private lateinit var mPauseButton: ImageButton
     private lateinit var mFullscreenButton: ImageButton
+    private lateinit var mSpeedButton: TextView
+    private lateinit var mLoopButton: ImageButton
+    private lateinit var mShuffleButton: ImageButton
+
     private val mHandler: Handler = ControllerViewHandler(this)
+    private lateinit var lifecycleReg: LifecycleRegistry
+    private lateinit var gestureDetector: GestureDetector
 
     init {
         initControllerView()
         initGestureListener(mSurfaceView)
-        mSurfaceView.setOnClickListener {
-            toggleControllerView()
-        }
     }
 
 
@@ -120,44 +121,77 @@ class VideoControllerView(
      */
     private fun initControllerView() {
         removeAllViews()
-        mRootView = (mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
+        val rootView = (mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
             .inflate(R.layout.media_controller, null)
-        addView(mRootView)
-        initTopLayout()
-        initCentralLayout()
-        initSpeedSelectorLayout()
-        initBottomLayout()
-
+        addView(rootView)
+        initTopLayout(rootView)
+        initCentralLayout(rootView)
+        initSpeedSelectorLayout(rootView)
+        initBottomLayout(rootView)
+        initObservers()
     }
 
-    private fun initBottomLayout() {
-
-        //bottom layout
-        mBottomLayout = mRootView.findViewById(R.id.layout_bottom)
-        mPauseButton = mRootView.findViewById(R.id.bottom_pause)
-        mPauseButton.requestFocus()
-        mPauseButton.setOnClickListener {
-            doPauseResume()
+    private fun initObservers() {
+        lifecycleReg = LifecycleRegistry(this)
+        lifecycleReg.currentState = Lifecycle.State.CREATED
+        Player.state.file.observe(this) {
+            updateControls()
             show()
         }
-        mBottomLayout.findViewById<ImageButton>(R.id.next_button).setOnClickListener { Player.mediaPlayerService.playNext() }
-        mBottomLayout.findViewById<ImageButton>(R.id.previous_button).setOnClickListener { Player.mediaPlayerService.playPrevious() }
+    }
 
-        mFullscreenButton = mRootView.findViewById(R.id.bottom_fullscreen)
+    private fun updateControls() {
+        titleTextView.text = Player.state.file.value?.name ?: ""
+        setPlayPauseIcon()
+        setShuffleButton()
+        setLoopButton()
+        setSpeedButton()
+        setStretchShrinkScreenIcon()
+    }
+
+    private fun initTopLayout(rootView: View) {
+        mTopLayout = rootView.findViewById(R.id.layout_top)
+        val closeButton = rootView.findViewById<ImageButton>(R.id.close_button)
+        closeButton.requestFocus()
+        closeButton.setOnClickListener {
+            exit()
+            Player.stop()
+        }
+        titleTextView = mTopLayout.findViewById(R.id.controller_title)
+        titleTextView.text = Player.state.file.value?.name ?: ""
+
+        mBackButton = rootView.findViewById(R.id.back_button)
+        mBackButton.setOnClickListener {
+            exit()
+            Player.detachPlayerView()
+        }
+    }
+
+    private fun initBottomLayout(rootView: View) {
+        mBottomLayout = rootView.findViewById(R.id.layout_bottom)
+        mPauseButton = rootView.findViewById(R.id.bottom_pause)
+        setPlayPauseIcon()
+        mPauseButton.setOnClickListener {
+            Player.state.updatePlaying(!Player.state.isPlaying.value!!)
+            setPlayPauseIcon()
+        }
+        mBottomLayout.findViewById<ImageButton>(R.id.next_button).setOnClickListener { Player.playNext() }
+        mBottomLayout.findViewById<ImageButton>(R.id.previous_button).setOnClickListener { Player.playPrevious() }
+
+        mFullscreenButton = rootView.findViewById(R.id.bottom_fullscreen)
         mFullscreenButton.requestFocus()
         mFullscreenButton.setOnClickListener {
             doToggleFullscreen()
             show()
         }
 
-        slider = mRootView.findViewById(R.id.bottom_seekbar)
+        slider = rootView.findViewById(R.id.bottom_seekbar)
         slider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
             override fun onStartTrackingTouch(slider: Slider) {
                 show()
                 mIsDragging = true
                 mHandler.removeMessages(HANDLER_UPDATE_PROGRESS)
             }
-
             override fun onStopTrackingTouch(slider: Slider) {
                 mIsDragging = false
                 setSeekProgress()
@@ -168,56 +202,77 @@ class VideoControllerView(
         })
         slider.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
-                val duration = Player.mediaPlayerService.duration.toLong()
+                val duration = Player.duration.toLong()
                 val newPosition = duration * value / 1000L
-                Player.mediaPlayerService.seekTo(newPosition.toInt())
+                Player.seekTo(newPosition.toInt())
             }
         }
         slider.setLabelFormatter { value ->
-            PlayBackUtil.stringToTime((Player.mediaPlayerService.duration * value / 1000).toInt())
+            PlayBackUtil.stringToTime((Player.duration * value / 1000).toInt())
         }
         slider.valueTo = 0.0F
         slider.valueTo = 1000.0F
 
-        mEndTime = mRootView.findViewById(R.id.bottom_time)
-        mCurrentTime = mRootView.findViewById(R.id.bottom_time_current)
-    }
+        mEndTime = rootView.findViewById(R.id.bottom_time)
+        mCurrentTime = rootView.findViewById(R.id.bottom_time_current)
 
-    private fun initSpeedSelectorLayout() {
-
-    }
-
-    private fun initCentralLayout() {
-        //center layout
-        mCenterLayout = mRootView.findViewById(R.id.layout_center)
-        mCenterLayout.visibility = GONE
-        mCenterImage = mRootView.findViewById(R.id.image_center_bg)
-        mCenterProgress = mRootView.findViewById(R.id.progress_center)
-    }
-
-    private fun initTopLayout() {
-        //top layout
-        mTopLayout = mRootView.findViewById(R.id.layout_top)
-        val closeButton = mRootView.findViewById<ImageButton>(R.id.close_button)
-        closeButton.requestFocus()
-        closeButton.setOnClickListener {
-            exit()
-            Player.mediaPlayerService.stop()
-            viewListener.exit()
+        mSpeedButton = rootView.findViewById(R.id.speed_button)
+        setSpeedButton()
+        mSpeedButton.setOnClickListener {
+            mSpeedSelectorLayout.visibility = VISIBLE
+            mSpeedSelector.value = Player.state.speed.value!!
+            mSpeedSelector.requestFocus()
         }
-        titleTextView = mTopLayout.findViewById(R.id.controller_title)
-        titleTextView.text = Player.mediaPlayerService.currentMediaFile?.name ?: ""
+
+        mLoopButton = rootView.findViewById(R.id.loop_button)
+        setLoopButton()
+        mLoopButton.setOnClickListener {
+            Player.state.updateLoop(!Player.state.loop.value!!)
+            setLoopButton()
+        }
+
+        mShuffleButton = rootView.findViewById(R.id.shuffle_button)
+        setShuffleButton()
+        mShuffleButton.setOnClickListener {
+            Player.state.updateShuffle(!Player.state.shuffle.value!!)
+            setShuffleButton()
+        }
     }
 
-    /**
-     * set gesture listen to control media player
-     * include screen brightness and volume of video
-     * and seek video play
-     */
+    private fun initSpeedSelectorLayout(rootView: View) {
+        mSpeedSelectorLayout = rootView.findViewById(R.id.layout_speed_selector)
+        mSpeedSelectorLayout.visibility = View.GONE
+        mSpeedSelector = mSpeedSelectorLayout.findViewById(R.id.speed_selector)
+        mSpeedSelector.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) mSpeedSelectorLayout.visibility = View.GONE
+        }
+        mSpeedSelector.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                var speed = value
+                if (value < 0.5) {
+                    speed = 0.5f
+                    mSpeedSelector.value = speed
+                }
+                Player.state.updateSpeed(speed)
+                setSpeedButton()
+            }
+        }
+    }
+
+    private fun initCentralLayout(rootView: View) {
+        mCenterLayout = rootView.findViewById(R.id.layout_center)
+        mCenterLayout.visibility = GONE
+        mCenterImage = rootView.findViewById(R.id.image_center_bg)
+        mCenterProgress = rootView.findViewById(R.id.progress_center)
+    }
+
     private fun initGestureListener(surfaceView: SurfaceView) {
         mAudioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        mGestureDetector = GestureDetector(surfaceView.context, ViewGestureListener(mContext, this))
+        gestureDetector = GestureDetector(context, ViewGestureListener(mContext, this))
+        surfaceView.setOnClickListener {
+            toggleControllerView()
+        }
     }
 
     /**
@@ -225,7 +280,6 @@ class VideoControllerView(
      */
     private fun show() {
         if (!isShowing) {
-
             //add controller view to bottom of the AnchorView
             val tlp = LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -242,17 +296,30 @@ class VideoControllerView(
                         .duration(ANIMATE_TIME)
                         .start {
                             isShowing = true
+                            lifecycleReg.currentState = Lifecycle.State.STARTED
                             mHandler.sendEmptyMessage(HANDLER_UPDATE_PROGRESS)
                         }
                 }
         }
-        titleTextView.text = Player.mediaPlayerService.currentMediaFile?.name ?: ""
-        setSeekProgress()
-        mPauseButton.requestFocus()
-        setPlayPauseIcon()
-        setStretchShrinkScreenIcon()
         //update progress
         mHandler.sendEmptyMessage(HANDLER_UPDATE_PROGRESS)
+    }
+
+
+    private fun setLoopButton() {
+        mLoopButton.setImageResource( if(Player.state.loop.value==true) mLoopIcon else mLoopDisabledIcon)
+    }
+
+    private fun setShuffleButton() {
+        mShuffleButton.setImageResource( if(Player.state.shuffle.value==true) mShuffleIcon else mShuffleDisabledIcon)
+    }
+
+    private fun setSpeedButton() {
+        mSpeedButton.text = Player.state.speed.value.toString()
+    }
+
+    private fun setPlayPauseIcon() {
+        mPauseButton.setImageResource( if(Player.state.isPlaying.value==true) mPauseIcon else mPlayIcon)
     }
 
     /**
@@ -285,6 +352,7 @@ class VideoControllerView(
                 mAnchorView.removeView(this@VideoControllerView)
                 mHandler.removeMessages(HANDLER_UPDATE_PROGRESS)
                 isShowing = false
+                lifecycleReg.currentState = Lifecycle.State.RESUMED
             }
     }
 
@@ -292,14 +360,12 @@ class VideoControllerView(
         if (mIsDragging) {
             return 0
         }
-        val position = Player.mediaPlayerService.currentPosition
-        val duration = Player.mediaPlayerService.duration
+        val position = Player.currentPosition
+        val duration = Player.duration
         if (duration > 0) {
-            // use long to avoid overflow
-            slider.value = (1000 * position / duration).toFloat()
+            slider.value = (1000 * position.coerceAtLeast(0) / duration).toFloat()
         }
         mEndTime.text = PlayBackUtil.stringToTime(duration)
-        Log.e(TAG, "position:$position -> duration:$duration")
         mCurrentTime.text = PlayBackUtil.stringToTime(position)
         return position
     }
@@ -310,29 +376,18 @@ class VideoControllerView(
                 mCurVolume = -1
                 mCurBrightness = -1f
                 mCenterLayout.visibility = GONE
-                mGestureDetector.onTouchEvent(event)
+                gestureDetector.onTouchEvent(event)
             }
-            else -> mGestureDetector.onTouchEvent(event)
+            else -> gestureDetector.onTouchEvent(event)
         }
         return true
-    }
-
-    /**
-     * set pause or play icon
-     */
-    private fun setPlayPauseIcon() {
-        if (Player.mediaPlayerService.isPlaying) {
-            mPauseButton.setImageResource(mPauseIcon)
-        } else {
-            mPauseButton.setImageResource(mPlayIcon)
-        }
     }
 
     /**
      * set stretch screen or shrink screen icon
      */
     private fun setStretchShrinkScreenIcon() {
-        if (viewListener.isFullScreen) {
+        if (mContext.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
             mFullscreenButton.setImageResource(mShrinkIcon)
         } else {
             mFullscreenButton.setImageResource(mStretchIcon)
@@ -340,22 +395,15 @@ class VideoControllerView(
     }
 
     /**
-     * play or pause listener invoke
-     */
-    private fun doPauseResume() {
-        if (Player.mediaPlayerService.isPlaying) {
-            Player.mediaPlayerService.pause()
-        } else {
-            Player.mediaPlayerService.start()
-        }
-        setPlayPauseIcon()
-    }
-
-    /**
      * toggle full screen listener invoke
      */
     private fun doToggleFullscreen() {
-        viewListener.toggleFullScreen()
+        if (mContext.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            mContext.requestedOrientation =
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else {
+            mContext.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -378,17 +426,17 @@ class VideoControllerView(
     }
 
     private fun seekBackWard() {
-        var pos = Player.mediaPlayerService.currentPosition
+        var pos = Player.currentPosition
         pos -= PROGRESS_SEEK.toInt()
-        Player.mediaPlayerService.seekTo(pos)
+        Player.seekTo(pos)
         setSeekProgress()
         show()
     }
 
     private fun seekForWard() {
-        var pos = Player.mediaPlayerService.currentPosition
+        var pos = Player.currentPosition
         pos += PROGRESS_SEEK.toInt()
-        Player.mediaPlayerService.seekTo(pos)
+        Player.seekTo(pos)
         setSeekProgress()
         show()
     }
@@ -401,6 +449,11 @@ class VideoControllerView(
             mCenterImage.setImageResource(R.drawable.mediacontroller_volume_up_48px)
             updateVolume(percent)
         }
+    }
+
+    override fun onDoubleTap() {
+        Player.state.updatePlaying(!Player.state.isPlaying.value!!)
+        setPlayPauseIcon()
     }
 
     /**
@@ -471,7 +524,7 @@ class VideoControllerView(
                 HANDLER_ANIMATE_OUT -> view.hide()
                 HANDLER_UPDATE_PROGRESS -> {
                     pos = view.setSeekProgress()
-                    if (!view.mIsDragging && view.isShowing && Player.mediaPlayerService.isPlaying) { //just in case
+                    if (!view.mIsDragging && view.isShowing && Player.state.isPlaying.value!!) { //just in case
                         //cycle update
                         sendEmptyMessageDelayed(HANDLER_UPDATE_PROGRESS, (1000 - pos % 1000).toLong())
                     }
@@ -480,13 +533,9 @@ class VideoControllerView(
         }
     }
 
-     fun exit() {
+    fun exit() {
         mHandler.removeMessages(HANDLER_ANIMATE_OUT)
         mHandler.removeMessages(HANDLER_UPDATE_PROGRESS)
-    }
-
-    fun mediaChanged() {
-        show()
     }
 
     companion object {
@@ -494,5 +543,9 @@ class VideoControllerView(
         private const val HANDLER_UPDATE_PROGRESS = 2 //cycle update progress
         private const val PROGRESS_SEEK: Long = 500
         private const val ANIMATE_TIME: Long = 300
+    }
+
+    override fun getLifecycle(): Lifecycle {
+        return lifecycleReg
     }
 }

@@ -12,7 +12,6 @@ data class CollectionPreference(
     var collectionId: Long,
     var shuffle: Boolean,
     var lastPlayedId: Long
-)
-{
-    constructor() : this(0,0,false,0)
+) {
+    constructor() : this(0, 0, false, 0)
 }

@@ -28,7 +28,7 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <service android:name=".ui.player.PlayerService" android:exported="false" android:enabled="true"/>
+        <service android:name=".player.PlayerService" android:exported="false" android:enabled="true"/>
     </application>
 
 </manifest>

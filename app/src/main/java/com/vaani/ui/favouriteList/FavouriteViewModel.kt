@@ -15,7 +15,7 @@ import com.vaani.util.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.LinkedList
+import java.util.*
 
 class FavouriteViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -30,10 +30,11 @@ class FavouriteViewModel(application: Application) : AndroidViewModel(applicatio
                     rank = _favouriteMediaList.value?.size ?: 0
                 })
                 launch(Dispatchers.Main) {
-                    _favouriteMediaList.value = _favouriteMediaList.value?.plus(listOf(newFav))
+                    _favouriteMediaList.value = _favouriteMediaList.value!!.toMutableList().apply {  add(newFav) }
+                    Log.d(TAG, "addFavourite: new fav list set")
                 }
-            }catch (_:Exception){
-                Log.e(TAG, "addFavourite: Fav creation error ")
+            } catch (e: Exception) {
+                Log.e(TAG, "addFavourite: Fav creation error ",e)
             }
         }
     }
@@ -43,6 +44,15 @@ class FavouriteViewModel(application: Application) : AndroidViewModel(applicatio
             DB.CRUD.deleteFavourite(favourite)
             launch(Dispatchers.Main) {
                 _favouriteMediaList.value = DB.CRUD.getFavourites()
+            }
+        }
+    }
+
+    fun updateRank(from: Int, to: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val updated = DB.CRUD.updateFavourites(from,to)
+            launch(Dispatchers.Main) {
+                _favouriteMediaList.value = updated
             }
         }
     }

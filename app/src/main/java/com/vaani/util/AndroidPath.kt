@@ -5,7 +5,6 @@ import android.util.Log
 import com.vaani.models.File
 import com.vaani.models.FileType
 import com.vaani.models.Folder
-import com.vaani.ui.player.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLConnection
@@ -61,8 +60,8 @@ object AndroidPath : AndroidGenericFileType<Path> {
                 Log.d(TAG, "makeFile: duration $dur")
                 return dur
             }
-        }catch (e:Exception){
-            Log.e(TAG, "getDuration: error",e )
+        } catch (e: Exception) {
+            Log.e(TAG, "getDuration: error", e)
             return 0
         }
     }

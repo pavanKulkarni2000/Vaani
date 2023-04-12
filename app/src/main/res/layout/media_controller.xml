@@ -17,7 +17,7 @@
             android:background="@drawable/mediacontroller_sqaure">
 
             <ImageButton
-                android:id="@+id/speed_button"
+                android:id="@+id/back_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -114,10 +114,10 @@
                 android:id="@+id/previous_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/bottom_pause"
                 android:layout_centerInParent="true"
-                android:paddingHorizontal="16dp"
+                android:layout_toStartOf="@id/bottom_pause"
                 android:background="@null"
+                android:paddingHorizontal="16dp"
                 android:src="@drawable/media_controller__skip_previous" />
 
 
@@ -132,22 +132,23 @@
                 android:src="@drawable/media_controller__skip_next" />
 
             <TextView
+                android:id="@+id/speed_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1.00x"
+                android:layout_centerInParent="true"
                 android:layout_toEndOf="@+id/next_button"
-                android:textSize="16sp"
+                android:text="1.00x"
                 android:textColor="@android:color/white"
-                android:layout_centerInParent="true"/>
+                android:textSize="12sp" />
 
             <ImageButton
                 android:id="@+id/loop_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/previous_button"
                 android:layout_centerInParent="true"
-                android:paddingHorizontal="8dp"
+                android:layout_toStartOf="@id/previous_button"
                 android:background="@null"
+                android:paddingHorizontal="8dp"
                 android:src="@drawable/media_controller__loop" />
 
             <ImageButton
@@ -184,6 +185,7 @@
         <com.google.android.material.slider.Slider
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
             android:id="@+id/speed_selector"
             android:valueFrom="0"
             android:valueTo="4.00"

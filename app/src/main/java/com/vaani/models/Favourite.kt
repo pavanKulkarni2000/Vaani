@@ -9,7 +9,6 @@ import io.objectbox.relation.ToOne
 data class Favourite(
     @Id
     var id: Long = 0,
-    @Unique
     var rank: Int = 0,
 ) {
     lateinit var file: ToOne<File>

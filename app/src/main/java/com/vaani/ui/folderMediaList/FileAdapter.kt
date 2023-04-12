@@ -16,9 +16,7 @@
 
 package com.vaani.ui.folderMediaList
 
-import android.view.ContextMenu
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -38,7 +36,7 @@ class FileAdapter(
     inner class FileViewHolder(
         itemView: View, fileCallbacks: FileCallbacks
     ) :
-        RecyclerView.ViewHolder(itemView){
+        RecyclerView.ViewHolder(itemView) {
         private var currentFile: File? = null
 
 

@@ -14,7 +14,7 @@ import com.vaani.db.DB
 import com.vaani.models.File
 import com.vaani.models.Folder
 import com.vaani.ui.favouriteList.FavouriteViewModel
-import com.vaani.ui.player.Player
+import com.vaani.player.Player
 import com.vaani.ui.player.VlcPlayerFragment
 import com.vaani.util.EmptyItemDecoration
 import com.vaani.util.TAG
@@ -36,13 +36,10 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
     private val job = Job()
     private val scope = CoroutineScope(job)
     private val fileCallbacks = object : FileCallbacks {
-        override fun onFavourite(file: File) {
-            favouriteViewModel.addFavourite(file)
-        }
-
         override fun onClick(file: File) {
+            Player.startNewMedia(file)
             parentFragmentManager.commit {
-                add(R.id.fragment_container_view, VlcPlayerFragment(file), TAG)
+                add(R.id.fragment_container_view, VlcPlayerFragment::class.java, null, TAG)
                 addToBackStack(null)
             }
         }
@@ -92,18 +89,18 @@ class FolderMediaListFragment(private val currentFolder: Folder) : Fragment(R.la
     }
 
     private fun onPlayClicked() {
-        var file:File?=null
-        if(Player.mediaPlayerService.isPlaying && Player.mediaPlayerService.currentMediaFile?.folderId == currentFolder.id){
-            file = Player.mediaPlayerService.currentMediaFile
+        var file: File? = null
+        if (Player.state.isPlaying.value!! && Player.state.file.value?.folderId == currentFolder.id) {
+            file = Player.state.file.value
         } else {
-            DB.CRUD.getCollectionPreference(currentFolder.id)?.let {
-                collPref->
+            DB.CRUD.getCollectionPreference(currentFolder.id)?.let { collPref ->
                 file = folderMediaViewModel.folderMediaList.value?.find { it.id == collPref.lastPlayedId }
             }
         }
-        file?.let{
+        file?.let {
+            Player.startNewMedia(it)
             parentFragmentManager.commit {
-                add(R.id.fragment_container_view, VlcPlayerFragment(it), TAG)
+                add(R.id.fragment_container_view, VlcPlayerFragment::class.java, null, TAG)
                 addToBackStack(null)
             }
         }

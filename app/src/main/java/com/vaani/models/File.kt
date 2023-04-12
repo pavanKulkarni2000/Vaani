@@ -33,7 +33,7 @@ data class File(
     var folderId: Long
 ) {
 
-    constructor() : this(0, "", false, "", false, 0,0)
+    constructor() : this(0, "", false, "", false, 0, 0)
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as File).path == path)
 

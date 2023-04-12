@@ -7,7 +7,6 @@ import com.vaani.MainActivity
 import com.vaani.models.File
 import com.vaani.models.FileType
 import com.vaani.models.Folder
-import com.vaani.ui.player.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -53,8 +52,8 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
                 Log.d(TAG, "makeFile: duration $dur")
                 return dur
             }
-        }catch (e:Exception){
-            Log.e(TAG, "getDuration: error",e )
+        } catch (e: Exception) {
+            Log.e(TAG, "getDuration: error", e)
             return 0
         }
     }

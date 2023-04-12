@@ -42,8 +42,8 @@ object ObjectBox : DBOperations {
     }
 
     override fun getFolderMediaList(folderId: Long): List<File> {
-        if(folderId==-1L){
-            return favouriteBox.all.sortedBy(Favourite::rank).map{it.file.target.apply { this.folderId = -1 }}
+        if (folderId == -1L) {
+            return favouriteBox.all.sortedBy(Favourite::rank).map { it.file.target.apply { this.folderId = -1 } }
         }
         fileBox.query(File_.folderId.equal(folderId)).build().use { return it.find().sortedBy(File::name) }
     }
@@ -52,32 +52,34 @@ object ObjectBox : DBOperations {
         return favouriteBox.all.sortedBy(Favourite::rank)
     }
 
-    override fun getPlayback(fileId: Long): PlayBack? {
-         playBackBox.query(PlayBack_.fileId.equal(fileId)).build().use { return it.findFirst() }
+    override fun getPlayback(fileId: Long): PlayBack {
+        playBackBox.query(PlayBack_.fileId.equal(fileId)).build()
+            .use { return it.findFirst() ?: PlayBack().apply { this.fileId = fileId } }
     }
 
     override fun getPlaybacks(): List<PlayBack> {
         return playBackBox.all
     }
 
-    override fun getCollectionPreference(collectionId: Long): CollectionPreference? {
-        if(collectionId==-1L){
+    override fun getCollectionPreference(collectionId: Long): CollectionPreference {
+        if (collectionId == -1L) {
             return PreferenceUtil.favPreference
         }
         collectionPreferenceBox.query(CollectionPreference_.collectionId.equal(collectionId))
             .build()
             .use {
-                return it.findFirst() }
+                return it.findFirst()?:CollectionPreference().apply { this.collectionId = collectionId }
+            }
     }
 
     override suspend fun upsertFolderMediaList(folder: Folder, files: List<File>): List<File> {
         val dbFiles = getFolderMediaList(folder.id)
         val deadFiles = mutableSetOf<File>()
-        dbFiles.forEach{
-            file-> val index = files.indexOf(file)
-            if(index==-1){
+        dbFiles.forEach { file ->
+            val index = files.indexOf(file)
+            if (index == -1) {
                 deadFiles.add(file)
-            }else {
+            } else {
                 files[index].id = file.id
             }
 
@@ -92,9 +94,9 @@ object ObjectBox : DBOperations {
 
     override suspend fun upsertFavourite(favourite: Favourite): Favourite {
         val builder = favouriteBox.query()
-            builder.link(Favourite_.file).apply(File_.id.equal(favourite.file.target.id));
-            builder.build().use {
-            if(it.count()==0L){
+        builder.link(Favourite_.file).apply(File_.id.equal(favourite.file.target.id))
+        builder.build().use {
+            if (it.count() != 0L) {
                 throw Exception("upsertFavourite: File is already favourite")
             }
         }
@@ -106,11 +108,11 @@ object ObjectBox : DBOperations {
         val dbFolders = folderBox.all
         val deadFolders = mutableSetOf<Folder>()
         Log.d(TAG, "upsertFolders: $folders")
-        dbFolders.forEach{
-                folder-> val index = folders.indexOf(folder)
-            if(index==-1){
+        dbFolders.forEach { folder ->
+            val index = folders.indexOf(folder)
+            if (index == -1) {
                 deadFolders.add(folder)
-            }else {
+            } else {
                 folders.elementAt(index).id = folder.id
             }
 
@@ -129,11 +131,30 @@ object ObjectBox : DBOperations {
         return playBack
     }
 
+    override suspend fun updateFavourites(from: Int, to: Int):List<Favourite> {
+        val data = getFavourites().toMutableList()
+        val moved = data[from]
+        if (to < from) {
+            for (i in to until from) {
+                data[i+1] = data[i]
+                data[i+1].rank = i+1
+            }
+        } else {
+            for (i in from until to) {
+                data[i] = data[i+1]
+                data[i].rank = i
+            }
+        }
+        data[to] = moved
+        data[to].rank = to
+        favouriteBox.put(data)
+        return data
+    }
+
     override fun upsertCollectionPreference(collectionPreference: CollectionPreference): CollectionPreference {
-        Log.d(TAG, "upsertCollectionPreference: $collectionPreference")
-        if(collectionPreference.collectionId==-1L){
+        if (collectionPreference.collectionId == -1L) {
             PreferenceUtil.Favourite.put(collectionPreference)
-        }else {
+        } else {
             collectionPreferenceBox.put(collectionPreference)
         }
         return collectionPreference
@@ -142,7 +163,7 @@ object ObjectBox : DBOperations {
     override fun updatePlaybacks(files: Set<File>) {
         val existingFiles = files.map(File::id)
         val dbPlaybacks = playBackBox.all
-        dbPlaybacks.removeIf { playback-> existingFiles.contains(playback.fileId) }
+        dbPlaybacks.removeIf { playback -> existingFiles.contains(playback.fileId) }
         playBackBox.remove(dbPlaybacks)
     }
 

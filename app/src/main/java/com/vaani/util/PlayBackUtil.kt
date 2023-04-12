@@ -1,26 +1,26 @@
 package com.vaani.util
 
-import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
-import android.net.Uri
-import android.util.Log
-import com.vaani.MainActivity
-import com.vaani.models.File
+import com.bumptech.glide.load.model.ModelLoader.LoadData
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
+import kotlin.random.Random
 
 object PlayBackUtil {
 
     //init formatter
     private var mFormatBuilder: StringBuilder = StringBuilder()
     private var mFormatter: Formatter = Formatter(mFormatBuilder, Locale.getDefault())
+    var random = Random(System.currentTimeMillis())
+    private set
+
     /**
      * convert string to time
      *
      * @param timeMs time to be formatted
      * @return 00:00:00
      */
-     fun stringToTime(timeMs: Int): String {
+    fun stringToTime(timeMs: Int): String {
         val totalSeconds = timeMs / 1000
         val seconds = totalSeconds % 60
         val minutes = totalSeconds / 60 % 60
@@ -32,4 +32,5 @@ object PlayBackUtil {
             mFormatter.format("%02d:%02d", minutes, seconds).toString()
         }
     }
+
 }

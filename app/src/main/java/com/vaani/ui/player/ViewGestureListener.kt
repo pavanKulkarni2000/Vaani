@@ -20,6 +20,11 @@ class ViewGestureListener(private val context: Context, private val listener: Vi
         return true
     }
 
+    override fun onDoubleTap(e: MotionEvent): Boolean {
+        listener.onDoubleTap()
+        return false
+    }
+
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         val deltaX = e1.rawX - e2.rawX
         val deltaY = e1.rawY - e2.rawY
@@ -46,11 +51,10 @@ class ViewGestureListener(private val context: Context, private val listener: Vi
         private const val TAG = "ViewGestureListener"
         private const val SWIPE_THRESHOLD = 60 //threshold of swipe
         fun getDeviceWidth(context: Context): Int {
-            
+
             val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val mDisplayMetrics = DisplayMetrics()
             wm.defaultDisplay.getMetrics(mDisplayMetrics)
-            Log.d(TAG, "getDeviceWidth: comparing ${context.applicationInfo.compatibleWidthLimitDp} and ${mDisplayMetrics.widthPixels}")
             return mDisplayMetrics.widthPixels
         }
 

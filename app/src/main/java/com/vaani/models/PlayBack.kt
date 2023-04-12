@@ -3,8 +3,6 @@ package com.vaani.models
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.annotation.Unique
-import org.videolan.libvlc.LibVLC
-import org.videolan.libvlc.MediaPlayer
 
 @Entity
 data class PlayBack(
@@ -15,7 +13,6 @@ data class PlayBack(
     var progress: Float = 0F,
     var speed: Float = 1F,
     var loop: Boolean = false
-    )
-{
-    constructor() : this(0,0,0F, 1F, false)
+) {
+    constructor() : this(0, 0, 0F, 1F, false)
 }

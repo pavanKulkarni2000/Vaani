@@ -1,6 +1,5 @@
 package com.vaani.ui.player
 
-import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
@@ -10,36 +9,58 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import com.vaani.MainActivity
 import com.vaani.R
 import com.vaani.models.File
+import com.vaani.player.Player
 import com.vaani.util.TAG
 import org.videolan.libvlc.util.VLCVideoLayout
 
 
-class VlcPlayerFragment( var file:File ) :
-    Fragment(R.layout.vlc_player_layout), PlayerViewListener {
+class VlcPlayerFragment :
+    Fragment(R.layout.vlc_player_layout) {
+
+    init {
+        Log.d(TAG, "created: ")
+    }
+
     private lateinit var surfaceView: SurfaceView
     private lateinit var videoControllerView: VideoControllerView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val vlcVideoLayout: VLCVideoLayout = view.findViewById(R.id.video_layout)
-        Player.mediaPlayerService.apply {
-            attachVlcVideoView(vlcVideoLayout,this@VlcPlayerFragment)
-            startNewMedia(file)
-        }
+        Player.attachPlayerView(vlcVideoLayout)
         surfaceView = vlcVideoLayout.findViewById(org.videolan.R.id.surface_video)
-        if (file.isAudio) {
-            setImage(file)
+        Player.state.file.value?.let { file ->
+            if (file.isAudio) {
+                setImage(file)
+            }
         }
         videoControllerView = VideoControllerView(
             requireActivity(),
             surfaceView,
-            vlcVideoLayout,
-            this
+            vlcVideoLayout
         )
+        Player.state.file.observe(viewLifecycleOwner) { file ->
+            if (file.isAudio) {
+                setImage(file)
+            }
+        }
+        Player.state.isAttached.observe(viewLifecycleOwner) {
+            if (!it) {
+                Log.d(TAG, "onViewCreated: pop")
+                parentFragmentManager.popBackStack()
+            }
+        }
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d(TAG, "handleOnBackPressed: ")
+               Player.state.setAttached(false)
+            }
+        })
     }
 
     private fun setImage(file: File) {
@@ -98,34 +119,10 @@ class VlcPlayerFragment( var file:File ) :
         }
     }
 
-    override val isFullScreen: Boolean
-        get() = requireActivity().requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-    override fun toggleFullScreen() {
-        if (isFullScreen) {
-            requireActivity().requestedOrientation =
-                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else {
-            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        }
-    }
-
-    override fun exit() {
-        parentFragmentManager.popBackStack()
-    }
-
 
     override fun onDestroy() {
+        Log.d(TAG, "onDestroy: ")
         super.onDestroy()
-        Player.mediaPlayerService.detachViews()
         videoControllerView.exit()
-    }
-
-    override fun mediaChanged(file: File) {
-        this.file = file
-        videoControllerView.mediaChanged()
-        if(file.isAudio) {
-            setImage(file)
-        }
     }
 }

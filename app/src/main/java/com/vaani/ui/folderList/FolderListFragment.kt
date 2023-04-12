@@ -1,7 +1,6 @@
 package com.vaani.ui.folderList
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -14,7 +13,7 @@ import com.vaani.db.DB
 import com.vaani.models.File
 import com.vaani.models.Folder
 import com.vaani.ui.folderMediaList.FolderMediaListFragment
-import com.vaani.ui.player.Player
+import com.vaani.player.Player
 import com.vaani.ui.player.VlcPlayerFragment
 import com.vaani.util.Constants
 import com.vaani.util.EmptyItemDecoration
@@ -67,34 +66,32 @@ class FolderListFragment : Fragment(R.layout.list_layout) {
     private fun onPlayClicked() {
         var file: File? = null
         var folder: Folder? = null
-        if(Player.mediaPlayerService.isPlaying && Player.mediaPlayerService.currentMediaFile?.folderId != Constants.FAVOURITE_COLLECTION_ID){
-            file = Player.mediaPlayerService.currentMediaFile
-            file?.let {
-                file1->
-                folder = foldersViewModel.folderList.value?.find { it.id == file1.folderId}
+        if (Player.state.isPlaying.value!! && Player.state.file.value?.folderId != Constants.FAVOURITE_COLLECTION_ID) {
+            file = Player.state.file.value
+            file?.let { file1 ->
+                folder = foldersViewModel.folderList.value?.find { it.id == file1.folderId }
             }
         } else {
-            folder = foldersViewModel.folderList.value?.find { it.id == PreferenceUtil.Folders.lastPlayedFolderId}
-            folder?.let{
-                folder1->
+            folder = foldersViewModel.folderList.value?.find { it.id == PreferenceUtil.Folders.lastPlayedFolderId }
+            folder?.let { folder1 ->
                 val folderFiles = DB.CRUD.getFolderMediaList(folder1.id)
-                DB.CRUD.getCollectionPreference(folder1.id)?.let {
-                     collectionPref ->
+                DB.CRUD.getCollectionPreference(folder1.id)?.let { collectionPref ->
                     file = folderFiles.find { it.id == collectionPref.lastPlayedId }
-                }?:run{
+                } ?: run {
                     file = folderFiles[0]
                 }
             }
         }
-            parentFragmentManager.commit {
-                folder?.let {
-                    add(R.id.fragment_container_view, FolderMediaListFragment(it))
-                }
-                file?.let {
-                    add(R.id.fragment_container_view, VlcPlayerFragment(it))
-                }
-                addToBackStack(null)
+        requireParentFragment().parentFragmentManager.commit {
+            folder?.let {
+                add(R.id.fragment_container_view, FolderMediaListFragment(it))
             }
+            file?.let {
+                Player.startNewMedia(it)
+                add(R.id.fragment_container_view, VlcPlayerFragment::class.java, null, TAG)
+            }
+            addToBackStack(null)
+        }
     }
 
     private fun folderOnClick(file: Folder) {
