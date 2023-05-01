@@ -116,6 +116,8 @@ object Player {
             mediaPlayerService.seekTo(0)
             if(state.loop.value!=true) {
                 playNext()
+            } else {
+                state.updatePlaying(true)
             }
         }
     }
