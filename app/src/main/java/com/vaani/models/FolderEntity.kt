@@ -21,21 +21,26 @@ import io.objectbox.annotation.Id
 import io.objectbox.annotation.Unique
 
 @Entity
-data class File(
+data class FolderEntity(
     @Id
     var id: Long = 0,
     var name: String,
-    var isAudio: Boolean,
     @Unique
     var path: String,
     var isUri: Boolean,
-    var duration: Long,
-    var folderId: Long
+    var items: Int,
+    var playBackShuffle: Boolean = false,
+    var lastPlayedId: Long = 0,
 ) {
 
-    constructor() : this(0, "", false, "", false, 0, 0)
+    constructor() : this(0, "", "", false, 0)
 
-    override fun equals(other: Any?): Boolean = (this === other) || ((other as File).path == path)
+    override fun equals(other: Any?): Boolean = (this === other) || ((other as FolderEntity).path == path)
 
     override fun hashCode(): Int = path.hashCode()
+
+    fun copyPreferenceFrom(folderEntity: FolderEntity) {
+        this.playBackShuffle = folderEntity.playBackShuffle
+        this.lastPlayedId = folderEntity.lastPlayedId
+    }
 }

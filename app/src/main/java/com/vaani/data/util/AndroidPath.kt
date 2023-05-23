@@ -1,10 +1,11 @@
-package com.vaani.util
+package com.vaani.data.util
 
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import com.vaani.models.File
+import com.vaani.models.FileEntity
 import com.vaani.models.FileType
-import com.vaani.models.Folder
+import com.vaani.models.FolderEntity
+import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLConnection
@@ -32,8 +33,8 @@ object AndroidPath : AndroidGenericFileType<Path> {
         return FileUtil.fileType(URLConnection.guessContentTypeFromName(file.name))
     }
 
-    override fun makeFile(androidFile: Path, isAudio: Boolean): File {
-        return File().apply {
+    override fun makeFile(androidFile: Path, isAudio: Boolean): FileEntity {
+        return FileEntity().apply {
             this.name = androidFile.fileName.toString()
             this.isAudio = isAudio
             this.path = androidFile.toString()
@@ -42,8 +43,8 @@ object AndroidPath : AndroidGenericFileType<Path> {
         }
     }
 
-    override fun makeFolder(file: Path, count: Int): Folder {
-        return Folder(
+    override fun makeFolder(file: Path, count: Int): FolderEntity {
+        return FolderEntity(
             id = 0,
             name = file.fileName.toString(),
             path = file.toString(),

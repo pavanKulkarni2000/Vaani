@@ -7,7 +7,6 @@ import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.util.Log
 import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -25,9 +24,9 @@ import androidx.lifecycle.LifecycleRegistry
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.slider.Slider
 import com.vaani.R
+import com.vaani.data.PlayerState
+import com.vaani.player.PlayBackUtil
 import com.vaani.player.Player
-import com.vaani.util.PlayBackUtil
-import com.vaani.util.TAG
 import java.lang.ref.WeakReference
 
 /**
@@ -134,14 +133,14 @@ class VideoControllerView(
     private fun initObservers() {
         lifecycleReg = LifecycleRegistry(this)
         lifecycleReg.currentState = Lifecycle.State.CREATED
-        Player.state.file.observe(this) {
+        PlayerState.fileLive.observe(this) {
             updateControls()
             show()
         }
     }
 
     private fun updateControls() {
-        titleTextView.text = Player.state.file.value?.name ?: ""
+        titleTextView.text = PlayerState.file.name
         setPlayPauseIcon()
         setShuffleButton()
         setLoopButton()
@@ -158,7 +157,7 @@ class VideoControllerView(
             Player.stop()
         }
         titleTextView = mTopLayout.findViewById(R.id.controller_title)
-        titleTextView.text = Player.state.file.value?.name ?: ""
+        titleTextView.text = PlayerState.file.name
 
         mBackButton = rootView.findViewById(R.id.back_button)
         mBackButton.setOnClickListener {
@@ -172,7 +171,11 @@ class VideoControllerView(
         mPauseButton = rootView.findViewById(R.id.bottom_pause)
         setPlayPauseIcon()
         mPauseButton.setOnClickListener {
-            Player.state.updatePlaying(!Player.state.isPlaying.value!!)
+            if(PlayerState.isPlaying){
+                Player.resume()
+            }else{
+                Player.pause()
+            }
             setPlayPauseIcon()
         }
         mBottomLayout.findViewById<ImageButton>(R.id.next_button).setOnClickListener { Player.playNext() }
@@ -192,6 +195,7 @@ class VideoControllerView(
                 mIsDragging = true
                 mHandler.removeMessages(HANDLER_UPDATE_PROGRESS)
             }
+
             override fun onStopTrackingTouch(slider: Slider) {
                 mIsDragging = false
                 setSeekProgress()
@@ -220,21 +224,29 @@ class VideoControllerView(
         setSpeedButton()
         mSpeedButton.setOnClickListener {
             mSpeedSelectorLayout.visibility = VISIBLE
-            mSpeedSelector.value = Player.state.speed.value!!
+            mSpeedSelector.value = PlayerState.speed
             mSpeedSelector.requestFocus()
         }
 
         mLoopButton = rootView.findViewById(R.id.loop_button)
         setLoopButton()
         mLoopButton.setOnClickListener {
-            Player.state.updateLoop(!Player.state.loop.value!!)
+            if(PlayerState.loop){
+                Player.stopLoop()
+            }else{
+                Player.loop()
+            }
             setLoopButton()
         }
 
         mShuffleButton = rootView.findViewById(R.id.shuffle_button)
         setShuffleButton()
         mShuffleButton.setOnClickListener {
-            Player.state.updateShuffle(!Player.state.shuffle.value!!)
+            if(PlayerState.shuffle){
+                Player.stopShuffle()
+            }else{
+                Player.shuffle()
+            }
             setShuffleButton()
         }
     }
@@ -253,7 +265,7 @@ class VideoControllerView(
                     speed = 0.5f
                     mSpeedSelector.value = speed
                 }
-                Player.state.updateSpeed(speed)
+                Player.updateSpeed(speed)
                 setSpeedButton()
             }
         }
@@ -307,19 +319,19 @@ class VideoControllerView(
 
 
     private fun setLoopButton() {
-        mLoopButton.setImageResource( if(Player.state.loop.value==true) mLoopIcon else mLoopDisabledIcon)
+        mLoopButton.setImageResource(if (PlayerState.loop) mLoopIcon else mLoopDisabledIcon)
     }
 
     private fun setShuffleButton() {
-        mShuffleButton.setImageResource( if(Player.state.shuffle.value==true) mShuffleIcon else mShuffleDisabledIcon)
+        mShuffleButton.setImageResource(if (PlayerState.shuffle) mShuffleIcon else mShuffleDisabledIcon)
     }
 
     private fun setSpeedButton() {
-        mSpeedButton.text = Player.state.speed.value.toString()
+        mSpeedButton.text = PlayerState.speed.toString()
     }
 
     private fun setPlayPauseIcon() {
-        mPauseButton.setImageResource( if(Player.state.isPlaying.value==true) mPauseIcon else mPlayIcon)
+        mPauseButton.setImageResource(if (PlayerState.isPlaying) mPauseIcon else mPlayIcon)
     }
 
     /**
@@ -452,7 +464,11 @@ class VideoControllerView(
     }
 
     override fun onDoubleTap() {
-        Player.state.updatePlaying(!Player.state.isPlaying.value!!)
+        if(PlayerState.isPlaying){
+            Player.resume()
+        }else{
+            Player.pause()
+        }
         setPlayPauseIcon()
     }
 
@@ -524,7 +540,7 @@ class VideoControllerView(
                 HANDLER_ANIMATE_OUT -> view.hide()
                 HANDLER_UPDATE_PROGRESS -> {
                     pos = view.setSeekProgress()
-                    if (!view.mIsDragging && view.isShowing && Player.state.isPlaying.value!!) { //just in case
+                    if (!view.mIsDragging && view.isShowing && PlayerState.isPlaying) { //just in case
                         //cycle update
                         sendEmptyMessageDelayed(HANDLER_UPDATE_PROGRESS, (1000 - pos % 1000).toLong())
                     }

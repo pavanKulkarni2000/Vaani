@@ -7,10 +7,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
+import com.vaani.data.Files
 import com.vaani.db.DB
-import com.vaani.db.ObjectBox
-import com.vaani.ui.home.HomePagerFragment
 import com.vaani.player.Player
+import com.vaani.ui.home.HomePagerFragment
 import com.vaani.util.PermissionUtil
 import com.vaani.util.PreferenceUtil
 
@@ -38,7 +38,8 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
 
         PermissionUtil.managePermissions()
 
-        DB.init(ObjectBox, applicationContext)
+        DB.init(applicationContext)
+        Files.init()
         Player.init(this)
         PreferenceUtil.init(applicationContext)
 

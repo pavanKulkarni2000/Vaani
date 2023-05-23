@@ -1,23 +1,23 @@
-package com.vaani.util
+package com.vaani.data.util
 
-import com.vaani.models.File
+import com.vaani.models.FileEntity
 import com.vaani.models.FileType
-import com.vaani.models.Folder
+import com.vaani.models.FolderEntity
 import java.util.*
 
 interface AndroidGenericFileType<T> {
     suspend fun listFolder(folder: T): List<T>
-    fun makeFile(androidFile: T, isAudio: Boolean): File
+    fun makeFile(androidFile: T, isAudio: Boolean): FileEntity
     fun mimeType(file: T): FileType
-    fun makeFolder(file: T, count: Int): Folder
+    fun makeFolder(file: T, count: Int): FolderEntity
     fun getDuration(file: T): Long
 
-    suspend fun discoverRecursive(root: T): Map<Folder, List<File>> {
-        val result = LinkedHashMap<Folder, List<File>>()
+    suspend fun discoverRecursive(root: T): Map<FolderEntity, List<FileEntity>> {
+        val result = LinkedHashMap<FolderEntity, List<FileEntity>>()
         val stack = Stack<T>()
         stack.add(root)
         while (stack.isNotEmpty()) {
-            val mediaList = LinkedList<File>()
+            val mediaList = LinkedList<FileEntity>()
             val folder = stack.pop()
             val list = listFolder(folder)
             list.forEach { file ->
@@ -37,7 +37,7 @@ interface AndroidGenericFileType<T> {
         return result
     }
 
-    suspend fun listFolderMedia(folder: T): List<File> {
+    suspend fun listFolderMedia(folder: T): List<FileEntity> {
         return listFolder(folder).mapNotNull {
             when (mimeType(it)) {
                 FileType.AUDIO -> makeFile(it, true)

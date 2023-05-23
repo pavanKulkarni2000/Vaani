@@ -1,23 +1,23 @@
-package com.vaani.util
+package com.vaani.data.util
 
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
-import com.vaani.models.File
+import com.vaani.models.FileEntity
 import com.vaani.models.FileType
-import com.vaani.models.Folder
+import com.vaani.models.FolderEntity
 import java.nio.file.Paths
 
 object FileUtil {
 
     private const val primaryStorageRootPath = "/storage/emulated/0/"
 
-    suspend fun updatePrimaryStorageList(): Map<Folder, List<File>> {
+    suspend fun updatePrimaryStorageList(): Map<FolderEntity, List<FileEntity>> {
         return AndroidPath.discoverRecursive(Paths.get(primaryStorageRootPath))
     }
 
-    suspend fun updateSecondaryStorageList(context: Context): Map<Folder, List<File>> {
+    suspend fun updateSecondaryStorageList(context: Context): Map<FolderEntity, List<FileEntity>> {
         try {
             val externalCacheDirs: Array<java.io.File> = context.getExternalFilesDirs(null)
             for (file in externalCacheDirs) {
@@ -31,17 +31,17 @@ object FileUtil {
         return emptyMap()
     }
 
-    suspend fun updateAndroidFolderList(context: Context): Map<Folder, List<File>> {
+    suspend fun updateAndroidFolderList(context: Context): Map<FolderEntity, List<FileEntity>> {
         val data = DocumentFile.fromTreeUri(context, Uri.parse(androidFolderTreeUriStr("data")))!!
         return AndroidDocFile.discoverRecursive(data)
     }
 
 
-    suspend fun getMediaInFolder(context: Context, folder: Folder): List<File> {
-        return if (folder.isUri) {
-            AndroidDocFile.listFolderMedia(DocumentFile.fromTreeUri(context, Uri.parse(folder.path))!!)
+    suspend fun getMediaInFolder(context: Context, folderEntity: FolderEntity): List<FileEntity> {
+        return if (folderEntity.isUri) {
+            AndroidDocFile.listFolderMedia(DocumentFile.fromTreeUri(context, Uri.parse(folderEntity.path))!!)
         } else {
-            AndroidPath.listFolderMedia(Paths.get(folder.path))
+            AndroidPath.listFolderMedia(Paths.get(folderEntity.path))
         }
     }
 

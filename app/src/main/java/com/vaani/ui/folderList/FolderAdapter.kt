@@ -23,41 +23,41 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
-import com.vaani.models.Folder
+import com.vaani.models.FolderEntity
 
 class FolderAdapter(
     private var context: Context,
-    private var Folders: List<Folder>,
-    private val onClick: (Folder) -> Unit
+    private var folderEntities: List<FolderEntity>,
+    private val onClick: (FolderEntity) -> Unit
 ) :
     RecyclerView.Adapter<FolderAdapter.FolderViewHolder>() {
 
     /* ViewHolder for Flower, takes in the inflated view and the onClick behavior. */
-    inner class FolderViewHolder(itemView: View, val onClick: (Folder) -> Unit) :
+    inner class FolderViewHolder(itemView: View, val onClick: (FolderEntity) -> Unit) :
         RecyclerView.ViewHolder(itemView) {
         private val folderText: TextView = itemView.findViewById(R.id.folder_text)
         private val folderSubtext: TextView =
             itemView.findViewById(R.id.folder_subtext)
-        private var currentFolder: Folder? = null
+        private var currentFolderEntity: FolderEntity? = null
 
         init {
             itemView.setOnClickListener {
-                currentFolder?.let {
+                currentFolderEntity?.let {
                     onClick(it)
                 }
             }
         }
 
         /* Bind flower name and image. */
-        fun bind(folder: Folder) {
-            currentFolder = folder
-            folderText.text = folder.name
-            folderSubtext.text = context.getString(R.string.folder_subtext, folder.items)
+        fun bind(folderEntity: FolderEntity) {
+            currentFolderEntity = folderEntity
+            folderText.text = folderEntity.name
+            folderSubtext.text = context.getString(R.string.folder_subtext, folderEntity.items)
         }
     }
 
-    fun updateList(newList: List<Folder>) {
-        Folders = newList
+    fun updateList(newList: List<FolderEntity>) {
+        folderEntities = newList
         notifyDataSetChanged()
     }
 
@@ -70,10 +70,10 @@ class FolderAdapter(
 
     /* Gets current flower and uses it to bind view. */
     override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
-        val flower = Folders[position]
+        val flower = folderEntities[position]
         holder.bind(flower)
 
     }
 
-    override fun getItemCount(): Int = Folders.size
+    override fun getItemCount(): Int = folderEntities.size
 }

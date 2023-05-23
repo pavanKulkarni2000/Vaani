@@ -9,47 +9,41 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import com.vaani.MainActivity
 import com.vaani.R
-import com.vaani.models.File
+import com.vaani.data.PlayerState
+import com.vaani.models.FileEntity
 import com.vaani.player.Player
 import com.vaani.util.TAG
-import org.videolan.libvlc.util.VLCVideoLayout
 
 
 class VlcPlayerFragment :
-    Fragment(R.layout.vlc_player_layout) {
-
-    init {
-        Log.d(TAG, "created: ")
-    }
+    Fragment(R.layout.vlc_player_layout), SurfaceHolder.Callback {
 
     private lateinit var surfaceView: SurfaceView
     private lateinit var videoControllerView: VideoControllerView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val vlcVideoLayout: VLCVideoLayout = view.findViewById(R.id.video_layout)
-        Player.attachPlayerView(vlcVideoLayout)
-        surfaceView = vlcVideoLayout.findViewById(org.videolan.R.id.surface_video)
-        Player.state.file.value?.let { file ->
-            if (file.isAudio) {
-                setImage(file)
+        surfaceView = view.findViewById(R.id.video_layout)
+        surfaceView.holder.addCallback(this)
+            if (PlayerState.file.isAudio) {
+                setImage(PlayerState.file)
             }
-        }
         videoControllerView = VideoControllerView(
             requireActivity(),
             surfaceView,
-            vlcVideoLayout
+            view.findViewById<FrameLayout>(R.id.video_view_parent)
         )
-        Player.state.file.observe(viewLifecycleOwner) { file ->
+        PlayerState.fileLive.observe(viewLifecycleOwner) { file ->
             if (file.isAudio) {
                 setImage(file)
             }
         }
-        Player.state.isAttached.observe(viewLifecycleOwner) {
+        PlayerState.isAttachedLive.observe(viewLifecycleOwner) {
             if (!it) {
                 Log.d(TAG, "onViewCreated: pop")
                 parentFragmentManager.popBackStack()
@@ -58,12 +52,12 @@ class VlcPlayerFragment :
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d(TAG, "handleOnBackPressed: ")
-               Player.state.setAttached(false)
+                PlayerState.setAttached(false)
             }
         })
     }
 
-    private fun setImage(file: File) {
+    private fun setImage(file: FileEntity) {
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             val bitmap = getImageBitmap(file)
             override fun surfaceCreated(holder: SurfaceHolder) {
@@ -95,7 +89,7 @@ class VlcPlayerFragment :
 
     }
 
-    private fun getImageBitmap(file: File): Bitmap {
+    private fun getImageBitmap(file: FileEntity): Bitmap {
 
         try {
             MediaMetadataRetriever().use {
@@ -124,5 +118,16 @@ class VlcPlayerFragment :
         Log.d(TAG, "onDestroy: ")
         super.onDestroy()
         videoControllerView.exit()
+    }
+
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        Player.attachPlayerView(holder)
+        Log.d(TAG, "surfaceCreated: attached")
+    }
+
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
     }
 }

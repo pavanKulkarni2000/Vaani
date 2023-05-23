@@ -2,71 +2,67 @@ package com.vaani.player
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.view.SurfaceHolder
+import com.vaani.data.Files
+import com.vaani.data.PlayerState
 import com.vaani.db.DB
-import com.vaani.models.File
-import com.vaani.util.PlayBackUtil
-import com.vaani.util.TAG
+import com.vaani.models.FileEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import org.videolan.libvlc.util.VLCVideoLayout
-import kotlin.random.Random
 
 object Player {
-    private var scope = CoroutineScope(Job())
     private lateinit var mediaPlayerService: PlayerService
-    val state = PlayerState()
 
     val currentPosition
-    get() = mediaPlayerService.currentPosition
+        get() = mediaPlayerService.currentPosition
 
     val duration
-    get() = mediaPlayerService.duration
+        get() = mediaPlayerService.duration
 
     fun init(activity: Activity) {
         val intent = Intent(activity.applicationContext, PlayerService::class.java)
         activity.startService(intent)
     }
 
-    fun setPlayerService(medPlayerService: PlayerService){
-        mediaPlayerService =medPlayerService
+    fun setPlayerService(medPlayerService: PlayerService) {
+        mediaPlayerService = medPlayerService
     }
 
-    fun startNewMedia(file: File) {
-        savePreference()
-        state.setCurrentFile(file)
+    fun startNewMedia(file: FileEntity) {
+        PlayerState.savePreference()
+        mediaPlayerService.startMedia(file)
+        PlayerState.setCurrentFile(file)
+        PlayerState.updatePlaying(true)
     }
 
-    fun attachPlayerView(vlcVideoLayout: VLCVideoLayout) {
-        mediaPlayerService.attachVlcVideoView(vlcVideoLayout)
-        state.setAttached(true)
+    fun attachPlayerView(surfaceHolder: SurfaceHolder) {
+        mediaPlayerService.attachView(surfaceHolder)
+        PlayerState.setAttached(true)
     }
 
-    fun detachPlayerView(){
+    fun detachPlayerView() {
         mediaPlayerService.detachViews()
-        state.setAttached(false)
+        PlayerState.setAttached(false)
     }
 
     fun stop() {
-        savePreference()
+        PlayerState.savePreference()
         mediaPlayerService.stop()
+        PlayerState.setCurrentFile(FileEntity())
+        PlayerState.updatePlaying(false)
         detachPlayerView()
-        state.setCurrentFile(File())
     }
 
-    fun seekTo(pos:Int){
+    fun seekTo(pos: Int) {
         mediaPlayerService.seekTo(pos)
     }
 
     fun playPrevious() {
-        val file = state.file.value!!
-        val files = DB.CRUD.getFolderMediaList(file.folderId)
-        val prevFile:File = if(state.shuffle.value==true){
+        val file = PlayerState.file
+        val files = DB.getFolderFiles(file.folderId)
+        val prevFile: FileEntity = if (PlayerState.shuffle) {
             files[files.indices.random(PlayBackUtil.random)]
-        }else {
+        } else {
             val currIndex = files.indexOf(file)
             if (currIndex == 0) {
                 return
@@ -78,129 +74,61 @@ object Player {
 
 
     fun playNext() {
-        val file = state.file.value!!
-        val files = DB.CRUD.getFolderMediaList(file.folderId)
-        val nextFile:File = if(state.shuffle.value==true){
-            files[files.indices.random(PlayBackUtil.random)]
-        }else {
-            val currIndex = files.indexOf(file)
-            if (currIndex == files.size - 1) {
-                stop()
-                return
-            }
-            files[currIndex + 1]
-        }
-        startNewMedia(nextFile)
-    }
-
-    private fun savePreference() {
-        val file = state.file.value!!
-        if (file.id > 0) {
-            val progress = mediaPlayerService.currentPosition.toFloat() / mediaPlayerService.duration
-            scope.launch {
-                DB.CRUD.run {
-                    val playBack = getPlayback(file.id)
-                    playBack.progress = progress
-                    upsertPlayback(playBack)
-                    val pref = getCollectionPreference(file.folderId)
-                    pref.lastPlayedId = file.id
-                    upsertCollectionPreference(pref)
+        val file = PlayerState.file
+        if (PlayerState.loop) {
+            mediaPlayerService.seekTo(0)
+            mediaPlayerService.play()
+        } else {
+            val files = DB.getFolderFiles(file.folderId)
+            val nextFile: FileEntity = if (PlayerState.shuffle) {
+                files[files.indices.random(PlayBackUtil.random)]
+            } else {
+                val currIndex = files.indexOf(file)
+                if (currIndex == files.size - 1) {
+                    stop()
+                    return
                 }
+                files[currIndex + 1]
             }
+            startNewMedia(nextFile)
         }
     }
 
     fun endReached() {
-        val file = state.file.value!!
-        if (file.id > 0) {
-            mediaPlayerService.seekTo(0)
-            if(state.loop.value!=true) {
-                playNext()
-            } else {
-                state.updatePlaying(true)
-            }
-        }
+        val file = PlayerState.file
+        mediaPlayerService.seekTo(0)
+        playNext()
     }
-    class PlayerState {
 
-        private val scope = CoroutineScope(Job())
+    fun pause(){
+        PlayerState.updatePlaying(true)
+        mediaPlayerService.pause()
+    }
 
-        private val _isPlaying = MutableLiveData(false)
-        val isPlaying: LiveData<Boolean> = _isPlaying
+    fun resume(){
+        PlayerState.updatePlaying(false)
+        mediaPlayerService.play()
+    }
 
-        private val _speed = MutableLiveData(1F)
-        val speed: LiveData<Float> = _speed
+    fun stopLoop() {
+        PlayerState.updateLoop(false)
+    }
 
-        private val _loop = MutableLiveData(false)
-        val loop: LiveData<Boolean> = _loop
+    fun loop() {
+        PlayerState.updateLoop(true)
+    }
 
-        private val _shuffle = MutableLiveData(false)
-        val shuffle: LiveData<Boolean> = _shuffle
+    fun stopShuffle() {
+        PlayerState.updateShuffle(false)
+    }
 
-        private val _file = MutableLiveData(File())
-        val file: LiveData<File> = _file
+    fun shuffle() {
+        PlayerState.updateShuffle(true)
+    }
 
-
-        private val _isAttached = MutableLiveData(false)
-        val isAttached: LiveData<Boolean> = _isAttached
-
-        fun setCurrentFile(file: File) {
-            DB.CRUD.getPlayback(file.id).let { playBack ->
-                _speed.value = playBack.speed
-                _loop.value = playBack.loop
-            }
-            DB.CRUD.getCollectionPreference(file.folderId).let { collectionPreference ->
-                _shuffle.value = collectionPreference.shuffle
-            }
-            _file.value = file
-        }
-
-        fun updateSpeed(speed: Float) {
-            _speed.value = speed
-            scope.launch {
-                DB.CRUD.run {
-                    val playBack = getPlayback(file.value!!.id)
-                    playBack.speed = speed
-                    upsertPlayback(playBack)
-                }
-            }
-        }
-
-        fun setAttached(attached: Boolean) {
-            _isAttached.value = attached
-        }
-
-        fun updateLoop(loop:Boolean){
-            _loop.value = loop
-            scope.launch {
-                DB.CRUD.run {
-                    val playBack = getPlayback(file.value!!.id)
-                    playBack.loop = loop
-                    upsertPlayback(playBack)
-                }
-            }
-        }
-
-        fun updateShuffle(shuffle:Boolean){
-            _shuffle.value = shuffle
-            scope.launch {
-                DB.CRUD.run {
-                    val collection = getCollectionPreference(file.value!!.folderId)
-                    collection.shuffle = shuffle
-                    upsertCollectionPreference(collection)
-                }
-            }
-        }
-
-        fun updatePlaying(isPlaying:Boolean){
-            if(isPlaying){
-                mediaPlayerService.play()
-            }else{
-                mediaPlayerService.pause()
-            }
-            _isPlaying.value = isPlaying
-
-        }
+    fun updateSpeed(speed: Float) {
+        PlayerState.updateSpeed(speed)
+        mediaPlayerService.speed = speed
     }
 
 }

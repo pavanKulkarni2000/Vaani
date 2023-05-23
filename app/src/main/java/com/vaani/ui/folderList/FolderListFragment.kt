@@ -4,21 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
-import com.vaani.db.DB
-import com.vaani.models.File
-import com.vaani.models.Folder
-import com.vaani.ui.folderMediaList.FolderMediaListFragment
-import com.vaani.player.Player
-import com.vaani.ui.player.VlcPlayerFragment
-import com.vaani.util.Constants
-import com.vaani.util.EmptyItemDecoration
-import com.vaani.util.PreferenceUtil
-import com.vaani.util.TAG
+import com.vaani.data.Files
+import com.vaani.models.FolderEntity
+import com.vaani.ui.EmptyItemDecoration
+import com.vaani.ui.files.FileListFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,9 +20,6 @@ import kotlinx.coroutines.launch
 class FolderListFragment : Fragment(R.layout.list_layout) {
 
     private lateinit var refreshLayout: SwipeRefreshLayout
-    private val foldersViewModel: FoldersViewModel by viewModels {
-        FoldersViewModel.Factory(requireActivity().application)
-    }
     private val job = Job()
     private val scope = CoroutineScope(job + Dispatchers.IO)
 
@@ -40,12 +30,12 @@ class FolderListFragment : Fragment(R.layout.list_layout) {
 
     private fun initChildViews(view: View) {
 
-        val adapter = FolderAdapter(requireContext(), foldersViewModel.folderList.value ?: emptyList(), ::folderOnClick)
+        val adapter = FolderAdapter(requireContext(), Files.allFolders, ::changeDirectory)
 
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(EmptyItemDecoration())
-        foldersViewModel.folderList.observe(viewLifecycleOwner, adapter::updateList)
+        Files.allFoldersLive.observe(viewLifecycleOwner, adapter::updateList)
 
         val fab: FloatingActionButton = view.findViewById(R.id.fab)
         fab.setOnClickListener {
@@ -55,8 +45,8 @@ class FolderListFragment : Fragment(R.layout.list_layout) {
         refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
         refreshLayout.setOnRefreshListener {
             scope.launch {
-                foldersViewModel.refreshAllData()
-                launch(Dispatchers.Main) {
+                Files.explore()
+                with(Dispatchers.Main) {
                     refreshLayout.isRefreshing = false
                 }
             }
@@ -64,39 +54,13 @@ class FolderListFragment : Fragment(R.layout.list_layout) {
     }
 
     private fun onPlayClicked() {
-        var file: File? = null
-        var folder: Folder? = null
-        if (Player.state.isPlaying.value!! && Player.state.file.value?.folderId != Constants.FAVOURITE_COLLECTION_ID) {
-            file = Player.state.file.value
-            file?.let { file1 ->
-                folder = foldersViewModel.folderList.value?.find { it.id == file1.folderId }
-            }
-        } else {
-            folder = foldersViewModel.folderList.value?.find { it.id == PreferenceUtil.Folders.lastPlayedFolderId }
-            folder?.let { folder1 ->
-                val folderFiles = DB.CRUD.getFolderMediaList(folder1.id)
-                DB.CRUD.getCollectionPreference(folder1.id)?.let { collectionPref ->
-                    file = folderFiles.find { it.id == collectionPref.lastPlayedId }
-                } ?: run {
-                    file = folderFiles[0]
-                }
-            }
-        }
-        requireParentFragment().parentFragmentManager.commit {
-            folder?.let {
-                add(R.id.fragment_container_view, FolderMediaListFragment(it))
-            }
-            file?.let {
-                Player.startNewMedia(it)
-                add(R.id.fragment_container_view, VlcPlayerFragment::class.java, null, TAG)
-            }
-            addToBackStack(null)
-        }
+
     }
 
-    private fun folderOnClick(file: Folder) {
+    private fun changeDirectory(folderEntity: FolderEntity) {
+        Files.changeCurrentFolder(folderEntity)
         requireParentFragment().parentFragmentManager.commit {
-            add(R.id.fragment_container_view, FolderMediaListFragment(file))
+            add(R.id.fragment_container_view, FileListFragment(folderEntity))
             addToBackStack(null)
         }
     }

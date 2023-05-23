@@ -1,8 +1,5 @@
-package com.vaani.util
+package com.vaani.player
 
-import com.bumptech.glide.load.model.ModelLoader.LoadData
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 import kotlin.random.Random
 
@@ -12,7 +9,7 @@ object PlayBackUtil {
     private var mFormatBuilder: StringBuilder = StringBuilder()
     private var mFormatter: Formatter = Formatter(mFormatBuilder, Locale.getDefault())
     var random = Random(System.currentTimeMillis())
-    private set
+        private set
 
     /**
      * convert string to time
