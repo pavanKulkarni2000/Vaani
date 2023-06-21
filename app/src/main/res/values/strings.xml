@@ -17,4 +17,12 @@
     <string name="file_item_sample_text">Dwadasha Stotra.mp3</string>
     <string name="sample_controller_title">Hari kathaamrutaSaara - Mangalaacharana Sandhi by Ananta kulakarni</string>
     <string name="close_button_description">Close the player</string>
+    <string name="notification_content_title">\"My Notification Title</string>
+    <string name="notification_content_text">My Notification Content Text</string>
+    <string name="notification_channel_name">My Notificatino Channel Name</string>
+    <string name="shuffle">shuffle_icon</string>
+    <string name="repeat">repeat icon</string>
+    <string name="no_item_prompt">No media</string>
+    <string name="controls_shuffle_on_description">Shuffle playback</string>
+    <string name="controls_shuffle_off_description">Shuffle off playbacks</string>
 </resources>

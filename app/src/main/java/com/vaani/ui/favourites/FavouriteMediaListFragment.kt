@@ -1,7 +1,6 @@
 package com.vaani.ui.favourites
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
@@ -21,9 +20,7 @@ import com.vaani.player.Player
 import com.vaani.ui.EmptyItemDecoration
 import com.vaani.ui.files.FileAdapter
 import com.vaani.ui.files.FileCallbacks
-import com.vaani.ui.player.VlcPlayerFragment
-import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
-import com.vaani.util.PreferenceUtil
+import com.vaani.ui.player.PlayerFragment
 import com.vaani.util.TAG
 
 
@@ -34,7 +31,7 @@ class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
         override fun onClick(file: FileEntity) {
             Player.startNewMedia(file)
             requireParentFragment().parentFragmentManager.commit {
-                add(R.id.fragment_container_view, VlcPlayerFragment::class.java, null, TAG)
+                add(R.id.fragment_container_view, PlayerFragment::class.java, null, TAG)
                 addToBackStack(null)
             }
         }

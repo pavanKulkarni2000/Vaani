@@ -46,12 +46,12 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     // handle android folder media files
-    implementation 'androidx.documentfile:documentfile:1.0.1'
-
+    implementation 'androidx.media3:media3-ui:1.0.2'
+    implementation 'androidx.media3:media3-exoplayer:1.0.2'
+    implementation 'androidx.media3:media3-session:1.0.2'
 
     // test dependency
     testImplementation 'junit:junit:4.13.2'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }

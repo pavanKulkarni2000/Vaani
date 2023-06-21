@@ -10,11 +10,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
 import com.vaani.data.Files
+import com.vaani.data.PlayerState
 import com.vaani.models.FileEntity
 import com.vaani.models.FolderEntity
 import com.vaani.player.Player
 import com.vaani.ui.EmptyItemDecoration
-import com.vaani.ui.player.VlcPlayerFragment
+import com.vaani.ui.player.PlayerFragment
 import com.vaani.util.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,8 +29,9 @@ class FileListFragment(private val currentFolderEntity: FolderEntity) : Fragment
     private val fileCallbacks = object : FileCallbacks {
         override fun onClick(file: FileEntity) {
             Player.startNewMedia(file)
+            PlayerState.setAttached(true)
             parentFragmentManager.commit {
-                add(R.id.fragment_container_view, VlcPlayerFragment::class.java, null, TAG)
+                add(R.id.fragment_container_view, PlayerFragment::class.java, null, TAG)
                 addToBackStack(null)
             }
         }

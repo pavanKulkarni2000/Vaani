@@ -143,6 +143,7 @@ object Files {
 
     fun init(){
         allFoldersLive.value = DB.getFolders()
+        favouritesLive.value=DB.getFavouriteFiles()
     }
 
 }

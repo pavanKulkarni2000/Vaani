@@ -2,16 +2,28 @@ package com.vaani.player
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.view.SurfaceHolder
+import androidx.core.content.ContextCompat
+import androidx.media3.session.MediaBrowser
+import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.ListenableFuture
+import com.vaani.MainActivity
 import com.vaani.data.Files
 import com.vaani.data.PlayerState
 import com.vaani.db.DB
 import com.vaani.models.FileEntity
+import com.vaani.util.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 
 object Player {
-    private lateinit var mediaPlayerService: PlayerService
+    private lateinit var browserFuture: ListenableFuture<MediaBrowser>
+    private val browser: MediaBrowser?
+        get() = if (browserFuture.isDone && !browserFuture.isCancelled) browserFuture.get() else null
+
+
+    var mediaPlayer= M
 
     val currentPosition
         get() = mediaPlayerService.currentPosition
@@ -19,9 +31,18 @@ object Player {
     val duration
         get() = mediaPlayerService.duration
 
-    fun init(activity: Activity) {
-        val intent = Intent(activity.applicationContext, PlayerService::class.java)
-        activity.startService(intent)
+    fun init() {
+        initializeBrowser()
+    }
+
+    private fun initializeBrowser() {
+        browserFuture =
+            MediaBrowser.Builder(
+                this,
+                SessionToken(this, ComponentName(this, PlaybackService::class.java))
+            )
+                .buildAsync()
+        browserFuture.addListener({ pushRoot() }, ContextCompat.getMainExecutor(this))
     }
 
     fun setPlayerService(medPlayerService: PlayerService) {
@@ -46,6 +67,7 @@ object Player {
     }
 
     fun stop() {
+        Log.d(TAG, "stop: stopping")
         PlayerState.savePreference()
         mediaPlayerService.stop()
         PlayerState.setCurrentFile(FileEntity())
@@ -130,5 +152,14 @@ object Player {
         PlayerState.updateSpeed(speed)
         mediaPlayerService.speed = speed
     }
+
+    fun destroy(){
+        releaseBrowser()
+    }
+
+    private fun releaseBrowser() {
+        MediaBrowser.releaseFuture(browserFuture)
+    }
+
 
 }
