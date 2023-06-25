@@ -24,7 +24,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
 import com.vaani.models.FileEntity
-import com.vaani.player.PlayBackUtil
+import com.vaani.ui.PlayBackUtil
 
 class FileAdapter(
     private var files: List<FileEntity>,

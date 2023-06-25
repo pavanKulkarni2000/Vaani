@@ -23,12 +23,11 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.models.FileEntity
-import com.vaani.player.PlaybackService
+import com.vaani.ui.player.PlaybackService
 import com.vaani.ui.EmptyItemDecoration
 import com.vaani.ui.files.FileAdapter
 import com.vaani.ui.files.FileCallbacks
 import com.vaani.ui.player.PlayerFragment
-import com.vaani.util.TAG
 
 @UnstableApi
 class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {

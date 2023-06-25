@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vaani.player
+package com.vaani.ui.player
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -31,26 +31,22 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.CommandButton
-import androidx.media3.session.LibraryResult
-import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.ControllerInfo
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
-import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.vaani.MainActivity
 import com.vaani.R
-import com.vaani.ui.player.PlayerFragment
 import com.vaani.util.TAG
 import androidx.media3.ui.R as media3R
 
 
 @UnstableApi
 class PlaybackService : MediaSessionService() {
-  private lateinit var sessionCallback:CustomMediaSessionCallback
+  private lateinit var sessionCallback: CustomMediaSessionCallback
   private lateinit var player: ExoPlayer
   private lateinit var mediaSession: MediaSession
 
@@ -200,7 +196,7 @@ class PlaybackService : MediaSessionService() {
       controller: ControllerInfo,
       mediaItems: MutableList<MediaItem>
     ): ListenableFuture<MutableList<MediaItem>> {
-      val updatedMediaItems = mediaItems.map { it.buildUpon().setUri(it.mediaId).build() }.toMutableList()
+      val updatedMediaItems = mediaItems.map { MediaItem.fromUri(it.mediaId) }.toMutableList()
       return Futures.immediateFuture(updatedMediaItems)
     }
   }

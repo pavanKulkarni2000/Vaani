@@ -1,4 +1,4 @@
-package com.vaani.player
+package com.vaani.ui
 
 import java.util.*
 import kotlin.random.Random
