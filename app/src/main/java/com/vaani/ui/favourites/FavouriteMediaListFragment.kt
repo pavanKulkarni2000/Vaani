@@ -1,10 +1,16 @@
 package com.vaani.ui.favourites
 
+import android.content.ComponentName
 import android.os.Bundle
 import android.view.View
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.END
@@ -13,25 +19,37 @@ import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.common.util.concurrent.ListenableFuture
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.models.FileEntity
-import com.vaani.player.Player
+import com.vaani.player.PlaybackService
 import com.vaani.ui.EmptyItemDecoration
 import com.vaani.ui.files.FileAdapter
 import com.vaani.ui.files.FileCallbacks
 import com.vaani.ui.player.PlayerFragment
 import com.vaani.util.TAG
 
-
+@UnstableApi
 class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
 
+    private lateinit var controllerFuture: ListenableFuture<MediaController>
+    private val controller: MediaController?
+        get() = if (controllerFuture.isDone) controllerFuture.get() else null
     private lateinit var refreshLayout: SwipeRefreshLayout
     private val favouriteCallbacks = object : FileCallbacks {
         override fun onClick(file: FileEntity) {
-            Player.startNewMedia(file)
+//            PlayerData.update(file,Files.favourites)
+            controller?.run{
+                setMediaItem(MediaItem.Builder().setMediaId(file.path).build())
+                setPlaybackSpeed(file.playBackSpeed)
+                repeatMode = if(file.playBackLoop) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_ALL
+                shuffleModeEnabled = false
+                prepare()
+                play()
+            }
             requireParentFragment().parentFragmentManager.commit {
-                add(R.id.fragment_container_view, PlayerFragment::class.java, null, TAG)
+                add(R.id.fragment_container_view, PlayerFragment::class.java, Bundle.EMPTY)
                 addToBackStack(null)
             }
         }
@@ -77,6 +95,29 @@ class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
 
     }
 
+    override fun onStart() {
+        super.onStart()
+        initializeController()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        releaseController()
+    }
+
+    private fun initializeController() {
+        controllerFuture =
+            MediaController.Builder(
+                requireContext(),
+                SessionToken(requireContext(), ComponentName(requireContext(), PlaybackService::class.java))
+            )
+                .buildAsync()
+    }
+
+    private fun releaseController() {
+        MediaController.releaseFuture(controllerFuture)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initChildViews(view)
@@ -103,20 +144,6 @@ class FavouriteMediaListFragment : Fragment(R.layout.list_layout) {
     }
 
     private fun onPlayClicked() {
-//        val file: FileEntity? =
-//            if (Player.state.isPlaying.value!! && Player.state.file.value?.folderId == FAVOURITE_COLLECTION_ID) {
-//                Player.state.file.value
-//            } else {
-//                Log.d(TAG, "onPlayClicked: ${PreferenceUtil.Favourite.lastPlayedId}")
-//                favouriteViewModel.favouriteEntityMediaList.value?.find { it.file.target.id == PreferenceUtil.Favourite.lastPlayedId }?.file?.target
-//            }
-//        file?.let {
-//            Player.startNewMedia(it)
-//            parentFragmentManager.commit {
-//                add(R.id.fragment_container_view, VlcPlayerFragment::class.java, null, TAG)
-//                addToBackStack(null)
-//            }
-//        }
     }
 
 }

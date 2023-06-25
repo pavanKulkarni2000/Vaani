@@ -32,9 +32,9 @@ object PermissionUtil {
         if (!checkAndroidFolderAccess("data", MainActivity.contentResolver)) {
             requestAndroidFolderPermission("data", docTreeLauncher)
         }
-        if (!checkAndroidFolderAccess("obb", MainActivity.contentResolver)) {
-            requestAndroidFolderPermission("obb", docTreeLauncher)
-        }
+//        if (!checkAndroidFolderAccess("obb", MainActivity.contentResolver)) {
+//            requestAndroidFolderPermission("obb", docTreeLauncher)
+//        }
     }
 
     private fun initLaunchers(): Triple<ActivityResultLauncher<Intent>, ActivityResultLauncher<Uri?>, ActivityResultLauncher<Array<String>>> {

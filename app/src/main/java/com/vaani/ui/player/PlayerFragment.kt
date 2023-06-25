@@ -1,31 +1,17 @@
 package com.vaani.ui.player
 
 import android.content.ComponentName
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ListView
 import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.common.Player.REPEAT_MODE_ALL
 import androidx.media3.common.Player.REPEAT_MODE_OFF
 import androidx.media3.common.Player.REPEAT_MODE_ONE
@@ -37,12 +23,8 @@ import androidx.media3.ui.PlayerView
 import androidx.media3.ui.R as media3R
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import com.vaani.MainActivity
 import com.vaani.R
-import com.vaani.data.PlayerState
-import com.vaani.models.FileEntity
 import com.vaani.player.PlaybackService
-import com.vaani.player.Player
 import com.vaani.util.TAG
 
 
@@ -54,29 +36,40 @@ import com.vaani.util.TAG
     private lateinit var playerView: PlayerView
     private lateinit var shuffleButton: ImageView
     private lateinit var repeatButton: ImageView
+    private lateinit var infoTitle: TextView
+    private lateinit var infoAlbum: TextView
+    private lateinit var infoArtist: TextView
+    private lateinit var infoGenre: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        playerView = view.findViewById(R.id.player_view)
-        shuffleButton = view.findViewById(R.id.shuffle_switch)
+        initControls(view)
         shuffleButton.setOnClickListener {
             val controller = this.controller ?: return@setOnClickListener
             controller.shuffleModeEnabled = !controller.shuffleModeEnabled
         }
-
-        view.findViewById<ImageView>(R.id.repeat_switch).setOnClickListener {
+        repeatButton.setOnClickListener {
             val controller = this.controller ?: return@setOnClickListener
             when (controller.repeatMode) {
                 REPEAT_MODE_ALL -> controller.repeatMode = REPEAT_MODE_ONE
                 REPEAT_MODE_ONE -> controller.repeatMode = REPEAT_MODE_ALL
-                REPEAT_MODE_OFF -> {
-                    TODO()
-                }
+                REPEAT_MODE_OFF -> controller.repeatMode = REPEAT_MODE_ONE
             }
         }
     }
 
+    private fun initControls( view: View) {
+        playerView = view.findViewById(R.id.player_view)
+        shuffleButton = view.findViewById(R.id.shuffle_switch)
+        repeatButton = view.findViewById(R.id.repeat_switch)
+        infoAlbum = view.findViewById(R.id.video_artist)
+        infoGenre = view.findViewById(R.id.video_genre)
+        infoTitle = view.findViewById(R.id.video_title)
+        infoArtist = view.findViewById(R.id.video_album)
+    }
+
     override fun onStart() {
+        Log.d(TAG, "onStart: started")
         super.onStart()
         initializeController()
     }
@@ -88,7 +81,7 @@ import com.vaani.util.TAG
                 SessionToken(requireContext(), ComponentName(requireContext(), PlaybackService::class.java))
             )
                 .buildAsync()
-        controllerFuture.addListener({ setController() }, MoreExecutors.directExecutor())
+        controllerFuture.addListener({ setController()}, MoreExecutors.directExecutor())
     }
 
     private fun setController() {
@@ -102,7 +95,7 @@ import com.vaani.util.TAG
         playerView.setShowSubtitleButton(controller.currentTracks.isTypeSupported(C.TRACK_TYPE_TEXT))
 
         controller.addListener(
-            object : androidx.media3.common.Player.Listener {
+            object : Player.Listener {
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
                 }
@@ -142,12 +135,10 @@ import com.vaani.util.TAG
     }
 
     private fun updateMediaMetadataUI(mediaMetadata: MediaMetadata) {
-        val title: CharSequence = mediaMetadata.title ?: getString(R.string.no_item_prompt)
-
-        playerView.findViewById<TextView>(R.id.video_title).text = title
-        playerView.findViewById<TextView>(R.id.video_album).text = mediaMetadata.albumTitle
-        playerView.findViewById<TextView>(R.id.video_artist).text = mediaMetadata.artist
-        playerView.findViewById<TextView>(R.id.video_genre).text = mediaMetadata.genre
+        infoTitle.text = mediaMetadata.title ?: getString(R.string.no_item_prompt)
+        infoAlbum.text = mediaMetadata.albumTitle ?: "No Album info"
+        infoArtist.text = mediaMetadata.artist ?: "No Artist info"
+        infoGenre.text = mediaMetadata.genre ?: "No Genre info"
 
     }
 

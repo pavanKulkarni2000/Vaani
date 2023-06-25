@@ -123,4 +123,7 @@ object DB {
     fun save(folder: FolderEntity) {
         folderEntityBox.put(folder)
     }
+
+    fun getFolder(folderId: Long): FolderEntity = folderEntityBox[folderId]
+    fun getFile(fileId: Long): FileEntity = fileBox[fileId]
 }

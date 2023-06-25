@@ -2,6 +2,14 @@ package com.vaani.util
 
 object Constants {
 
+    const val APP_ROOT = "APP_ROOT"
+
+    const val FOLDER = "FOLDER"
+
+    const val FAVOURITE = "FAVOURITE"
+
+    const val FILE = "FILE"
+
     const val NOTIFICATION_ID = 298754
 
     const val UNNAMED_FILE = "Unnamed File"
