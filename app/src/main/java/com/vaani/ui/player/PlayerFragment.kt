@@ -24,6 +24,8 @@ import androidx.media3.ui.R as media3R
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.vaani.R
+import com.vaani.data.PlayerData
+import com.vaani.player.PlaybackService
 import com.vaani.util.TAG
 
 
@@ -96,7 +98,8 @@ import com.vaani.util.TAG
         controller.addListener(
             object : Player.Listener {
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                    updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
+                    // not working
+//                    updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
                 }
 
                 override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
@@ -109,6 +112,7 @@ import com.vaani.util.TAG
 
                 override fun onTracksChanged(tracks: Tracks) {
                     playerView.setShowSubtitleButton(tracks.isTypeSupported(C.TRACK_TYPE_TEXT))
+                    updateMediaMetadataUI(PlayerData.getMetaData(controller.currentMediaItemIndex))
                 }
             }
         )

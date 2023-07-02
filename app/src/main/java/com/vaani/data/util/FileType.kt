@@ -1,4 +1,4 @@
-package com.vaani.models
+package com.vaani.data.util
 
 enum class FileType {
     DIR, AUDIO, VIDEO, OTHER

@@ -3,7 +3,6 @@ package com.vaani.data.util
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import com.vaani.models.FileEntity
-import com.vaani.models.FileType
 import com.vaani.models.FolderEntity
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +61,7 @@ object AndroidPath : AndroidGenericFileType<Path> {
                 return dur
             }
         } catch (e: Exception) {
-            Log.e(TAG, "getDuration: error", e)
+            Log.e(TAG, "getDuration: failed for $file", e)
             return 0
         }
     }

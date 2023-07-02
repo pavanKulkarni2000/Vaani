@@ -1,7 +1,6 @@
 package com.vaani.data.util
 
 import com.vaani.models.FileEntity
-import com.vaani.models.FileType
 import com.vaani.models.FolderEntity
 import java.util.*
 

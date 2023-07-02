@@ -8,6 +8,7 @@ import com.vaani.models.FileEntity
 import com.vaani.models.FileEntity_
 import com.vaani.models.FolderEntity
 import com.vaani.models.MyObjectBox
+import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.TAG
 import io.objectbox.Box
 import io.objectbox.BoxStore
@@ -21,12 +22,12 @@ object DB {
     private lateinit var favouriteEntityBox: Box<FavouriteEntity>
 
     fun init(context: Context) {
-        store = MyObjectBox.builder()
-            .androidContext(context)
-            .build()
-        folderEntityBox = store.boxFor(FolderEntity::class.java)
-        fileBox = store.boxFor(FileEntity::class.java)
-        favouriteEntityBox = store.boxFor(FavouriteEntity::class.java)
+            store = MyObjectBox.builder()
+                .androidContext(context)
+                .build()
+            folderEntityBox = store.boxFor(FolderEntity::class.java)
+            fileBox = store.boxFor(FileEntity::class.java)
+            favouriteEntityBox = store.boxFor(FavouriteEntity::class.java)
     }
 
     /**
@@ -92,6 +93,7 @@ object DB {
         val favs = favouriteEntityBox.all.sortedBy(FavouriteEntity::rank)
         val favMap = favs.stream().collect(Collectors.toMap(FavouriteEntity::fileId, FavouriteEntity::rank))
         val files = fileBox.get(favs.map(FavouriteEntity::fileId))
+        files.forEach{file->file.folderId = FAVOURITE_COLLECTION_ID}
         return files.sortedBy { file -> favMap[file.id] }
     }
 
@@ -124,6 +126,5 @@ object DB {
         folderEntityBox.put(folder)
     }
 
-    fun getFolder(folderId: Long): FolderEntity = folderEntityBox[folderId]
     fun getFile(fileId: Long): FileEntity = fileBox[fileId]
 }

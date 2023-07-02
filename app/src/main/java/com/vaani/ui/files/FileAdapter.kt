@@ -21,11 +21,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
 import com.vaani.models.FileEntity
-import com.vaani.ui.PlayBackUtil
+import com.vaani.ui.UiUtil
 
+@UnstableApi
 class FileAdapter(
     private var files: List<FileEntity>,
     private val fileCallbacks: FileCallbacks
@@ -34,7 +36,7 @@ class FileAdapter(
 
     /* ViewHolder for Flower, takes in the inflated view and the onClick behavior. */
     inner class FileViewHolder(
-        itemView: View, fileCallbacks: FileCallbacks
+        itemView: View
     ) :
         RecyclerView.ViewHolder(itemView) {
         private var currentFile: FileEntity? = null
@@ -45,11 +47,11 @@ class FileAdapter(
             currentFile = file
             itemView.setOnClickListener {
                 currentFile?.let {
-                    fileCallbacks.onClick(it)
+                    fileCallbacks.onClick(it,files)
                 }
             }
             itemView.findViewById<TextView>(R.id.file_text).text = file.name
-            itemView.findViewById<TextView>(R.id.file_subtext).text = PlayBackUtil.stringToTime(file.duration.toInt())
+            itemView.findViewById<TextView>(R.id.file_subtext).text = UiUtil.stringToTime(file.duration.toInt())
             itemView.findViewById<ImageView>(R.id.file_image).setImageResource(
                 when (file.isAudio) {
                     true -> R.drawable.foldermedia_music_note_40px
@@ -69,14 +71,12 @@ class FileAdapter(
         notifyDataSetChanged()
     }
 
-    /* Creates and inflates view and return FlowerViewHolder. */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.file_item, parent, false)
-        return FileViewHolder(view, fileCallbacks)
+        return FileViewHolder(view)
     }
 
-    /* Gets current flower and uses it to bind view. */
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val flower = files[position]
         holder.bind(flower)

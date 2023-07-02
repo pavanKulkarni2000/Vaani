@@ -3,7 +3,7 @@ package com.vaani.ui
 import java.util.*
 import kotlin.random.Random
 
-object PlayBackUtil {
+object UiUtil {
 
     //init formatter
     private var mFormatBuilder: StringBuilder = StringBuilder()

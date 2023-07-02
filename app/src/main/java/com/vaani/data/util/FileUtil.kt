@@ -4,12 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
-import androidx.media3.common.MediaItem
-import androidx.media3.datasource.FileDataSource
 import com.vaani.models.FileEntity
-import com.vaani.models.FileType
 import com.vaani.models.FolderEntity
-import java.io.File
 import java.nio.file.Paths
 
 object FileUtil {

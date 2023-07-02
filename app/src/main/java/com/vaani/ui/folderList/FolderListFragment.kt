@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -17,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@UnstableApi
 class FolderListFragment : Fragment(R.layout.list_layout) {
 
     private lateinit var refreshLayout: SwipeRefreshLayout
@@ -60,7 +62,7 @@ class FolderListFragment : Fragment(R.layout.list_layout) {
     private fun changeDirectory(folderEntity: FolderEntity) {
         Files.changeCurrentFolder(folderEntity)
         requireParentFragment().parentFragmentManager.commit {
-            add(R.id.fragment_container_view, FileListFragment(folderEntity))
+            add(R.id.fragment_container_view, FileListFragment::class.java,Bundle.EMPTY)
             addToBackStack(null)
         }
     }

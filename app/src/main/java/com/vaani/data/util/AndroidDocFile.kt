@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.vaani.MainActivity
 import com.vaani.models.FileEntity
-import com.vaani.models.FileType
 import com.vaani.models.FolderEntity
 import com.vaani.util.Constants
 import com.vaani.util.TAG
@@ -55,7 +54,7 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
                 return dur
             }
         } catch (e: Exception) {
-            Log.e(TAG, "getDuration: error", e)
+            Log.e(TAG, "getDuration: failed for ${file.uri}", e)
             return 0
         }
     }

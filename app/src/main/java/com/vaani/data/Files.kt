@@ -42,10 +42,13 @@ object Files {
         }
     }
 
+    fun getFile(fileId: Long) = DB.getFile(fileId)
+
     fun getFolderFiles(id: Long): List<FileEntity> {
         return when (id) {
-            Constants.FAVOURITE_COLLECTION_ID -> DB.getFavouriteFiles()
-            else -> DB.getFolderFiles(id)
+            Constants.FAVOURITE_COLLECTION_ID -> favourites
+            currentFolder.id -> currentFiles
+            else ->  DB.getFolderFiles(id)
         }
     }
 
