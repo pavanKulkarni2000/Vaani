@@ -3,12 +3,10 @@ package com.vaani.data
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.vaani.models.FileEntity
-import io.objectbox.annotation.Id
 
 object PlayerData {
-    fun setPlayList(playList: List<FileEntity>): List<MediaItem> {
-        currentPlayList = playList
-        return playList.map { MediaItem.Builder().setMediaId(it.path).build() }
+    fun getMediaItems(): List<MediaItem> {
+        return currentPlayList.map { MediaItem.Builder().setMediaId(it.path).build() }
     }
 
     fun getMetaData(currentMediaItemIndex: Int): MediaMetadata {
@@ -17,5 +15,12 @@ object PlayerData {
             .build()
     }
 
-    private lateinit var currentPlayList: List<FileEntity>
+    fun setCollectionId(folderId: Long) {
+        this.currentCollection = folderId
+        this.currentPlayList = Files.getFolderFiles(folderId)
+    }
+
+    var currentCollection: Long = 0
+    var currentPlayList: List<FileEntity> = emptyList()
+        private set
 }

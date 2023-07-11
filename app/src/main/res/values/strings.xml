@@ -8,7 +8,6 @@
     <string name="play_pause_desc">Play/Pause</string>
     <string name="fast_forward_desc">Fast-forward 10s</string>
     <string name="next_desc">Play next media</string>
-    <string name="folder_subtext">%d media files</string>
     <string name="list_item_sample_title">Download</string>
     <string name="list_item_sample_subtext">50 media files</string>
     <string name="favourite_add_label">Add to favourites</string>
@@ -25,4 +24,8 @@
     <string name="no_item_prompt">No media</string>
     <string name="controls_shuffle_on_description">Shuffle playback</string>
     <string name="controls_shuffle_off_description">Shuffle off playbacks</string>
+    <string name="player_options">Player options</string>
+    <string name="info">Info</string>
+    <string name="search">Search</string>
+    <string name="sort">Sort</string>
 </resources>

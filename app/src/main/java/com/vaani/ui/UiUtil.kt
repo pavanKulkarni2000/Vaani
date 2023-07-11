@@ -17,7 +17,7 @@ object UiUtil {
      * @param timeMs time to be formatted
      * @return 00:00:00
      */
-    fun stringToTime(timeMs: Int): String {
+    fun stringToTime(timeMs: Long): String {
         val totalSeconds = timeMs / 1000
         val seconds = totalSeconds % 60
         val minutes = totalSeconds / 60 % 60

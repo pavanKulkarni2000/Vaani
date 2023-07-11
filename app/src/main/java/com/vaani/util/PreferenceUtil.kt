@@ -4,12 +4,13 @@ import android.content.Context
 import com.vaani.MainActivity
 import com.vaani.R
 import com.vaani.models.FolderEntity
+import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.Constants.FAVOURITE_LAST_PLAYED_KEY
 import com.vaani.util.Constants.FOLDER_LAST_PLAYED_KEY
 
 object PreferenceUtil {
 
-    val favouriteFolder = FolderEntity()
+    val favouriteFolder = FolderEntity().apply { id = FAVOURITE_COLLECTION_ID }
     var lastPlayedFolderId: Long = -1
 
     fun init(context: Context) {
@@ -19,7 +20,10 @@ object PreferenceUtil {
     }
 
     fun close() {
-        val preference = MainActivity.context.getSharedPreferences(MainActivity.context.getString(R.string.app_key), Context.MODE_PRIVATE)
+        val preference = MainActivity.context.getSharedPreferences(
+            MainActivity.context.getString(R.string.app_key),
+            Context.MODE_PRIVATE
+        )
         with(preference.edit()) {
             putLong(FOLDER_LAST_PLAYED_KEY, favouriteFolder.lastPlayedId)
             putLong(FOLDER_LAST_PLAYED_KEY, lastPlayedFolderId)

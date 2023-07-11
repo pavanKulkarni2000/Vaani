@@ -42,9 +42,4 @@ data class FileEntity(
 
     override fun hashCode(): Int = path.hashCode()
 
-    fun copyPreferenceFrom(fileEntity: FileEntity) {
-        this.playBackProgress = fileEntity.playBackProgress
-        this.playBackSpeed = fileEntity.playBackSpeed
-        this.playBackLoop = fileEntity.playBackLoop
-    }
 }

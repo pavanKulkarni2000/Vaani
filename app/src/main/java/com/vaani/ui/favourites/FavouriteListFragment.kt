@@ -1,78 +1,100 @@
 package com.vaani.ui.favourites
 
-import android.content.ComponentName
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
+import androidx.core.view.size
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.END
-import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.common.util.concurrent.ListenableFuture
 import com.vaani.R
 import com.vaani.data.Files
-import com.vaani.models.FileEntity
-import com.vaani.player.PlaybackService
-import com.vaani.ui.EmptyItemDecoration
-import com.vaani.ui.files.FileAdapter
-import com.vaani.ui.files.FileCallbacks
-import com.vaani.ui.player.PlayerFragment
+import com.vaani.models.FavSortOrder
+import com.vaani.ui.medialist.MediaListFragment
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
+import com.vaani.util.PreferenceUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @UnstableApi
-class FavouriteListFragment : Fragment(R.layout.list_layout) {
+class FavouriteListFragment : MediaListFragment(PreferenceUtil.favouriteFolder) {
+
+    override val refreshMediaList = SwipeRefreshLayout.OnRefreshListener {
+        refreshLayout.isRefreshing = false
+    }
+
+    override val menuProvider = object : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.fav_list_action_menu,menu)
+            val searchButton = menu.findItem(R.id.file_list_action_search)
+            val searchView = searchButton?.actionView as SearchView
+            searchView.setOnQueryTextListener(searchQuery)
+            searchView.setOnCloseListener(searchClose)
+            val sortButton = menu.findItem(R.id.fav_list_action_sort)
+            sortButton.setIcon(when(Files.favSortOrder){
+                FavSortOrder.RANK -> R.drawable.sort_by_alpha
+                FavSortOrder.ASC,FavSortOrder.DSC -> R.drawable.sort_by_rank
+            })
+        }
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            when(menuItem.itemId) {
+                R.id.fav_list_action_sort -> {
+                    when(Files.favSortOrder){
+                        FavSortOrder.RANK -> {
+                            Files.updateFavouriteSort(FavSortOrder.ASC)
+                            menuItem.setIcon(R.drawable.sort_by_alpha)
+                        }
+                        FavSortOrder.ASC,FavSortOrder.DSC -> {
+                            Files.updateFavouriteSort(FavSortOrder.RANK)
+                            menuItem.setIcon(R.drawable.sort_by_rank)
+                        }
+                    }
+                    mediaListAdapter.notifyDataSetChanged()
+                }
+            }
+            return true
+        }
+    }
+
+    override fun onOptions(position: Int, view: View) {
+        val popup = PopupMenu(context!!, view)
+        popup.menu.add(getString(R.string.favourite_remove_label)).apply {
+            setIcon(R.drawable.foldermedia_favorite_24px)
+            setOnMenuItemClickListener {
+                Files.removeFavourite(position)
+                mediaListAdapter.notifyItemRemoved(position)
+                true
+            }
+        }
+        popup.show()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initChildViews(view)
+        ItemTouchHelper(touchHelper).attachToRecyclerView(recyclerView)
     }
 
-
-    private fun initChildViews(view: View) {
-
-        val favouriteCallbacks = object : FileCallbacks(FAVOURITE_COLLECTION_ID,requireParentFragment().parentFragmentManager) {
-            override fun onOptions(file: FileEntity, view: View) {
-                val popup = PopupMenu(context!!, view)
-                popup.menu.add(getString(R.string.favourite_remove_label)).apply {
-                    setIcon(R.drawable.foldermedia_favorite_24px)
-                    setOnMenuItemClickListener {
-                        Files.removeFavourite(file)
-                        true
-                    }
-                }
-                popup.show()
+    override fun onResume() {
+        super.onResume()
+        if (Files.favourites.size != recyclerView.size) {
+            CoroutineScope(Dispatchers.Main).launch {
+                mediaListAdapter.notifyItemRangeInserted(mediaListAdapter.itemCount, Files.favourites.size)
             }
         }
-
-        val adapter =
-            FileAdapter(Files.favourites, favouriteCallbacks)
-
-        val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(EmptyItemDecoration())
-        ItemTouchHelper(touchHelper).attachToRecyclerView(recyclerView)
-        Files.favouritesLive.observe(viewLifecycleOwner, adapter::updateList)
-
-        val fab: FloatingActionButton = view.findViewById(R.id.fab)
-        fab.setOnClickListener {
-            favouriteCallbacks.onPlayClicked()
-        }
     }
 
 
-    private val touchHelper = object : ItemTouchHelper.SimpleCallback(UP or DOWN, START or END) {
+    private val touchHelper = object:ItemTouchHelper.SimpleCallback(UP or DOWN, END) {
         override fun onMoved(
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder,
@@ -82,9 +104,6 @@ class FavouriteListFragment : Fragment(R.layout.list_layout) {
             x: Int,
             y: Int
         ) {
-            val from = viewHolder.adapterPosition
-            val to = target.adapterPosition
-            Files.moveFavourite(from, to)
         }
 
         override fun onMove(
@@ -92,10 +111,18 @@ class FavouriteListFragment : Fragment(R.layout.list_layout) {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            return false
+            val from = viewHolder.absoluteAdapterPosition
+            val to = target.absoluteAdapterPosition
+            Files.moveFavourite(from, to)
+            mediaListAdapter.notifyItemMoved(from, to)
+            return true
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            if (direction == END) {
+                Files.removeFavourite(viewHolder.absoluteAdapterPosition)
+                mediaListAdapter.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
+            }
         }
     }
 }

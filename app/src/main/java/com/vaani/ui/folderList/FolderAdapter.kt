@@ -26,8 +26,7 @@ import com.vaani.R
 import com.vaani.models.FolderEntity
 
 class FolderAdapter(
-    private var context: Context,
-    private var folderEntities: List<FolderEntity>,
+    private val folderEntities: List<FolderEntity>,
     private val onClick: (FolderEntity) -> Unit
 ) :
     RecyclerView.Adapter<FolderAdapter.FolderViewHolder>() {
@@ -52,13 +51,8 @@ class FolderAdapter(
         fun bind(folderEntity: FolderEntity) {
             currentFolderEntity = folderEntity
             folderText.text = folderEntity.name
-            folderSubtext.text = context.getString(R.string.folder_subtext, folderEntity.items)
+            folderSubtext.text = String.format("%d media files", folderEntity.items)
         }
-    }
-
-    fun updateList(newList: List<FolderEntity>) {
-        folderEntities = newList
-        notifyDataSetChanged()
     }
 
     /* Creates and inflates view and return FlowerViewHolder. */

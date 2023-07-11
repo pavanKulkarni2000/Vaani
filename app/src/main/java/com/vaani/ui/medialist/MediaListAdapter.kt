@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vaani.ui.files
+package com.vaani.ui.medialist
 
 import android.view.LayoutInflater
 import android.view.View
@@ -28,30 +28,26 @@ import com.vaani.models.FileEntity
 import com.vaani.ui.UiUtil
 
 @UnstableApi
-class FileAdapter(
-    private var files: List<FileEntity>,
-    private val fileCallbacks: FileCallbacks
+class MediaListAdapter(
+    private val files: List<FileEntity>,
+    private val fileCallbacks: MediaItemCallbacks
 ) :
-    RecyclerView.Adapter<FileAdapter.FileViewHolder>() {
+    RecyclerView.Adapter<MediaListAdapter.FileViewHolder>() {
 
     /* ViewHolder for Flower, takes in the inflated view and the onClick behavior. */
     inner class FileViewHolder(
         itemView: View
     ) :
         RecyclerView.ViewHolder(itemView) {
-        private var currentFile: FileEntity? = null
+        private lateinit var file: FileEntity
 
-
-        /* Bind flower name and image. */
-        fun bind(file: FileEntity) {
-            currentFile = file
+        fun bind(position: Int) {
+            file = files[position]
             itemView.setOnClickListener {
-                currentFile?.let {
-                    fileCallbacks.onClick(it,files)
-                }
+                fileCallbacks.onClick(file)
             }
             itemView.findViewById<TextView>(R.id.file_text).text = file.name
-            itemView.findViewById<TextView>(R.id.file_subtext).text = UiUtil.stringToTime(file.duration.toInt())
+            itemView.findViewById<TextView>(R.id.file_subtext).text = UiUtil.stringToTime(file.duration)
             itemView.findViewById<ImageView>(R.id.file_image).setImageResource(
                 when (file.isAudio) {
                     true -> R.drawable.foldermedia_music_note_40px
@@ -59,16 +55,9 @@ class FileAdapter(
                 }
             )
             itemView.findViewById<ImageView>(R.id.options_icon).setOnClickListener {
-                currentFile?.let { file ->
-                    fileCallbacks.onOptions(file, it)
-                }
+                fileCallbacks.onOptions(position, it)
             }
         }
-    }
-
-    fun updateList(newList: List<FileEntity>) {
-        files = newList
-        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
@@ -78,9 +67,7 @@ class FileAdapter(
     }
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
-        val flower = files[position]
-        holder.bind(flower)
-
+        holder.bind(position)
     }
 
     override fun getItemCount(): Int = files.size

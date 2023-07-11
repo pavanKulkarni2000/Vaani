@@ -22,12 +22,12 @@ object DB {
     private lateinit var favouriteEntityBox: Box<FavouriteEntity>
 
     fun init(context: Context) {
-            store = MyObjectBox.builder()
-                .androidContext(context)
-                .build()
-            folderEntityBox = store.boxFor(FolderEntity::class.java)
-            fileBox = store.boxFor(FileEntity::class.java)
-            favouriteEntityBox = store.boxFor(FavouriteEntity::class.java)
+        store = MyObjectBox.builder()
+            .androidContext(context)
+            .build()
+        folderEntityBox = store.boxFor(FolderEntity::class.java)
+        fileBox = store.boxFor(FileEntity::class.java)
+        favouriteEntityBox = store.boxFor(FavouriteEntity::class.java)
     }
 
     /**
@@ -89,18 +89,7 @@ object DB {
 
     fun getFavourites(): List<FavouriteEntity> = favouriteEntityBox.all
 
-    fun getFavouriteFiles(): List<FileEntity> {
-        val favs = favouriteEntityBox.all.sortedBy(FavouriteEntity::rank)
-        val favMap = favs.stream().collect(Collectors.toMap(FavouriteEntity::fileId, FavouriteEntity::rank))
-        val files = fileBox.get(favs.map(FavouriteEntity::fileId))
-        files.forEach{file->file.folderId = FAVOURITE_COLLECTION_ID}
-        return files.sortedBy { file -> favMap[file.id] }
-    }
-
-    fun getFavourite(fileId: Long): FavouriteEntity {
-        favouriteEntityBox.query(FavouriteEntity_.fileId.equal(fileId)).build().use { return it.findFirst()!! }
-    }
-
+    fun getFavouriteFiles(): List<FileEntity> = fileBox.get(getFavourites().map(FavouriteEntity::fileId))
 
     fun insertFavourite(favouriteEntity: FavouriteEntity) {
         favouriteEntityBox.put(favouriteEntity)
@@ -127,4 +116,9 @@ object DB {
     }
 
     fun getFile(fileId: Long): FileEntity = fileBox[fileId]
+    fun resume(context: Context) {
+        if (store.isClosed) {
+            init(context)
+        }
+    }
 }

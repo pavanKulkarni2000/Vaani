@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.vaani.MainActivity
@@ -19,18 +18,18 @@ import com.vaani.data.util.FileUtil
 
 object PermissionUtil {
 
-    fun managePermissions() {
+    fun managePermissions(context: Context) {
 
         if (!checkAllFileAccess()) {
-            requestAllFilesPermission(MainActivity.application.packageName)
+            requestAllFilesPermission(context.packageName)
         }
-        if (!checkOtherFilePermissions(MainActivity.context)) {
+        if (!checkOtherFilePermissions(context)) {
             requestOtherFilePermissions()
         }
-        if (!checkAndroidFolderAccess("data", MainActivity.contentResolver)) {
+        if (!checkAndroidFolderAccess("data", context.contentResolver)) {
             requestAndroidFolderPermission("data")
         }
-        if (!checkAndroidFolderAccess("obb", MainActivity.contentResolver)) {
+        if (!checkAndroidFolderAccess("obb", context.contentResolver)) {
             requestAndroidFolderPermission("obb")
         }
     }
