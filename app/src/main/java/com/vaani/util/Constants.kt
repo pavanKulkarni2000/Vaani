@@ -23,4 +23,6 @@ object Constants {
     const val FOLDER_LAST_PLAYED_KEY = "folder.last.played"
 
     const val ACTION = "ACTION"
+
+    const val NOTIFICATION_CHANNEL = "com.vaani"
 }

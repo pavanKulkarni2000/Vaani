@@ -46,6 +46,10 @@ class MediaListAdapter(
             itemView.setOnClickListener {
                 fileCallbacks.onClick(file)
             }
+            itemView.setOnLongClickListener {
+                fileCallbacks.onOptions(position, it)
+                true
+            }
             itemView.findViewById<TextView>(R.id.file_text).text = file.name
             itemView.findViewById<TextView>(R.id.file_subtext).text = UiUtil.stringToTime(file.duration)
             itemView.findViewById<ImageView>(R.id.file_image).setImageResource(
@@ -54,9 +58,6 @@ class MediaListAdapter(
                     false -> R.drawable.foldermedia_movie_40px
                 }
             )
-            itemView.findViewById<ImageView>(R.id.options_icon).setOnClickListener {
-                fileCallbacks.onOptions(position, it)
-            }
         }
     }
 

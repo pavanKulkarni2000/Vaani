@@ -18,7 +18,8 @@ import com.vaani.player.PlayerUtil
 import com.vaani.ui.EmptyItemDecoration
 
 @UnstableApi
-abstract class MediaListFragment(protected val folder: FolderEntity) : Fragment(R.layout.list_layout), MediaItemCallbacks{
+abstract class MediaListFragment(protected val folder: FolderEntity) : Fragment(R.layout.list_layout),
+    MediaItemCallbacks {
 
     protected lateinit var mediaListAdapter: MediaListAdapter
     protected lateinit var recyclerView: RecyclerView
@@ -34,7 +35,7 @@ abstract class MediaListFragment(protected val folder: FolderEntity) : Fragment(
         recyclerView.adapter = mediaListAdapter
         recyclerView.addItemDecoration(EmptyItemDecoration())
 
-        val fab: FloatingActionButton = view.findViewById(R.id.fab)
+        val fab: FloatingActionButton = view.findViewById(R.id.play_fab)
         fab.setOnClickListener {
             folderPlay()
         }
@@ -47,14 +48,14 @@ abstract class MediaListFragment(protected val folder: FolderEntity) : Fragment(
 
     override fun onClick(file: FileEntity) {
         PlayerUtil.play(file)
-        PlayerUtil.startPlayerActivity()
     }
 
     private fun folderPlay() {
         if (PlayerUtil.controller?.isPlaying == false || PlayerData.currentCollection != folder.id) {
             PlayerUtil.playLastPlayed(folder)
+        } else {
+            PlayerUtil.startPlayerActivity()
         }
-        PlayerUtil.startPlayerActivity()
     }
 
     override fun onDestroy() {
@@ -62,7 +63,7 @@ abstract class MediaListFragment(protected val folder: FolderEntity) : Fragment(
         requireActivity().removeMenuProvider(menuProvider)
     }
 
-    protected val searchQuery = object : SearchView.OnQueryTextListener{
+    protected val searchQuery = object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {
             Files.search(folder, query)
             mediaListAdapter.notifyDataSetChanged()
@@ -70,14 +71,14 @@ abstract class MediaListFragment(protected val folder: FolderEntity) : Fragment(
         }
 
         override fun onQueryTextChange(newText: String?): Boolean {
-            Files.search(folder,newText)
+            Files.search(folder, newText)
             mediaListAdapter.notifyDataSetChanged()
             return true
         }
     }
 
     protected val searchClose = SearchView.OnCloseListener {
-        Files.search(folder,null)
+        Files.search(folder, null)
         mediaListAdapter.notifyDataSetChanged()
         true
     }

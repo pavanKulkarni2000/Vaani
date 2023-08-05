@@ -6,9 +6,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.Window
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -35,10 +34,9 @@ class PlayerActivity :
     private val controller: MediaController?
         get() = if (controllerFuture.isDone) controllerFuture.get() else null
     private lateinit var playerView: PlayerView
-    private lateinit var videoTitle: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        supportRequestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
+        supportRequestWindowFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY)
         super.onCreate(savedInstanceState)
         playerView = findViewById(R.id.player_view)
         playerView.setControllerVisibilityListener(this)

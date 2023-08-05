@@ -28,4 +28,9 @@
     <string name="info">Info</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>
+    <string name="delete_favourite">Delete Favourite</string>
+    <string name="add_favourite">Add favourite</string>
+    <string name="copy">Copy</string>
+    <string name="move">Move</string>
+    <string name="delete">Delete</string>
 </resources>

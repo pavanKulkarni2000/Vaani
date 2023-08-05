@@ -36,7 +36,7 @@ class FolderListFragment : Fragment(R.layout.list_layout) {
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(EmptyItemDecoration())
-        val fab: FloatingActionButton = view.findViewById(R.id.fab)
+        val fab: FloatingActionButton = view.findViewById(R.id.play_fab)
         fab.setOnClickListener {
             lastPlayedFolderPlay()
         }
@@ -56,12 +56,13 @@ class FolderListFragment : Fragment(R.layout.list_layout) {
     private fun lastPlayedFolderPlay() {
         if (PlayerUtil.controller?.isPlaying == false) {
             PlayerUtil.playLastPlayed(Files.getFolder(PreferenceUtil.lastPlayedFolderId))
+        } else {
+            PlayerUtil.startPlayerActivity()
         }
-        PlayerUtil.startPlayerActivity()
     }
 
     private fun changeDirectory(folderEntity: FolderEntity) {
-        Files.changeCurrentFolder(folderEntity)
+        Files.setCurrentFolder(folderEntity)
         requireParentFragment().parentFragmentManager.commit {
             add(R.id.fragment_container_view, FileListFragment::class.java, Bundle.EMPTY)
             addToBackStack(null)

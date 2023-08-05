@@ -1,6 +1,5 @@
 package com.vaani
 
-import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Bundle
