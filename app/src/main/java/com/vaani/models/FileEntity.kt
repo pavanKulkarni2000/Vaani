@@ -17,13 +17,10 @@
 package com.vaani.models
 
 import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Id
 import io.objectbox.annotation.Unique
 
 @Entity
 data class FileEntity(
-    @Id
-    var id: Long = 0,
     var name: String,
     var isAudio: Boolean,
     @Unique
@@ -34,9 +31,9 @@ data class FileEntity(
     var playBackProgress: Float = 0F,
     var playBackSpeed: Float = 1F,
     var playBackLoop: Boolean = false
-) {
+) : BaseEntity() {
 
-    constructor() : this(0, "", false, "", false, 0, 0)
+    constructor() : this("", false, "", false, 0, 0)
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as FileEntity).path == path)
 

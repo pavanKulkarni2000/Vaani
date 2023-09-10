@@ -44,7 +44,6 @@ object AndroidPath : AndroidGenericFileType<Path> {
 
     override fun makeFolder(file: Path, count: Int): FolderEntity {
         return FolderEntity(
-            id = 0,
             name = file.fileName.toString(),
             path = file.toString(),
             isUri = false,

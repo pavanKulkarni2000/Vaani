@@ -13,7 +13,7 @@ object PlayerData {
 
     fun setCollectionId(folderId: Long) {
         this.currentCollection = folderId
-        this.currentPlayList = ArrayList(Files.getFolderFiles(folderId))
+        this.currentPlayList = ArrayList(Files.getCollectionFiles(folderId))
     }
 
     var currentCollection: Long = 0

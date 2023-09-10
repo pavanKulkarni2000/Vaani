@@ -1,6 +1,6 @@
 package com.vaani.models
 
-enum class FavSortOrder {
+enum class SortOrder {
     RANK,
     ASC,
     DSC

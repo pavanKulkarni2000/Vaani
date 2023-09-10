@@ -1,59 +1,46 @@
 package com.vaani.data
 
-import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.vaani.MainActivity
 import com.vaani.data.util.FileUtil
 import com.vaani.db.DB
-import com.vaani.models.FavSortOrder
 import com.vaani.models.FavouriteEntity
 import com.vaani.models.FileEntity
 import com.vaani.models.FolderEntity
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.PreferenceUtil
-import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import java.nio.file.Paths
 
 object Files {
 
-    lateinit var favouriteRanks: Map<Long, Int>
-        private set
-    val allFolders: MutableList<FolderEntity> = mutableListOf()
-    var currentFolder: FolderEntity = PreferenceUtil.favouriteFolder
-        private set
-    val currentFiles: MutableList<FileEntity> = mutableListOf()
-    val favourites: MutableList<FileEntity> = mutableListOf()
-    var favSortOrder = FavSortOrder.RANK
 
-    fun setCurrentFolder(folderEntity: FolderEntity) {
-        currentFolder = folderEntity
-        resetFolder(folderEntity)
-    }
+    val favouriteFolder = FolderEntity().apply { id = FAVOURITE_COLLECTION_ID }
+    val allFolders: MutableList<FolderEntity> = mutableListOf()
+    val favourites = mutableListOf<FavouriteEntity>()
 
     fun getFolder(id: Long): FolderEntity {
         return when (id) {
-            FAVOURITE_COLLECTION_ID -> PreferenceUtil.favouriteFolder
+            FAVOURITE_COLLECTION_ID -> favouriteFolder
             else -> allFolders.find { folder -> folder.id == id } ?: FolderEntity()
         }
     }
 
     fun getFile(fileId: Long) = DB.getFile(fileId)
 
-    fun getFolderFiles(id: Long): MutableList<FileEntity> {
+    fun getCollectionFiles(id: Long): List<FileEntity> {
         return when (id) {
-            FAVOURITE_COLLECTION_ID -> favourites
-            currentFolder.id -> currentFiles
-            else -> DB.getFolderFiles(id).toMutableList()
+            FAVOURITE_COLLECTION_ID -> DB.getFiles(favourites.map(FavouriteEntity::fileId))
+            else -> DB.getFolderFiles(id)
         }
     }
 
     fun updateLastPlayedItem(folderId: Long, lastPlayedId: Long) {
         when (folderId) {
-            FAVOURITE_COLLECTION_ID -> PreferenceUtil.favouriteFolder.lastPlayedId = lastPlayedId
+            FAVOURITE_COLLECTION_ID -> favouriteFolder.lastPlayedId = lastPlayedId
             else -> {
                 allFolders.find { folder -> folderId == folder.id }?.let {
                     it.lastPlayedId = lastPlayedId
@@ -61,66 +48,48 @@ object Files {
                 }
             }
         }
+        PreferenceUtil.lastPlayedFolderId = folderId
+        PreferenceUtil.save()
     }
 
     fun update(updatedFile: FileEntity) {
-        Log.d(TAG, "saveProgress: saving $updatedFile")
-        val isFavourite = false
-        if (updatedFile.folderId == FAVOURITE_COLLECTION_ID) {
-            updatedFile.folderId = DB.getFile(updatedFile.id).folderId
-        }
         DB.save(updatedFile)
-        if (isFavourite) {
-            updatedFile.folderId = FAVOURITE_COLLECTION_ID
+    }
+
+    fun addFavourite(fileEntity: FileEntity): FavouriteEntity {
+        if (favourites.map(FavouriteEntity::fileId).contains(fileEntity.id)) {
+            throw Exception("File already favorite")
         }
+        val newFav = FavouriteEntity(fileEntity, rank = favourites.size)
+        DB.insertFavourite(newFav)
+        favourites.add(newFav)
+        return newFav
     }
 
-    fun addFavourite(fileEntity: FileEntity) {
-        if (favourites.contains(fileEntity)) {
-            throw Exception("Favourite already present")
-        }
-        favourites.add(fileEntity)
-        DB.insertFavourite(FavouriteEntity(id = 0, fileId = fileEntity.id, rank = favourites.size - 1))
-    }
-
-    fun removeFavourite(position: Int) {
-        val file = favourites.removeAt(position)
-        removeFavouriteFromDB(file.id)
-    }
-
-    private fun removeFavouriteFromDB(fileId: Long) {
-        val favEntities = DB.getFavourites().toMutableList()
-        val favEntity = favEntities.find { it.fileId == fileId }!!
+    fun removeFavourite(favEntity: FavouriteEntity) {
+        favourites.remove(favEntity)
         DB.deleteFavourite(favEntity)
-        favEntities.remove(favEntity)
-        for (i in favEntity.rank until favEntities.size) {
-            favEntities[i].rank = i
-        }
-        DB.updateFavourites(favEntities)
     }
 
     fun moveFavourite(rankFrom: Int, rankTo: Int) {
-        val favEntities = DB.getFavourites()
-        val favUpdates = buildList {
-            val tmp = favourites[rankFrom]
-            if (rankTo > rankFrom) {
-                for (i in rankFrom until rankTo) {
-                    favourites[i] = favourites[i + 1]
-                    add(favEntities.find { it.fileId == favourites[i].id }!!.apply { this.rank = i })
-                }
-            } else {
-                for (i in rankTo until rankFrom) {
-                    favourites[i + 1] = favourites[i]
-                    add(favEntities.find { it.fileId == favourites[i + 1].id }!!.apply { this.rank = i + 1 })
-                }
+        val tmp = favourites[rankFrom]
+        if (rankTo > rankFrom) {
+            for (i in rankFrom until rankTo) {
+                favourites[i] = favourites[i + 1]
+                favourites[i].rank = i
             }
-            favourites[rankTo] = tmp
-            add(favEntities.find { it.fileId == favourites[rankTo].id }!!.apply { this.rank = rankTo })
+        } else {
+            for (i in rankTo until rankFrom) {
+                favourites[i + 1] = favourites[i]
+                favourites[i + 1].rank = i + 1
+            }
         }
-        DB.updateFavourites(favUpdates)
+        favourites[rankTo] = tmp
+        favourites[rankTo].rank = rankTo
+        DB.updateFavourites(favourites)
     }
 
-    suspend fun explore() {
+    suspend fun exploreFolders() {
         coroutineScope {
             val differed1 = async { FileUtil.updatePrimaryStorageList() }
             val differed2 =
@@ -128,83 +97,79 @@ object Files {
             val differed3 = async { FileUtil.updateAndroidFolderList(MainActivity.context) }
             val folderMedias = (differed1.await() + differed2.await() + differed3.await())
             DB.updateFolders(folderMedias.keys)
-            resetAllFolders()
             folderMedias.forEach { (folder, mediaList) ->
-                allFolders.first(folder::equals).let { dbFolder ->
-                    DB.updateFolderFiles(dbFolder, mediaList)
+                allFolders.find(folder::equals)?.let { existingFolder ->
+                    DB.updateFolderFiles(existingFolder, mediaList)
+                } ?: run {
+                    allFolders.add(folder)
+                    DB.updateFolderFiles(folder, mediaList)
                 }
             }
         }
     }
 
-    suspend fun exploreFolder(folder: FolderEntity) {
-        coroutineScope {
-            val mediaList = withContext(Dispatchers.IO) {
-                FileUtil.getMediaInFolder(
-                    MainActivity.context,
-                    folder
-                )
-            }
-            DB.updateFolderFiles(folder, mediaList)
+    suspend fun exploreFolder(folder: FolderEntity): List<FileEntity> {
+        val mediaList = withContext(Dispatchers.IO) {
+            FileUtil.getMediaInFolder(
+                MainActivity.context,
+                folder
+            )
         }
+        DB.updateFolderFiles(folder, mediaList)
+        return mediaList
     }
 
     fun init() {
-        resetAllFolders()
-        favouriteRanks = DB.getFavourites().associate { it.fileId to it.rank }
-        resetFolder(PreferenceUtil.favouriteFolder)
+        allFolders.clear()
+        allFolders.addAll(DB.getFolders())
+        favourites.clear()
+        favourites.addAll(DB.getFavourites())
     }
 
-    private fun resetAllFolders() {
-        allFolders.apply {
-            clear()
-            addAll(DB.getFolders())
-        }
-    }
-
-    private fun resetFolder(folderEntity: FolderEntity): MutableList<FileEntity> {
-        return when (folderEntity.id) {
-            FAVOURITE_COLLECTION_ID -> favourites.apply {
-                clear()
-                addAll(DB.getFavouriteFiles())
-                when (favSortOrder) {
-                    FavSortOrder.ASC, FavSortOrder.DSC -> sortBy(FileEntity::name)
-                    FavSortOrder.RANK -> sortBy { favouriteRanks[it.id] }
-                }
+    fun copyFile(sourceFile: FileEntity, destinationUri: Uri): FolderEntity {
+        val newFile = FileUtil.copyFile(sourceFile, destinationUri)
+        val folderPath = Paths.get(newFile.path).parent
+        val folder: FolderEntity =
+            allFolders.find { folder -> folder.path == folderPath.toString() }?.also {
+                it.items++
+            } ?: FolderEntity().also {
+                it.name = folderPath.fileName.toString()
+                it.path = folderPath.toString()
+                it.isUri = false
+                it.items = 1
+                allFolders.add(it)
             }
-            else -> currentFiles.apply {
-                clear()
-                addAll(DB.getFolderFiles(folderEntity.id))
+        DB.save(folder)
+        newFile.folderId = folder.id
+        DB.save(newFile)
+        return folder
+    }
+
+    fun rename(fileEntity: FileEntity, newName: String) {
+        FileUtil.rename(fileEntity, newName)
+        DB.save(fileEntity)
+    }
+
+    fun delete(file: FileEntity) {
+        FileUtil.delete(file)
+        DB.delete(file)
+        allFolders.find { folder -> folder.id == file.folderId }?.let { folder ->
+            folder.items--
+            if (folder.items == 0) {
+                DB.delete(folder)
+                allFolders.remove(folder)
+            } else {
+                DB.save(folder)
             }
         }
-
-    }
-
-    fun search(folder: FolderEntity, query: String?) {
-        val files = resetFolder(folder)
-        if (query != null && query.isNotBlank()) {
-            files.retainAll { it.name.contains(query) }
+        favourites.find { fav -> fav.fileId == file.id }?.let {
+            DB.delete(it)
+            favourites.remove(it)
         }
     }
 
-    fun updateFavouriteSort(sortOrder: FavSortOrder) {
-        favSortOrder = sortOrder
-        when (favSortOrder) {
-            FavSortOrder.ASC, FavSortOrder.DSC -> favourites.sortBy(FileEntity::name)
-            FavSortOrder.RANK -> favourites.sortBy { favouriteRanks[it.id] }
-        }
-    }
+    fun rename(fileEntity: FolderEntity, newName: String) {
 
-    suspend fun copyFile(sourceFile: FileEntity, destinationUri: Uri?, context: Context) {
-
-        FileUtil.getPath(context, destinationUri)?.let { path ->
-            Log.d(TAG, "copyFile: path = $path")
-            FileUtil.copyFile(sourceFile, path.resolve(sourceFile.name))
-            val folder: FolderEntity = allFolders.find { fol -> fol.path == path.toString() } ?: FolderEntity().also {
-                it.path = path.toString(); it.name = path.fileName.toString(); DB.save(it); allFolders.add(it); allFolders.sortBy { fol->fol.name.lowercase() }
-            }
-            exploreFolder(folder)
-        }
     }
 
 }

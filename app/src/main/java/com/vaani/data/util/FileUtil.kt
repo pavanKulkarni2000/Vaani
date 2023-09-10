@@ -3,10 +3,11 @@ package com.vaani.data.util
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
+import com.vaani.MainActivity
 import com.vaani.models.FileEntity
 import com.vaani.models.FolderEntity
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -73,20 +74,18 @@ object FileUtil {
         return "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2F$folder"
     }
 
-    fun getPath(context: Context, uri: Uri?): Path? {
+    fun getPath(uri: Uri): Path? {
         var path: Path? = null
-        uri?.let { _uri ->
-            _uri.path?.let { _path ->
-                if (_path.contains("/tree/primary:")) {
-                    path = Paths.get(_path.replace("/tree/primary:", primaryStorageRootPath))
-                } else {
-                    val externalPaths = getSecondaryStorages(context)
-                    for (externalPath in externalPaths) {
-                        val sdCardName = externalPath.removePrefix("/storage/").removeSuffix("/")
-                        if (_path.contains(sdCardName)) {
-                            path = Paths.get(_path.replace("/tree/${sdCardName}:", externalPath))
-                            break
-                        }
+        uri.path?.let { _path ->
+            if (_path.contains("/tree/primary:")) {
+                path = Paths.get(_path.replace("/tree/primary:", primaryStorageRootPath))
+            } else {
+                val externalPaths = getSecondaryStorages(MainActivity.context)
+                for (externalPath in externalPaths) {
+                    val sdCardName = externalPath.removePrefix("/storage/").removeSuffix("/")
+                    if (_path.contains(sdCardName)) {
+                        path = Paths.get(_path.replace("/tree/${sdCardName}:", externalPath))
+                        break
                     }
                 }
             }
@@ -97,12 +96,42 @@ object FileUtil {
         return path
     }
 
-    fun copyFile(sourceFile: FileEntity, destinationPath: Path) {
-        if (sourceFile.isUri) {
-            val file = Uri.parse(sourceFile.path).toFile()
-            Files.copy(file.inputStream(), destinationPath, StandardCopyOption.REPLACE_EXISTING)
-        } else {
-            Files.copy(Paths.get(sourceFile.path), destinationPath, StandardCopyOption.REPLACE_EXISTING)
+    fun copyFile(sourceFile: FileEntity, destinationUri: Uri): FileEntity {
+        val newFile = FileEntity()
+            .apply {
+                name = sourceFile.name
+                isUri = sourceFile.isUri
+                isAudio = sourceFile.isAudio
+                duration = sourceFile.duration
+            }
+        getPath(destinationUri)?.let { path ->
+            val targetPath = path.resolve(sourceFile.name)
+            if (sourceFile.isUri) {
+                Files.copy(
+                    MainActivity.contentResolver.openInputStream(Uri.parse(sourceFile.path)),
+                    targetPath,
+                    StandardCopyOption.REPLACE_EXISTING
+                )
+            } else {
+                Files.copy(
+                    Paths.get(sourceFile.path),
+                    targetPath,
+                    StandardCopyOption.REPLACE_EXISTING
+                )
+            }
+            newFile.path = targetPath.toString()
         }
+        return newFile
+    }
+
+    fun rename(fileEntity: FileEntity, newName: String) {
+        val newPath = Paths.get(fileEntity.path).parent.resolve(newName)
+        if (!File(fileEntity.path).renameTo(newPath.toFile())) {
+            throw Exception("Rename failed")
+        }
+    }
+
+    fun delete(file: FileEntity) {
+        TODO("Not yet implemented")
     }
 }

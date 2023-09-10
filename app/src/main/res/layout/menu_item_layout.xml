@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/file_type_label"
-        android:src="@drawable/foldermedia_music_note_40px" />
+        android:src="@drawable/music_note_40px" />
     <TextView
         style="@style/TextAppearance.Material3.BodyMedium"
         android:id="@+id/menu_item_text"

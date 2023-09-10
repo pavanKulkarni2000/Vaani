@@ -37,7 +37,6 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
 
     override fun makeFolder(file: DocumentFile, count: Int): FolderEntity {
         return FolderEntity(
-            id = 0,
             name = file.name ?: Constants.UNNAMED_FILE,
             path = file.uri.toString(),
             isUri = true,

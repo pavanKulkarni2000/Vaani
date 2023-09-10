@@ -17,13 +17,10 @@
 package com.vaani.models
 
 import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Id
 import io.objectbox.annotation.Unique
 
 @Entity
 data class FolderEntity(
-    @Id
-    var id: Long = 0,
     var name: String,
     @Unique
     var path: String,
@@ -31,9 +28,10 @@ data class FolderEntity(
     var items: Int,
     var playBackShuffle: Boolean = false,
     var lastPlayedId: Long = 0,
-) {
+    var rank: Int = 0,
+) : BaseEntity() {
 
-    constructor() : this(0, "", "", false, 0)
+    constructor() : this("", "", false, 0)
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as FolderEntity).path == path)
 

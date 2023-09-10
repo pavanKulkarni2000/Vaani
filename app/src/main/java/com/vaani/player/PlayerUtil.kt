@@ -52,33 +52,36 @@ object PlayerUtil {
         (position.toFloat() / (file.duration * 1000))
 
 
-    fun play(file: FileEntity) {
+    fun play(file: FileEntity, collectionId: Long) {
         val controller = this.controller ?: return
         if (controller.isPlaying) {
             if (PlayerData.currentPlayList[controller.currentMediaItemIndex] == file) {
                 return
             }
         }
-        if (PlayerData.currentCollection == file.folderId) {
+        if (PlayerData.currentCollection == collectionId) {
             controller.seekTo(
                 PlayerData.currentPlayList.indexOf(file),
                 getMediaProgressMs(file)
             )
         } else {
-            var files = Files.getFolderFiles(file.folderId)
+            val files = Files.getCollectionFiles(collectionId)
             controller.setMediaItems(
                 files.map { MediaItem.Builder().setMediaId(it.path).build() },
                 files.indexOf(file),
                 getMediaProgressMs(file)
             )
-            PlayerData.setCollectionId(file.folderId)
+            PlayerData.setCollectionId(collectionId)
         }
-        controller.setPlaybackSpeed(1f)
+        controller.setPlaybackSpeed(file.playBackSpeed)
         controller.repeatMode = REPEAT_MODE_ALL
 //        controller.shuffleModeEnabled = Files.getFolder(file.folderId).playBackShuffle
         controller.prepare()
         controller.play()
-        startPlayerActivity()
+        MainActivity.context.startActivity(
+            Intent(MainActivity.context, PlayerActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
     fun startPlayerActivity() {
@@ -103,11 +106,12 @@ object PlayerUtil {
 
     fun playLastPlayed(folder: FolderEntity) {
         if (folder.lastPlayedId <= 0) {
+            Log.d(TAG, "playLastPlayed: last player not present for folder $folder")
             return
         }
         val lastPlayedFile = Files.getFile(folder.lastPlayedId)
         Log.d(TAG, "onPlayClicked: lastPlayed - $lastPlayedFile")
-        play(lastPlayedFile)
+        play(lastPlayedFile, folder.id)
     }
 
     fun saveProgress(mediaIndex: Int, position: Long) {
