@@ -16,22 +16,18 @@
 
 package com.vaani.models
 
-import io.objectbox.annotation.BaseEntity
-import io.objectbox.annotation.Id
-import io.objectbox.annotation.Unique
+import io.objectbox.annotation.Entity
 
-@BaseEntity
-open class FileEntity(
-    @Id
-    var id: Long = 0,
-    var name: String = "",
-    @Unique
-    var path: String = "",
-    var isUri: Boolean = false
-) {
-
-    override fun equals(other: Any?): Boolean = (this === other) || ((other as FileEntity).path == path)
-
-    override fun hashCode(): Int = path.hashCode()
-
+@Entity
+data class MediaEntity(
+    var isAudio: Boolean = false,
+    var duration: Long = 0,
+    var folderId: Long = 0,
+    var playBackProgress: Float = 0F,
+    var playBackSpeed: Float = 1F,
+    var playBackLoop: Boolean = false
+) : FileEntity() {
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other)
+    }
 }

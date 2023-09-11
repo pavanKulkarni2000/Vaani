@@ -83,7 +83,7 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(), ListItemCall
 
     override fun onOptions(position: Int, menu: Menu) {
         menu.findItem(R.id.fav_list_option_del_fav).setOnMenuItemClickListener {
-            Files.removeFavourite(displayList[position])
+            Files.remove(displayList[position])
             displayList.removeAt(position)
             listAdapter.notifyItemRemoved(position)
             true
@@ -119,7 +119,7 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(), ListItemCall
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             if (direction == ItemTouchHelper.END) {
-                Files.removeFavourite(displayList[viewHolder.absoluteAdapterPosition])
+                Files.remove(displayList[viewHolder.absoluteAdapterPosition])
                 displayList.removeAt(viewHolder.absoluteAdapterPosition)
                 listAdapter.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
             }

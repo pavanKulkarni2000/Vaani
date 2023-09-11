@@ -1,7 +1,7 @@
 package com.vaani.data
 
 import androidx.media3.common.MediaMetadata
-import com.vaani.models.FileEntity
+import com.vaani.models.MediaEntity
 
 object PlayerData {
 
@@ -17,6 +17,6 @@ object PlayerData {
     }
 
     var currentCollection: Long = 0
-    var currentPlayList: List<FileEntity> = emptyList()
+    var currentPlayList: List<MediaEntity> = emptyList()
         private set
 }

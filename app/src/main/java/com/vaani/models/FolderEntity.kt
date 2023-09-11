@@ -17,28 +17,15 @@
 package com.vaani.models
 
 import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Unique
 
 @Entity
 data class FolderEntity(
-    var name: String,
-    @Unique
-    var path: String,
-    var isUri: Boolean,
-    var items: Int,
+    var items: Int = 0,
     var playBackShuffle: Boolean = false,
     var lastPlayedId: Long = 0,
     var rank: Int = 0,
-) : BaseEntity() {
-
-    constructor() : this("", "", false, 0)
-
-    override fun equals(other: Any?): Boolean = (this === other) || ((other as FolderEntity).path == path)
-
-    override fun hashCode(): Int = path.hashCode()
-
-    fun copyPreferenceFrom(folderEntity: FolderEntity) {
-        this.playBackShuffle = folderEntity.playBackShuffle
-        this.lastPlayedId = folderEntity.lastPlayedId
+) : FileEntity() {
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other)
     }
 }

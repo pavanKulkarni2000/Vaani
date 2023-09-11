@@ -17,8 +17,8 @@ import com.vaani.MainActivity
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
-import com.vaani.models.FileEntity
 import com.vaani.models.FolderEntity
+import com.vaani.models.MediaEntity
 import com.vaani.ui.player.PlayerActivity
 import com.vaani.util.TAG
 
@@ -46,13 +46,13 @@ object PlayerUtil {
         ).buildAsync()
     }
 
-    fun getMediaProgressMs(file: FileEntity): Long = (file.duration * file.playBackProgress * 1000).toLong()
+    fun getMediaProgressMs(file: MediaEntity): Long = (file.duration * file.playBackProgress * 1000).toLong()
 
-    private fun getMediaProgress(file: FileEntity, position: Long): Float =
+    private fun getMediaProgress(file: MediaEntity, position: Long): Float =
         (position.toFloat() / (file.duration * 1000))
 
 
-    fun play(file: FileEntity, collectionId: Long) {
+    fun play(file: MediaEntity, collectionId: Long) {
         val controller = this.controller ?: return
         if (controller.isPlaying) {
             if (PlayerData.currentPlayList[controller.currentMediaItemIndex] == file) {

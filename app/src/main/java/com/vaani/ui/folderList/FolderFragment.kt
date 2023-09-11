@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @UnstableApi
 object FolderFragment : AbstractListFragment<FolderEntity>(), ListItemCallbacks {
@@ -84,7 +85,7 @@ object FolderFragment : AbstractListFragment<FolderEntity>(), ListItemCallbacks 
 
     override fun onOptions(position: Int, menu: Menu) {
         selectedFolder = displayList[position]
-        menu.findItem(R.id.file_list_option_rename).apply {
+        menu.findItem(R.id.folder_option_rename).apply {
             if (selectedFolder.isUri) {
                 isVisible = false
             } else {
@@ -94,7 +95,7 @@ object FolderFragment : AbstractListFragment<FolderEntity>(), ListItemCallbacks 
                 }
             }
         }
-        menu.findItem(R.id.file_list_option_delete).apply {
+        menu.findItem(R.id.folder_option_delete).apply {
             setOnMenuItemClickListener {
                 deleteFolder()
                 true
@@ -111,12 +112,16 @@ object FolderFragment : AbstractListFragment<FolderEntity>(), ListItemCallbacks 
             .setTitle("Rename folder")
             .setView(renameView)
             .setPositiveButton(R.string.rename) { dialogInterface: DialogInterface, i: Int ->
-                try {
-                    Files.rename(selectedFolder, editTextView?.text.toString())
-                    listAdapter.notifyItemChanged(displayList.indexOf(selectedFolder))
-                } catch (e: Exception) {
-                    Log.e(TAG, "rename folder: error", e)
-                    Toast.makeText(requireContext(), "Unable to rename", Toast.LENGTH_SHORT).show()
+                CoroutineScope(Job()).launch {
+                    try {
+                        Files.rename(selectedFolder, editTextView?.text.toString())
+                        withContext(Dispatchers.Main) {
+                            listAdapter.notifyItemChanged(displayList.indexOf(selectedFolder))
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "rename folder: error", e)
+                        Toast.makeText(requireContext(), "Unable to rename", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 dialogInterface.dismiss()
             }.setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
@@ -126,31 +131,22 @@ object FolderFragment : AbstractListFragment<FolderEntity>(), ListItemCallbacks 
 
     private fun deleteFolder() {
         AlertDialog.Builder(recyclerView.context)
-            .setTitle("Do you want to permanently delete the file ${selectedFile.name}?")
-            .setPositiveButton(R.string.rename) { dialogInterface: DialogInterface, i: Int ->
+            .setTitle("Do you want to permanently delete the file ${selectedFolder.name}?")
+            .setPositiveButton(R.string.delete) { dialogInterface: DialogInterface, i: Int ->
                 try {
-                    Files.delete(selectedFile)
-                    displayList.indexOf(selectedFile).let { idx ->
-                        displayList.removeAt(idx)
-                        listAdapter.notifyItemRemoved(idx)
-                    }
-                    FavouriteFragment.displayList.indexOfFirst { fav -> fav.fileId == selectedFile.id }.let { idx ->
-                        if (idx != -1) {
-                            FavouriteFragment.displayList.removeAt(idx)
-                            FavouriteFragment.listAdapter.notifyItemRemoved(idx)
+                    CoroutineScope(Job()).launch {
+                        Files.delete(selectedFolder)
+                        withContext(Dispatchers.Main) {
+                            displayList.indexOf(selectedFolder).let { idx ->
+                                displayList.removeAt(idx)
+                                listAdapter.notifyItemRemoved(idx)
+                            }
+                            FavouriteFragment.resetData(Files.favourites)
+                            FavouriteFragment.listAdapter.notifyDataSetChanged()
                         }
-                    }
-                    FolderFragment.displayList.indexOf(currentFolder).let { idx ->
-                        if (currentFolder.items == 0) {
-                            FolderFragment.displayList.removeAt(idx)
-                            FolderFragment.listAdapter.notifyItemRemoved(idx)
-                        } else {
-                            FolderFragment.listAdapter.notifyItemChanged(idx)
-                        }
-
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "deleteFile: error", e)
+                    Log.e(TAG, "deleteFolder: error", e)
                     Toast.makeText(requireContext(), "Unable to delete", Toast.LENGTH_SHORT).show()
                 }
                 dialogInterface.dismiss()

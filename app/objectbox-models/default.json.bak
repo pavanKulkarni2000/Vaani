@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "8:7258868060742890005",
-      "lastPropertyId": "3:222435641534350745",
+      "lastPropertyId": "6:3352243433975439232",
       "name": "FavouriteEntity",
       "properties": [
         {
@@ -25,6 +25,21 @@
           "id": "3:222435641534350745",
           "name": "rank",
           "type": 5
+        },
+        {
+          "id": "4:8860424308312216682",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "5:1947625817019193833",
+          "name": "isAudio",
+          "type": 1
+        },
+        {
+          "id": "6:3352243433975439232",
+          "name": "duration",
+          "type": 6
         }
       ],
       "relations": []

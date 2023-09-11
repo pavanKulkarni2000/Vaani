@@ -18,8 +18,8 @@ import androidx.media3.common.util.UnstableApi
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
-import com.vaani.models.FileEntity
 import com.vaani.models.FolderEntity
+import com.vaani.models.MediaEntity
 import com.vaani.models.SortOrder
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.UiUtil
@@ -33,17 +33,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 @UnstableApi
-object FilesFragment : AbstractListFragment<FileEntity>(), ListItemCallbacks {
+object FilesFragment : AbstractListFragment<MediaEntity>(), ListItemCallbacks {
 
+    private lateinit var moveLauncher: ActivityResultLauncher<Uri?>
     private lateinit var copyLauncher: ActivityResultLauncher<Uri?>
-    private lateinit var selectedFile: FileEntity
+    private lateinit var selectedFile: MediaEntity
     var currentFolder: FolderEntity = FolderEntity()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         copyLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree(), this::copyFile)
+        moveLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree(), this::moveFile)
         resetData(Files.getCollectionFiles(currentFolder.id))
     }
 
@@ -132,6 +136,7 @@ object FilesFragment : AbstractListFragment<FileEntity>(), ListItemCallbacks {
                 isVisible = false
             } else {
                 setOnMenuItemClickListener {
+                    moveLauncher.launch(Uri.fromFile(File(selectedFile.path)))
                     true
                 }
             }
@@ -148,16 +153,36 @@ object FilesFragment : AbstractListFragment<FileEntity>(), ListItemCallbacks {
         }
     }
 
+    private fun moveFile(uri: Uri?) {
+        uri?.let {
+            CoroutineScope(Job()).launch {
+                val folder = Files.moveFile(selectedFile, it)
+                FolderFragment.displayList.indexOf(folder).let {
+                    withContext(Dispatchers.Main) {
+                        if (it == -1) {
+                            FolderFragment.displayList.add(folder)
+                            FolderFragment.listAdapter.notifyItemInserted(FolderFragment.displayList.size - 1)
+                        } else {
+                            FolderFragment.listAdapter.notifyItemChanged(it)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun copyFile(uri: Uri?) {
         uri?.let {
             CoroutineScope(Job()).launch {
-                val newFolder = Files.copyFile(selectedFile, it)
-                FolderFragment.displayList.indexOf(newFolder).let {
-                    if (it == -1) {
-                        FolderFragment.displayList.add(newFolder)
-                        FolderFragment.listAdapter.notifyItemInserted(FolderFragment.displayList.size - 1)
-                    } else {
-                        FolderFragment.listAdapter.notifyItemChanged(it)
+                val folder = Files.copyFile(selectedFile, it)
+                FolderFragment.displayList.indexOf(folder).let {
+                    withContext(Dispatchers.Main) {
+                        if (it == -1) {
+                            FolderFragment.displayList.add(folder)
+                            FolderFragment.listAdapter.notifyItemInserted(FolderFragment.displayList.size - 1)
+                        } else {
+                            FolderFragment.listAdapter.notifyItemChanged(it)
+                        }
                     }
                 }
             }
@@ -177,12 +202,16 @@ object FilesFragment : AbstractListFragment<FileEntity>(), ListItemCallbacks {
             .setView(renameView)
             .setPositiveButton(R.string.rename) { dialogInterface: DialogInterface, i: Int ->
                 val newName = "${editTextView?.text}$fileExtension"
-                try {
-                    Files.rename(selectedFile, newName)
-                    listAdapter.notifyItemChanged(displayList.indexOf(selectedFile))
-                } catch (e: Exception) {
-                    Log.e(TAG, "renameFile: error", e)
-                    Toast.makeText(requireContext(), "Unable to rename", Toast.LENGTH_SHORT).show()
+                CoroutineScope(Job()).launch {
+                    try {
+                        Files.rename(selectedFile, newName)
+                        withContext(Dispatchers.Main) {
+                            listAdapter.notifyItemChanged(displayList.indexOf(selectedFile))
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "renameFile: error", e)
+                        Toast.makeText(requireContext(), "Unable to rename", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 dialogInterface.dismiss()
             }.setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
@@ -193,27 +222,32 @@ object FilesFragment : AbstractListFragment<FileEntity>(), ListItemCallbacks {
     private fun deleteFile() {
         AlertDialog.Builder(recyclerView.context)
             .setTitle("Do you want to permanently delete the file ${selectedFile.name}?")
-            .setPositiveButton(R.string.rename) { dialogInterface: DialogInterface, i: Int ->
+            .setPositiveButton(R.string.delete) { dialogInterface: DialogInterface, i: Int ->
                 try {
-                    Files.delete(selectedFile)
-                    displayList.indexOf(selectedFile).let { idx ->
-                        displayList.removeAt(idx)
-                        listAdapter.notifyItemRemoved(idx)
-                    }
-                    FavouriteFragment.displayList.indexOfFirst { fav -> fav.fileId == selectedFile.id }.let { idx ->
-                        if (idx != -1) {
-                            FavouriteFragment.displayList.removeAt(idx)
-                            FavouriteFragment.listAdapter.notifyItemRemoved(idx)
-                        }
-                    }
-                    FolderFragment.displayList.indexOf(currentFolder).let { idx ->
-                        if (currentFolder.items == 0) {
-                            FolderFragment.displayList.removeAt(idx)
-                            FolderFragment.listAdapter.notifyItemRemoved(idx)
-                        } else {
-                            FolderFragment.listAdapter.notifyItemChanged(idx)
-                        }
+                    CoroutineScope(Job()).launch {
+                        Files.delete(selectedFile)
+                        withContext(Dispatchers.Main) {
+                            displayList.indexOf(selectedFile).let { idx ->
+                                displayList.removeAt(idx)
+                                listAdapter.notifyItemRemoved(idx)
+                            }
+                            FavouriteFragment.displayList.indexOfFirst { fav -> fav.fileId == selectedFile.id }
+                                .let { idx ->
+                                    if (idx != -1) {
+                                        FavouriteFragment.displayList.removeAt(idx)
+                                        FavouriteFragment.listAdapter.notifyItemRemoved(idx)
+                                    }
+                                }
+                            FolderFragment.displayList.indexOf(currentFolder).let { idx ->
+                                if (currentFolder.items == 0) {
+                                    FolderFragment.displayList.removeAt(idx)
+                                    FolderFragment.listAdapter.notifyItemRemoved(idx)
+                                } else {
+                                    FolderFragment.listAdapter.notifyItemChanged(idx)
+                                }
 
+                            }
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "deleteFile: error", e)
