@@ -1,11 +1,14 @@
 package com.vaani.db
 
 import android.content.Context
+import android.util.Log
 import com.vaani.models.FavouriteEntity
+import com.vaani.models.FileEntity
 import com.vaani.models.FolderEntity
 import com.vaani.models.MediaEntity
 import com.vaani.models.MediaEntity_
 import com.vaani.models.MyObjectBox
+import com.vaani.util.TAG
 import io.objectbox.Box
 import io.objectbox.BoxStore
 
@@ -53,17 +56,12 @@ object DB {
 
     fun updateFolderFiles(folderEntity: FolderEntity, exploredFiles: List<MediaEntity>) {
         val dbFiles = getFolderFiles(folderEntity.id)
-        val deadFiles = mutableSetOf<MediaEntity>()
-        val newFiles = exploredFiles.toMutableList()
-        dbFiles.forEach { file ->
-            exploredFiles.find(file::equals)?.let {
-                // already in DB
-                    exploredFile ->
-                newFiles.remove(exploredFile)
-            } ?: deadFiles.add(file)
-        }
+        val deadFiles = dbFiles - exploredFiles.toSet()
+        val newFiles = exploredFiles - dbFiles.toSet()
+        Log.d(TAG, "updateFolderFiles: dead files $deadFiles")
         fileBox.remove(deadFiles)
         newFiles.forEach { file -> file.folderId = folderEntity.id }
+        Log.d(TAG, "updateFolderFiles: new files $newFiles")
         fileBox.put(newFiles)
         if (folderEntity.items != exploredFiles.size) {
             folderEntity.items = exploredFiles.size
@@ -85,6 +83,13 @@ object DB {
         }
         folderBox.remove(deadFolders)
         folderBox.put(newFolders)
+        dbFolders.addAll(newFolders)
+        val folIds = dbFolders.map(FolderEntity::id)
+        fileBox.query(MediaEntity_.folderId.notOneOf(folIds.toLongArray())).build().use {
+            val deadFiles = it.find()
+            Log.d(TAG, "updateFolders: dead files ${deadFiles.size} ${deadFiles.map { FileEntity::name }}")
+            fileBox.remove(deadFiles)
+        }
     }
 
     fun delete(files: List<MediaEntity>) {

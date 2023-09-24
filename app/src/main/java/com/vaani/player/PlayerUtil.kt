@@ -6,7 +6,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player.REPEAT_MODE_ALL
+import androidx.media3.common.Player.REPEAT_MODE_OFF
+import androidx.media3.common.Player.REPEAT_MODE_ONE
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaController
@@ -59,13 +60,13 @@ object PlayerUtil {
                 return
             }
         }
-        if (PlayerData.currentCollection == collectionId) {
+        val files = Files.getCollectionFiles(collectionId)
+        if (PlayerData.currentCollection == collectionId && PlayerData.currentPlayList == files) {
             controller.seekTo(
                 PlayerData.currentPlayList.indexOf(file),
                 getMediaProgressMs(file)
             )
         } else {
-            val files = Files.getCollectionFiles(collectionId)
             controller.setMediaItems(
                 files.map { MediaItem.Builder().setMediaId(it.path).build() },
                 files.indexOf(file),
@@ -74,7 +75,7 @@ object PlayerUtil {
             PlayerData.setCollectionId(collectionId)
         }
         controller.setPlaybackSpeed(file.playBackSpeed)
-        controller.repeatMode = REPEAT_MODE_ALL
+        controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
 //        controller.shuffleModeEnabled = Files.getFolder(file.folderId).playBackShuffle
         controller.prepare()
         controller.play()
