@@ -77,32 +77,32 @@ class PlayerActivity :
         playerView.setShowShuffleButton(true)
         playerView.setRepeatToggleModes(REPEAT_TOGGLE_MODE_ALL or REPEAT_TOGGLE_MODE_ONE)
 
-        updateMediaMetadataUI(controller.mediaMetadata)
+        updateMediaMetadataUI()
         controller.addListener(
             object : Player.Listener {
-                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                    // not working
+//                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+//                    // not working
 //                    updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
-                }
-
-                override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+//                }
+//
+//                override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
 //                    updateShuffleSwitchUI(shuffleModeEnabled)
-                }
-
-                override fun onRepeatModeChanged(repeatMode: Int) {
+//                }
+//
+//                override fun onRepeatModeChanged(repeatMode: Int) {
 //                    updateRepeatSwitchUI(repeatMode)
-                }
+//                }
 
                 override fun onTracksChanged(tracks: Tracks) {
                     playerView.setShowSubtitleButton(tracks.isTypeSupported(C.TRACK_TYPE_TEXT))
-                    updateMediaMetadataUI(PlayerData.getMetaData(controller.currentMediaItemIndex))
+                    updateMediaMetadataUI()
                 }
             }
         )
     }
 
-    private fun updateMediaMetadataUI(mediaMetadata: MediaMetadata) {
-        supportActionBar?.subtitle = mediaMetadata.title
+    private fun updateMediaMetadataUI() {
+        supportActionBar?.subtitle = PlayerData.currentPlayList[controller?.currentMediaItemIndex!!].name
     }
 
     override fun onStop() {

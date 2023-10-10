@@ -1,6 +1,7 @@
 package com.vaani.ui.favourites
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.ImageView
@@ -12,6 +13,7 @@ import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
 import com.vaani.models.FavouriteEntity
+import com.vaani.models.MediaEntity
 import com.vaani.models.SortOrder
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.UiUtil
@@ -19,6 +21,7 @@ import com.vaani.ui.listUtil.AbstractListAdapter
 import com.vaani.ui.listUtil.AbstractListFragment
 import com.vaani.ui.listUtil.ListItemCallbacks
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
+import com.vaani.util.TAG
 
 @UnstableApi
 object FavouriteFragment : AbstractListFragment<FavouriteEntity>(), ListItemCallbacks {
@@ -51,7 +54,10 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(), ListItemCall
 
     override fun fabAction(view: View) {
         if (PlayerUtil.controller?.isPlaying == false || PlayerData.currentCollection != FAVOURITE_COLLECTION_ID) {
-            PlayerUtil.playLastPlayed(Files.favouriteFolder)
+            val lastPlayedIndex = displayList.indexOfFirst { it.fileId == Files.favouriteFolder.lastPlayedId}
+            if(lastPlayedIndex==-1){
+                PlayerUtil.play(getDisplayMedias(), lastPlayedIndex, FAVOURITE_COLLECTION_ID)
+            }
         } else {
             PlayerUtil.startPlayerActivity()
         }
@@ -62,6 +68,12 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(), ListItemCall
         if (string != null && string.isNotBlank()) {
             displayList.retainAll { it.name.lowercase().contains(string.lowercase()) }
         }
+    }
+
+    private fun getDisplayMedias() : List<MediaEntity> {
+        val medFiles =  Files.getFiles(displayList.map(FavouriteEntity::fileId))
+        Log.d(TAG, "getDisplayMedias: $displayList $medFiles")
+        return medFiles
     }
 
 
@@ -78,7 +90,7 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(), ListItemCall
 
 
     override fun onClick(position: Int) =
-        PlayerUtil.play(Files.getFile(displayList[position].fileId), FAVOURITE_COLLECTION_ID)
+        PlayerUtil.play(getDisplayMedias(),position, FAVOURITE_COLLECTION_ID)
 
 
     override fun onOptions(position: Int, menu: Menu) {

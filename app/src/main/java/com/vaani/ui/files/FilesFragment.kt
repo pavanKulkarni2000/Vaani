@@ -43,12 +43,15 @@ object FilesFragment : AbstractListFragment<MediaEntity>(), ListItemCallbacks {
     private lateinit var copyLauncher: ActivityResultLauncher<Uri?>
     private lateinit var selectedFile: MediaEntity
     var currentFolder: FolderEntity = FolderEntity()
+    set(value) {
+        field = value
+        resetData(Files.getFolderMedias(currentFolder.id))
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         copyLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree(), this::copyFile)
         moveLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree(), this::moveFile)
-        resetData(Files.getCollectionFiles(currentFolder.id))
     }
 
     override val listAdapter: AbstractListAdapter = object : AbstractListAdapter(
@@ -81,7 +84,10 @@ object FilesFragment : AbstractListFragment<MediaEntity>(), ListItemCallbacks {
 
     override fun fabAction(view: View) {
         if (PlayerUtil.controller?.isPlaying != true || PlayerData.currentCollection != currentFolder.id) {
-            PlayerUtil.playLastPlayed(currentFolder)
+            val idx= displayList.indexOfFirst { it.id == currentFolder.lastPlayedId}
+            if(idx!=-1) {
+                PlayerUtil.play(displayList,idx ,currentFolder.id)
+            }
         } else {
             Log.d(TAG, "fabAction: already playing")
             PlayerUtil.startPlayerActivity()
@@ -89,7 +95,7 @@ object FilesFragment : AbstractListFragment<MediaEntity>(), ListItemCallbacks {
     }
 
     override fun search(string: String?) {
-        resetData(Files.getCollectionFiles(currentFolder.id))
+        resetData(Files.getFolderMedias(currentFolder.id))
         if (string != null && string.isNotBlank()) {
             displayList.retainAll { it.name.lowercase().contains(string.lowercase()) }
         }
@@ -105,7 +111,7 @@ object FilesFragment : AbstractListFragment<MediaEntity>(), ListItemCallbacks {
         }
     }
 
-    override fun onClick(position: Int) = PlayerUtil.play(displayList[position], currentFolder.id)
+    override fun onClick(position: Int) = PlayerUtil.play(displayList,position, currentFolder.id)
 
     override fun onOptions(position: Int, menu: Menu) {
         selectedFile = displayList[position]

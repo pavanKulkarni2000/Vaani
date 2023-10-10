@@ -1,22 +1,16 @@
 package com.vaani.data
 
-import androidx.media3.common.MediaMetadata
 import com.vaani.models.MediaEntity
 
 object PlayerData {
 
-    fun getMetaData(currentMediaItemIndex: Int): MediaMetadata {
-        return MediaMetadata.Builder()
-            .setTitle(currentPlayList[currentMediaItemIndex].name)
-            .build()
-    }
-
-    fun setCollectionId(folderId: Long) {
+    fun setCurrent(folderId: Long,playList:List<MediaEntity>) {
         this.currentCollection = folderId
-        this.currentPlayList = ArrayList(Files.getCollectionFiles(folderId))
+        this.currentPlayList = playList
     }
 
     var currentCollection: Long = 0
+        private set
     var currentPlayList: List<MediaEntity> = emptyList()
         private set
 }

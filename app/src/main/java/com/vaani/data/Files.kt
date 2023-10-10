@@ -31,11 +31,8 @@ object Files {
 
     fun getFile(fileId: Long) = DB.getFile(fileId)
 
-    fun getCollectionFiles(id: Long): List<MediaEntity> {
-        return when (id) {
-            FAVOURITE_COLLECTION_ID -> DB.getFiles(favourites.map(FavouriteEntity::fileId))
-            else -> DB.getFolderFiles(id)
-        }
+    fun getFolderMedias(id: Long): List<MediaEntity> {
+        return DB.getFolderFiles(id)
     }
 
     fun updateLastPlayedItem(folderId: Long, lastPlayedId: Long) {
@@ -213,6 +210,10 @@ object Files {
         }
         DB.delete(folder)
         allFolders.remove(folder)
+    }
+
+    fun getFiles(fileIds: List<Long>): List<MediaEntity> {
+        return DB.getFiles(fileIds)
     }
 
 }

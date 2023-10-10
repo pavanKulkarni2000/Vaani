@@ -52,7 +52,11 @@ object FolderFragment : AbstractListFragment<FolderEntity>(), ListItemCallbacks 
 
     override fun fabAction(view: View) {
         if (PlayerUtil.controller?.isPlaying != true) {
-            PlayerUtil.playLastPlayed(Files.getFolder(PreferenceUtil.lastPlayedFolderId))
+            val idx = displayList.indexOfFirst { it.id == PreferenceUtil.lastPlayedFolderId }
+            if(idx!=-1){
+                onClick(idx)
+            }
+            FilesFragment.fabAction(view)
         } else {
             PlayerUtil.startPlayerActivity()
         }

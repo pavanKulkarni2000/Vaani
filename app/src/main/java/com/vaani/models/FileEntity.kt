@@ -29,6 +29,9 @@ open class FileEntity(
     var path: String = "",
     var isUri: Boolean = false
 ) {
+    override fun toString(): String {
+        return "[name: $name, path: $path]"
+    }
 
     override fun equals(other: Any?): Boolean = (this === other) || ((other as FileEntity).path == path)
 

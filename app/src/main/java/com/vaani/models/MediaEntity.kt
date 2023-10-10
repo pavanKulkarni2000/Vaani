@@ -19,24 +19,11 @@ package com.vaani.models
 import io.objectbox.annotation.Entity
 
 @Entity
-data class MediaEntity(
+class MediaEntity(
     var isAudio: Boolean = false,
     var duration: Long = 0,
     var folderId: Long = 0,
     var playBackProgress: Float = 0F,
     var playBackSpeed: Float = 1F,
     var playBackLoop: Boolean = false
-) : FileEntity() {
-
-    override fun toString(): String {
-        return "(path: $path)"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return super.equals(other)
-    }
-
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
-}
+) : FileEntity()

@@ -53,26 +53,21 @@ object PlayerUtil {
         (position.toFloat() / (file.duration * 1000))
 
 
-    fun play(file: MediaEntity, collectionId: Long) {
+    fun play(playList: List<MediaEntity>,position: Int, collectionId: Long) {
         val controller = this.controller ?: return
-        if (controller.isPlaying) {
-            if (PlayerData.currentPlayList[controller.currentMediaItemIndex] == file) {
-                return
-            }
-        }
-        val files = Files.getCollectionFiles(collectionId)
-        if (PlayerData.currentCollection == collectionId && PlayerData.currentPlayList == files) {
+        val file = playList[position]
+        if (PlayerData.currentCollection == collectionId && PlayerData.currentPlayList == playList) {
             controller.seekTo(
-                PlayerData.currentPlayList.indexOf(file),
+                position,
                 getMediaProgressMs(file)
             )
         } else {
             controller.setMediaItems(
-                files.map { MediaItem.Builder().setMediaId(it.path).build() },
-                files.indexOf(file),
+                playList.map { MediaItem.Builder().setMediaId(it.path).build() },
+                position,
                 getMediaProgressMs(file)
             )
-            PlayerData.setCollectionId(collectionId)
+            PlayerData.setCurrent(collectionId, playList)
         }
         controller.setPlaybackSpeed(file.playBackSpeed)
         controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
@@ -103,16 +98,6 @@ object PlayerUtil {
         if (controller?.isConnected != true) {
             init(context)
         }
-    }
-
-    fun playLastPlayed(folder: FolderEntity) {
-        if (folder.lastPlayedId <= 0) {
-            Log.d(TAG, "playLastPlayed: last player not present for folder $folder")
-            return
-        }
-        val lastPlayedFile = Files.getFile(folder.lastPlayedId)
-        Log.d(TAG, "onPlayClicked: lastPlayed - $lastPlayedFile")
-        play(lastPlayedFile, folder.id)
     }
 
     fun saveProgress(mediaIndex: Int, position: Long) {
