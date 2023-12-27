@@ -12,67 +12,64 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
-    override suspend fun listFolder(folder: DocumentFile): List<DocumentFile> {
-        return withContext(Dispatchers.IO) {
-            folder.listFiles().toList()
-        }
+  override suspend fun listFolder(folder: DocumentFile): List<DocumentFile> {
+    return withContext(Dispatchers.IO) { folder.listFiles().toList() }
+  }
+
+  override fun makeFile(androidFile: DocumentFile, isAudio: Boolean): MediaEntity {
+
+    return MediaEntity().apply {
+      this.name = androidFile.name ?: Constants.UNNAMED_FILE
+      this.isAudio = isAudio
+      this.path = androidFile.uri.toString()
+      this.isUri = true
+      this.duration = getDuration(androidFile)
     }
+  }
 
-    override fun makeFile(androidFile: DocumentFile, isAudio: Boolean): MediaEntity {
+  override fun mimeType(file: DocumentFile): FileType {
+    if (file.isDirectory) return FileType.DIR
+    return FileUtil.fileType(file.type)
+  }
 
-        return MediaEntity().apply {
-            this.name = androidFile.name ?: Constants.UNNAMED_FILE
-            this.isAudio = isAudio
-            this.path = androidFile.uri.toString()
-            this.isUri = true
-            this.duration = getDuration(androidFile)
-        }
+  override fun makeFolder(file: DocumentFile, count: Int): FolderEntity {
+    return FolderEntity().apply {
+      name = file.name ?: Constants.UNNAMED_FILE
+      path = file.uri.toString()
+      isUri = true
+      items = count
     }
+  }
 
-    override fun mimeType(file: DocumentFile): FileType {
-        if (file.isDirectory)
-            return FileType.DIR
-        return FileUtil.fileType(file.type)
+  override fun getDuration(file: DocumentFile): Long {
+    try {
+      MediaMetadataRetriever().use {
+        it.setDataSource(MainActivity.context, file.uri)
+        val dur = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+        Log.d(TAG, "makeFile: duration $dur")
+        return dur
+      }
+    } catch (e: Exception) {
+      Log.e(TAG, "getDuration: failed for ${file.uri}", e)
+      return 0
     }
+  }
 
-    override fun makeFolder(file: DocumentFile, count: Int): FolderEntity {
-        return FolderEntity().apply {
-            name = file.name ?: Constants.UNNAMED_FILE
-            path = file.uri.toString()
-            isUri = true
-            items = count
-        }
-    }
-
-    override fun getDuration(file: DocumentFile): Long {
-        try {
-            MediaMetadataRetriever().use {
-                it.setDataSource(MainActivity.context, file.uri)
-                val dur = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
-                Log.d(TAG, "makeFile: duration $dur")
-                return dur
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "getDuration: failed for ${file.uri}", e)
-            return 0
-        }
-    }
-
-    override fun delete(file: DocumentFile) {
-        if (file.isDirectory) {
-            var noSubDirExist = true
-            for (subFile in file.listFiles()) {
-                if (subFile.isDirectory) {
-                    noSubDirExist = false
-                } else {
-                    subFile.delete()
-                }
-            }
-            if (noSubDirExist) {
-                file.delete()
-            }
+  override fun delete(file: DocumentFile) {
+    if (file.isDirectory) {
+      var noSubDirExist = true
+      for (subFile in file.listFiles()) {
+        if (subFile.isDirectory) {
+          noSubDirExist = false
         } else {
-            file.delete()
+          subFile.delete()
         }
+      }
+      if (noSubDirExist) {
+        file.delete()
+      }
+    } else {
+      file.delete()
     }
+  }
 }

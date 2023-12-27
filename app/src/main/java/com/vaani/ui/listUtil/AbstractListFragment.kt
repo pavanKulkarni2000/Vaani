@@ -3,9 +3,8 @@ package com.vaani.ui.listUtil
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.widget.SearchView
+import androidx.annotation.MenuRes
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.media3.common.util.UnstableApi
@@ -13,84 +12,80 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
-import com.vaani.models.SortOrder
+import com.vaani.models.UiItem
 import com.vaani.ui.EmptyItemDecoration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import java.util.concurrent.CancellationException
 
 @UnstableApi
-abstract class AbstractListFragment<T> : Fragment(R.layout.list_layout), MenuProvider {
+abstract class AbstractListFragment<T : UiItem> : Fragment(R.layout.list_fragment), MenuProvider {
 
-    protected lateinit var recyclerView: RecyclerView
-    private lateinit var refreshLayout: SwipeRefreshLayout
-    abstract val listAdapter: AbstractListAdapter
-    protected var sortOrder: SortOrder = SortOrder.ASC
-    val displayList: MutableList<T> = mutableListOf()
+  val displayList: MutableList<T> = mutableListOf()
+  internal val selector =
+    object : Selector() {
+      override fun onSelectingChanged() = this@AbstractListFragment.onSelectingChanged(selecting)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        recyclerView = view.findViewById(R.id.recycler_view)
-        recyclerView.adapter = listAdapter
-        recyclerView.addItemDecoration(EmptyItemDecoration())
-
-        val fab: FloatingActionButton = view.findViewById(R.id.play_fab)
-        fab.setOnClickListener(this::fabAction)
-
-        refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
-        refreshLayout.setOnRefreshListener(this::refreshAction)
-
-        requireActivity().addMenuProvider(this)
+      override fun onSelectItemsChanged() =
+        this@AbstractListFragment.onSelectItemsChanged(selection)
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        requireActivity().removeMenuProvider(this)
+  internal val listAdapter =
+    object : AbstractListAdapter<T>(displayList, selector) {
+      override fun onItemClicked(position: Int) = this@AbstractListFragment.onItemClicked(position)
     }
+  internal val sorter = Sorter(displayList, listAdapter)
+  internal val searcher = Searcher(listAdapter, displayList)
+  internal lateinit var recyclerView: RecyclerView
+  internal lateinit var refreshLayout: SwipeRefreshLayout
+  internal val localScope = CoroutineScope(Dispatchers.Default)
+  @get:MenuRes abstract val generalMenu: Int
+  @get:MenuRes abstract val selectedMenu: Int
 
-    abstract fun refreshAction()
-    fun refreshFinish() {
-        refreshLayout.isRefreshing = false
-    }
+  abstract fun fabAction(view: View)
 
-    abstract fun fabAction(view: View)
-    abstract fun search(string: String?)
-    abstract fun sort()
-    fun resetData(newList: List<T>) {
-        displayList.clear()
-        displayList.addAll(newList)
-        sort()
-    }
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        val searchButton = menu.findItem(R.id.list_action_search)
-        val searchView = searchButton?.actionView as SearchView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                search(query)
-                listAdapter.notifyDataSetChanged()
-                return true
-            }
+    recyclerView = view.findViewById(R.id.recycler_view)
+    recyclerView.adapter = listAdapter
+    recyclerView.addItemDecoration(EmptyItemDecoration())
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                search(newText)
-                listAdapter.notifyDataSetChanged()
-                return true
-            }
-        })
-        searchView.setOnCloseListener {
-            search(null)
-            listAdapter.notifyDataSetChanged()
-            true
-        }
-    }
+    val fab: FloatingActionButton = view.findViewById(R.id.play_fab)
+    fab.setOnClickListener(this::fabAction)
 
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.list_action_sort_asc -> sortOrder = SortOrder.ASC
-            R.id.list_action_sort_desc -> sortOrder = SortOrder.DSC
-            R.id.list_action_sort_rank -> sortOrder = SortOrder.RANK
-        }
-        sort()
-        listAdapter.notifyDataSetChanged()
-        return true
-    }
+    refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
+
+    requireActivity().addMenuProvider(this)
+  }
+
+  fun resetData(newList: List<T>) {
+    displayList.clear()
+    displayList.addAll(newList)
+    sorter.enabled = true
+    sorter.sort(Sorter.SortOrder.ASC)
+    searcher.enabled = true
+    selector.enabled = true
+  }
+
+  override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+    menu.clear()
+    menuInflater.inflate(generalMenu, menu)
+  }
+
+  abstract fun onItemClicked(position: Int)
+
+  fun onSelectItemsChanged(selection: MutableSet<Long>) {
+    if (selection.count() > 1) {}
+  }
+
+  private fun onSelectingChanged(selecting: Boolean) {
+    if (selecting) {} else {}
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    localScope.cancel(CancellationException("View destroyed"))
+    requireActivity().removeMenuProvider(this)
+  }
 }

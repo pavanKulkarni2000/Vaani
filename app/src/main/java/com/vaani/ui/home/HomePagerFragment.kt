@@ -13,18 +13,17 @@ import com.vaani.util.TAG
 
 @UnstableApi
 class HomePagerFragment : Fragment(R.layout.home_pager_layout) {
-    private lateinit var viewPager: ViewPager2
-    private val tabNames = arrayOf("folders with media", "favourite")
+  private lateinit var viewPager: ViewPager2
+  private val tabNames = arrayOf("folders with media", "favourite")
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (!this::viewPager.isInitialized) {
-            Log.d(TAG, "onViewCreated: home page initializing")
-            viewPager = view.findViewById(R.id.home_pager)
-            viewPager.adapter = HomePagerAdapter(this)
-            val tabLayout: TabLayout = view.findViewById(R.id.home_tab_layout)
-            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-                tab.text = tabNames[position]
-            }.attach()
-        }
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    if (!this::viewPager.isInitialized) {
+      Log.d(TAG, "onViewCreated: home page initializing")
+      viewPager = view.findViewById(R.id.home_pager)
+      viewPager.adapter = HomePagerAdapter(this)
+      val tabLayout: TabLayout = view.findViewById(R.id.home_tab_layout)
+      TabLayoutMediator(tabLayout, viewPager) { tab, position -> tab.text = tabNames[position] }
+        .attach()
     }
+  }
 }

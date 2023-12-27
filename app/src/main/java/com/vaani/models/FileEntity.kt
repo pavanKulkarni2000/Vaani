@@ -21,20 +21,18 @@ import io.objectbox.annotation.Id
 import io.objectbox.annotation.Unique
 
 @BaseEntity
-open class FileEntity(
-    @Id
-    var id: Long = 0,
-    var name: String = "",
-    @Unique
-    var path: String = "",
-    var isUri: Boolean = false
-) {
-    override fun toString(): String {
-        return "[name: $name, path: $path]"
-    }
+abstract class FileEntity(
+  @Id override var id: Long = 0,
+  override var name: String = "",
+  @Unique var path: String = "",
+  var isUri: Boolean = false
+) : UiItem() {
+  override fun toString(): String {
+    return "[name: $name, path: $path]"
+  }
 
-    override fun equals(other: Any?): Boolean = (this === other) || ((other as FileEntity).path == path)
+  override fun equals(other: Any?): Boolean =
+    (this === other) || ((other as FileEntity).path == path)
 
-    override fun hashCode(): Int = path.hashCode()
-
+  override fun hashCode(): Int = path.hashCode()
 }

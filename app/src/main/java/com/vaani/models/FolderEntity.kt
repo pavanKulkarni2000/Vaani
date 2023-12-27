@@ -16,20 +16,27 @@
 
 package com.vaani.models
 
+import com.vaani.R
 import io.objectbox.annotation.Entity
 
 @Entity
 data class FolderEntity(
-    var items: Int = 0,
-    var playBackShuffle: Boolean = false,
-    var lastPlayedId: Long = 0,
-    var rank: Int = 0,
+  var items: Int = 0,
+  var playBackShuffle: Boolean = false,
+  var lastPlayedId: Long = 0,
+  override var rank: Int = 0,
 ) : FileEntity() {
-    override fun equals(other: Any?): Boolean {
-        return super.equals(other)
-    }
+  override val subTitle: String
+    get() = String.format("%d media files", items)
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
+  override val image: Int
+    get() = R.drawable.folders_folder_48px
+
+  override fun equals(other: Any?): Boolean {
+    return super.equals(other)
+  }
+
+  override fun hashCode(): Int {
+    return super.hashCode()
+  }
 }
