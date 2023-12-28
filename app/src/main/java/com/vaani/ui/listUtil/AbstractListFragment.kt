@@ -20,9 +20,9 @@ import kotlinx.coroutines.cancel
 import java.util.concurrent.CancellationException
 
 @UnstableApi
-abstract class AbstractListFragment<T : UiItem> : Fragment(R.layout.list_fragment), MenuProvider {
+abstract class AbstractListFragment<T : UiItem>(initialItems:List<T>) : Fragment(R.layout.list_fragment), MenuProvider {
 
-  val displayList: MutableList<T> = mutableListOf()
+  val displayList: MutableList<T> = initialItems.toMutableList()
   internal val selector =
     object : Selector() {
       override fun onSelectingChanged() = this@AbstractListFragment.onSelectingChanged(selecting)

@@ -19,7 +19,7 @@ import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : AbstractListFragment<FavouriteEntity>() {
+object FavouriteFragment : AbstractListFragment<FavouriteEntity>(Files.favourites) {
 
   private lateinit var mover: Mover<FavouriteEntity>
 
@@ -42,7 +42,6 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>() {
           Files.remove(displayList[pos])
         }
       }
-    resetData(Files.favourites)
   }
 
   override fun fabAction(view: View) {

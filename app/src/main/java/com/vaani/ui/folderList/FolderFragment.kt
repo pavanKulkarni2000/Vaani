@@ -17,14 +17,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @UnstableApi
-object FolderFragment : AbstractListFragment<FolderEntity>() {
+object FolderFragment : AbstractListFragment<FolderEntity>(Files.folders) {
 
   override val generalMenu: Int = R.menu.fol_general_options
   override val selectedMenu: Int = R.menu.fol_selected_options
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    resetData(Files.folders)
     object : Refresher(refreshLayout) {
       override fun onRefresh() {
         localScope.launch {

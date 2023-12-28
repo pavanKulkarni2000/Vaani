@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @UnstableApi
-object MediasFragment : AbstractListFragment<MediaEntity>() {
+object MediasFragment : AbstractListFragment<MediaEntity>(listOf()) {
   override val generalMenu = R.menu.media_general_options
   override val selectedMenu = R.menu.media_selected_options
   private lateinit var moveLauncher: ActivityResultLauncher<Uri?>
@@ -29,8 +29,10 @@ object MediasFragment : AbstractListFragment<MediaEntity>() {
   private lateinit var selectedFile: MediaEntity
   var currentFolder: FolderEntity = FolderEntity()
     set(value) {
-      field = value
-      resetData(Files.getFolderMedias(currentFolder.id))
+      if (field != value) {
+        field = value
+        resetData(Files.getFolderMedias(currentFolder.id))
+      }
     }
 
   override fun onItemClicked(position: Int) {
