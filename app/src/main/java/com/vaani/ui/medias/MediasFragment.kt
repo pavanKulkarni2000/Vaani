@@ -3,18 +3,20 @@ package com.vaani.ui.medias
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.util.UnstableApi
+import com.vaani.ui.MainActivity
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
 import com.vaani.models.FolderEntity
 import com.vaani.models.MediaEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.listUtil.AbstractListFragment
-import com.vaani.ui.listUtil.Refresher
+import com.vaani.ui.folderList.FolderFragment
+import com.vaani.ui.util.listUtil.AbstractListFragment
+import com.vaani.ui.util.listUtil.Refresher
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,6 +26,7 @@ import kotlinx.coroutines.withContext
 object MediasFragment : AbstractListFragment<MediaEntity>(listOf()) {
   override val generalMenu = R.menu.media_general_options
   override val selectedMenu = R.menu.media_selected_options
+  override var subtitle = ""
   private lateinit var moveLauncher: ActivityResultLauncher<Uri?>
   private lateinit var copyLauncher: ActivityResultLauncher<Uri?>
   private lateinit var selectedFile: MediaEntity
@@ -33,6 +36,7 @@ object MediasFragment : AbstractListFragment<MediaEntity>(listOf()) {
         field = value
         resetData(Files.getFolderMedias(currentFolder.id))
       }
+      subtitle = "${value.items} items in ${value.name}"
     }
 
   override fun onItemClicked(position: Int) {
@@ -59,9 +63,18 @@ object MediasFragment : AbstractListFragment<MediaEntity>(listOf()) {
     }
   }
 
-  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-    TODO("Not yet implemented")
+  override fun onDestroy() {
+    super.onDestroy()
+    MainActivity.optionsMenu = FolderFragment.generalMenu
+    requireActivity().let {
+      it.invalidateMenu()
+      (it as AppCompatActivity).supportActionBar?.subtitle = FolderFragment.subtitle
+    }
   }
+
+  //  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+  //    TODO
+  //  }
 
   override fun fabAction(view: View) {
     if (

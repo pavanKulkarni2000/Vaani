@@ -14,7 +14,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
-import com.vaani.MainActivity
+import com.vaani.ui.MainActivity
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.data.PlayerData

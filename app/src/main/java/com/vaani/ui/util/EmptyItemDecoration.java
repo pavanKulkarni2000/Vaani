@@ -1,4 +1,4 @@
-package com.vaani.ui;
+package com.vaani.ui.util;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

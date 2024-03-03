@@ -13,7 +13,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.vaani.MainActivity
+import com.vaani.ui.MainActivity
 import com.vaani.data.util.FileUtil
 
 object PermissionUtil {

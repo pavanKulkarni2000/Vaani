@@ -1,26 +1,28 @@
-package com.vaani.ui.listUtil
+package com.vaani.ui.util.listUtil
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
+import android.util.Log
 import android.view.View
 import androidx.annotation.MenuRes
-import androidx.core.view.MenuProvider
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.vaani.ui.MainActivity
 import com.vaani.R
 import com.vaani.models.UiItem
-import com.vaani.ui.EmptyItemDecoration
+import com.vaani.ui.util.EmptyItemDecoration
+import com.vaani.util.TAG
+import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import java.util.concurrent.CancellationException
 
 @UnstableApi
-abstract class AbstractListFragment<T : UiItem>(initialItems:List<T>) : Fragment(R.layout.list_fragment), MenuProvider {
+abstract class AbstractListFragment<T : UiItem>(initialItems: List<T>) :
+  Fragment(R.layout.list_fragment) {
 
   val displayList: MutableList<T> = initialItems.toMutableList()
   internal val selector =
@@ -41,6 +43,7 @@ abstract class AbstractListFragment<T : UiItem>(initialItems:List<T>) : Fragment
   internal val localScope = CoroutineScope(Dispatchers.Default)
   @get:MenuRes abstract val generalMenu: Int
   @get:MenuRes abstract val selectedMenu: Int
+  abstract var subtitle: String
 
   abstract fun fabAction(view: View)
 
@@ -55,8 +58,20 @@ abstract class AbstractListFragment<T : UiItem>(initialItems:List<T>) : Fragment
     fab.setOnClickListener(this::fabAction)
 
     refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
+  }
 
-    requireActivity().addMenuProvider(this)
+  override fun onPause() {
+    super.onPause()
+    Log.d(TAG, "onPause: paused")
+  }
+
+  override fun onResume() {
+    super.onResume()
+    MainActivity.optionsMenu = if (selector.selecting) selectedMenu else generalMenu
+    requireActivity().let {
+      it.invalidateMenu()
+      (it as AppCompatActivity).supportActionBar?.subtitle = subtitle
+    }
   }
 
   fun resetData(newList: List<T>) {
@@ -66,11 +81,6 @@ abstract class AbstractListFragment<T : UiItem>(initialItems:List<T>) : Fragment
     sorter.sort(Sorter.SortOrder.ASC)
     searcher.enabled = true
     selector.enabled = true
-  }
-
-  override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-    menu.clear()
-    menuInflater.inflate(generalMenu, menu)
   }
 
   abstract fun onItemClicked(position: Int)
@@ -85,7 +95,6 @@ abstract class AbstractListFragment<T : UiItem>(initialItems:List<T>) : Fragment
 
   override fun onDestroy() {
     super.onDestroy()
-    localScope.cancel(CancellationException("View destroyed"))
-    requireActivity().removeMenuProvider(this)
+    localScope.cancel(CancellationException("List View destroyed"))
   }
 }

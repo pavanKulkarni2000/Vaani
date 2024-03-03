@@ -1,4 +1,4 @@
-package com.vaani.ui.listUtil
+package com.vaani.ui.util.listUtil
 
 import com.vaani.models.UiItem
 

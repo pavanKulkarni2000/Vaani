@@ -9,10 +9,11 @@ import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.models.FolderEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.listUtil.AbstractListFragment
-import com.vaani.ui.listUtil.Refresher
+import com.vaani.ui.util.listUtil.AbstractListFragment
+import com.vaani.ui.util.listUtil.Refresher
 import com.vaani.ui.medias.MediasFragment
 import com.vaani.util.PreferenceUtil
+import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -21,6 +22,7 @@ object FolderFragment : AbstractListFragment<FolderEntity>(Files.folders) {
 
   override val generalMenu: Int = R.menu.fol_general_options
   override val selectedMenu: Int = R.menu.fol_selected_options
+  override var subtitle = "folder"
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -51,15 +53,15 @@ object FolderFragment : AbstractListFragment<FolderEntity>(Files.folders) {
 
   override fun onItemClicked(position: Int) {
     MediasFragment.currentFolder = displayList[position]
-    requireParentFragment().parentFragmentManager.commit {
+    requireActivity().supportFragmentManager.commit {
       add(R.id.fragment_container_view, MediasFragment)
-      addToBackStack(null)
+      addToBackStack(MediasFragment.TAG)
     }
   }
 
-  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-    return false
-  }
+//  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+//    return false
+//  }
 
   //  fun onOptions(position: Int, menu: Menu) {
   //    selectedFolder = displayList[position]

@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
-import com.vaani.MainActivity
+import com.vaani.ui.MainActivity
 import com.vaani.models.FileEntity
 import com.vaani.models.FolderEntity
 import com.vaani.models.MediaEntity

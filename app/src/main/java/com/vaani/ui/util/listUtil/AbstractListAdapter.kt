@@ -1,4 +1,4 @@
-package com.vaani.ui.listUtil
+package com.vaani.ui.util.listUtil
 
 import android.view.LayoutInflater
 import android.view.View

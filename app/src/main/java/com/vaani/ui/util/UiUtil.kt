@@ -1,4 +1,4 @@
-package com.vaani.ui
+package com.vaani.ui.util
 
 import java.util.*
 import kotlin.random.Random

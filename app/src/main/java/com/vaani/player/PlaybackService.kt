@@ -44,7 +44,7 @@ import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.vaani.MainActivity
+import com.vaani.ui.MainActivity
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
 import com.vaani.player.PlayerUtil.closeButton

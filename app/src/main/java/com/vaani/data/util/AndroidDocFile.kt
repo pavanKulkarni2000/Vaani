@@ -3,7 +3,7 @@ package com.vaani.data.util
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import com.vaani.MainActivity
+import com.vaani.ui.MainActivity
 import com.vaani.models.FolderEntity
 import com.vaani.models.MediaEntity
 import com.vaani.util.Constants

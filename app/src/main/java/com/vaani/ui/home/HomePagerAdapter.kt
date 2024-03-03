@@ -9,11 +9,11 @@ import com.vaani.ui.folderList.FolderFragment
 @UnstableApi
 class HomePagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 
-  private val tabConstructors = arrayOf<Fragment>(FolderFragment, FavouriteFragment)
+  private val tabs = arrayOf<Fragment>(FolderFragment, FavouriteFragment)
 
-  override fun getItemCount(): Int = tabConstructors.size
+  override fun getItemCount(): Int = tabs.size
 
   override fun createFragment(position: Int): Fragment {
-    return tabConstructors[position]
+    return tabs[position]
   }
 }

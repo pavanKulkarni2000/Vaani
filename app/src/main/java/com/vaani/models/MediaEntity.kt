@@ -17,7 +17,7 @@
 package com.vaani.models
 
 import com.vaani.R
-import com.vaani.ui.UiUtil
+import com.vaani.ui.util.UiUtil
 import io.objectbox.annotation.Entity
 
 @Entity

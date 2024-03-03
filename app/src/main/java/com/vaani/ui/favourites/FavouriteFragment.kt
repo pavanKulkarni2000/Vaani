@@ -13,8 +13,8 @@ import com.vaani.data.PlayerData
 import com.vaani.models.FavouriteEntity
 import com.vaani.models.MediaEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.listUtil.AbstractListFragment
-import com.vaani.ui.listUtil.Mover
+import com.vaani.ui.util.listUtil.AbstractListFragment
+import com.vaani.ui.util.listUtil.Mover
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.TAG
 
@@ -29,6 +29,7 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(Files.favourite
 
   override val generalMenu = R.menu.fav_general_options
   override val selectedMenu = R.menu.fav_selected_options
+  override var subtitle = "fragment"
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -64,13 +65,9 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(Files.favourite
     Log.d(TAG, "getDisplayMedias: $displayList $medFiles")
     return medFiles
   }
-
-  override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-    // TODO
-  }
-
-  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-    // TODO
-    return false
-  }
+//
+//  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+//    // TODO
+//    return false
+//  }
 }

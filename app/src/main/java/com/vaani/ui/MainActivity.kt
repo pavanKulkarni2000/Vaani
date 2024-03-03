@@ -1,13 +1,15 @@
-package com.vaani
+package com.vaani.ui
 
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Bundle
 import android.view.Menu
+import androidx.annotation.MenuRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
+import com.vaani.R
 import com.vaani.db.DB
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.home.HomePagerFragment
@@ -28,6 +30,8 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
     val contentResolver: ContentResolver
       get() = instance.contentResolver
+
+    @MenuRes var optionsMenu: Int = R.menu.fol_general_options
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,13 +45,16 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     if (supportFragmentManager.findFragmentById(R.id.fragment_container_view) == null) {
       supportFragmentManager.commit {
         setReorderingAllowed(true)
-        add(R.id.fragment_container_view, HomePagerFragment::class.java, Bundle.EMPTY)
+        add(R.id.fragment_container_view, HomePagerFragment())
       }
     }
   }
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menuInflater.inflate(R.menu.home_activity_menu, menu)
+    menu?.let {
+      it.clear()
+      menuInflater.inflate(optionsMenu,it)
+    }
     return super.onCreateOptionsMenu(menu)
   }
 

@@ -1,7 +1,7 @@
 package com.vaani.data
 
 import android.net.Uri
-import com.vaani.MainActivity
+import com.vaani.ui.MainActivity
 import com.vaani.data.util.FileUtil
 import com.vaani.db.DB
 import com.vaani.models.FavouriteEntity

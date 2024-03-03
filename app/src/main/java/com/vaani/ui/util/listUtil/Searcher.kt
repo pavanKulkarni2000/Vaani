@@ -1,10 +1,10 @@
-package com.vaani.ui.listUtil
+package com.vaani.ui.util.listUtil
 
 import com.vaani.models.UiItem
 
 class Searcher<T : UiItem>(
-  private val adapter: AbstractListAdapter<T>,
-  private val displayList: MutableList<T>
+    private val adapter: AbstractListAdapter<T>,
+    private val displayList: MutableList<T>
 ) : ListAction(true) {
   private val displayListBackup = mutableListOf<T>()
   private val searchItems = mutableListOf<T>()
