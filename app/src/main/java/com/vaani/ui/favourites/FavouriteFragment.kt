@@ -2,9 +2,6 @@ package com.vaani.ui.favourites
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
@@ -13,22 +10,16 @@ import com.vaani.data.PlayerData
 import com.vaani.models.FavouriteEntity
 import com.vaani.models.MediaEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.util.listUtil.AbstractListFragment
-import com.vaani.ui.util.listUtil.Mover
+import com.vaani.ui.common.GeneralListFragment
+import com.vaani.list.Mover
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : AbstractListFragment<FavouriteEntity>(Files.favourites) {
+object FavouriteFragment : GeneralListFragment<FavouriteEntity>(Files.favourites,) {
 
   private lateinit var mover: Mover<FavouriteEntity>
-
-  override fun onItemClicked(position: Int) {
-    PlayerUtil.play(getDisplayMedias(), position, FAVOURITE_COLLECTION_ID)
-  }
-
-  override val generalMenu = R.menu.fav_general_options
-  override val selectedMenu = R.menu.fav_selected_options
+  override val menuGroup = R.id.favourites_group
   override var subtitle = "fragment"
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,7 +36,17 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(Files.favourite
       }
   }
 
-  override fun fabAction(view: View) {
+  override fun onItemClick(position: Int, view: View?) {
+    PlayerUtil.play(getDisplayMedias(), position, FAVOURITE_COLLECTION_ID)
+  }
+
+  override fun onItemLongClick(position: Int, view: View?): Boolean {
+    // TODO
+    return false
+  }
+
+
+  override fun fabAction(view: View?) {
     if (
       PlayerUtil.controller?.isPlaying == false ||
         PlayerData.currentCollection != FAVOURITE_COLLECTION_ID
@@ -53,7 +54,7 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(Files.favourite
       val lastPlayedIndex =
         displayList.indexOfFirst { it.fileId == Files.favouriteFolder.lastPlayedId }
       if (lastPlayedIndex == -1) {
-        onItemClicked(lastPlayedIndex)
+        onItemClick(lastPlayedIndex, null)
       }
     } else {
       PlayerUtil.startPlayerActivity()
@@ -65,9 +66,4 @@ object FavouriteFragment : AbstractListFragment<FavouriteEntity>(Files.favourite
     Log.d(TAG, "getDisplayMedias: $displayList $medFiles")
     return medFiles
   }
-//
-//  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-//    // TODO
-//    return false
-//  }
 }

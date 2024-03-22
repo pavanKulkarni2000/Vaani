@@ -1,13 +1,14 @@
-package com.vaani.ui.util.listUtil
+package com.vaani.list
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.models.UiItem
+import com.vaani.ui.common.MyAdapter
 
 abstract class Mover<T : UiItem>(
-    displayList: MutableList<T>,
-    adapter: AbstractListAdapter<T>,
-    recyclerView: RecyclerView
+  displayList: MutableList<T>,
+  adapter: MyAdapter<T>,
+  recyclerView: RecyclerView
 ) : ListAction(true) {
 
   private val touchHelper =

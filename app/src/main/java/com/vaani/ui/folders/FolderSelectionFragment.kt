@@ -1,61 +1,35 @@
-package com.vaani.ui.folderList
+package com.vaani.ui.folders
 
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
-import androidx.fragment.app.commit
+import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.models.FolderEntity
-import com.vaani.player.PlayerUtil
-import com.vaani.ui.util.listUtil.AbstractListFragment
-import com.vaani.ui.util.listUtil.Refresher
-import com.vaani.ui.medias.MediasFragment
-import com.vaani.util.PreferenceUtil
-import com.vaani.util.TAG
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.vaani.ui.MainActivity
+import com.vaani.ui.common.GeneralListFragment
+import com.vaani.ui.common.MyAdapter
+import com.vaani.list.Selector
+import com.vaani.ui.common.SelectionListFragment
+import com.vaani.ui.common.UiItemViewHolder
 
 @UnstableApi
-object FolderFragment : AbstractListFragment<FolderEntity>(Files.folders) {
+object FolderSelectionFragment : SelectionListFragment<FolderEntity>(Files.folders,) {
 
-  override val generalMenu: Int = R.menu.fol_general_options
-  override val selectedMenu: Int = R.menu.fol_selected_options
+  override val menuGroup: Int = R.menu.fol_selected_options
   override var subtitle = "folder"
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    object : Refresher(refreshLayout) {
-      override fun onRefresh() {
-        localScope.launch {
-          Files.exploreFolders()
-          launch(Dispatchers.Main) {
-            listAdapter.notifyDataSetChanged()
-            refreshFinish()
-          }
-        }
-      }
-    }
+  override fun onItemClick(position: Int, view: View?) {
+    TODO("Not yet implemented")
   }
 
-  override fun fabAction(view: View) {
-    if (PlayerUtil.controller?.isPlaying != true) {
-      val idx = displayList.indexOfFirst { it.id == PreferenceUtil.lastPlayedFolderId }
-      if (idx != -1) {
-        onItemClicked(idx)
-      }
-      MediasFragment.fabAction(view)
-    } else {
-      PlayerUtil.startPlayerActivity()
-    }
-  }
 
-  override fun onItemClicked(position: Int) {
-    MediasFragment.currentFolder = displayList[position]
-    requireActivity().supportFragmentManager.commit {
-      add(R.id.fragment_container_view, MediasFragment)
-      addToBackStack(MediasFragment.TAG)
+  override fun onDestroy() {
+    super.onDestroy()
+    MainActivity.menuGroupActiveMap[FolderFragment.menuGroup] = true
+    requireActivity().let {
+      it.invalidateMenu()
+      (it as AppCompatActivity).supportActionBar?.subtitle = FolderFragment.subtitle
     }
   }
 

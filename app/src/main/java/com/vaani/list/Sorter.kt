@@ -1,12 +1,13 @@
-package com.vaani.ui.util.listUtil
+package com.vaani.list
 
 import com.vaani.models.UiItem
+import com.vaani.ui.common.MyAdapter
 
 class Sorter<T : UiItem>(
-  private val displayList: MutableList<T>,
-  private val adapter: AbstractListAdapter<T>
+  private val displayList: MutableList<T>
 ) : ListAction(true) {
-  var sortOrder: SortOrder = SortOrder.ASC
+  var adapter: MyAdapter<T>? = null
+  private var sortOrder: SortOrder = SortOrder.ASC
 
   fun sort(order: SortOrder) {
     sortOrder = order
@@ -18,7 +19,7 @@ class Sorter<T : UiItem>(
         displayList.reverse()
       }
     }
-    adapter.notifyDataSetChanged()
+    adapter?.notifyDataSetChanged()
   }
 
   enum class SortOrder {

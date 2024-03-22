@@ -18,6 +18,7 @@ package com.vaani.models
 
 import io.objectbox.annotation.BaseEntity
 import io.objectbox.annotation.Id
+import io.objectbox.annotation.Transient
 import io.objectbox.annotation.Unique
 
 @BaseEntity
@@ -25,8 +26,10 @@ abstract class FileEntity(
   @Id override var id: Long = 0,
   override var name: String = "",
   @Unique var path: String = "",
-  var isUri: Boolean = false
-) : UiItem() {
+  var isUri: Boolean = false,
+  @Transient
+  override var selected: Boolean = false,
+) : UiItem {
   override fun toString(): String {
     return "[name: $name, path: $path]"
   }

@@ -19,6 +19,7 @@ package com.vaani.models
 import com.vaani.R
 import com.vaani.ui.util.UiUtil
 import io.objectbox.annotation.Entity
+import io.objectbox.annotation.Transient
 
 @Entity
 class MediaEntity(
@@ -27,15 +28,17 @@ class MediaEntity(
   var folderId: Long = 0,
   var playBackProgress: Float = 0F,
   var playBackSpeed: Float = 1F,
-  var playBackLoop: Boolean = false
 ) : FileEntity() {
   override val subTitle: String
     get() = UiUtil.stringToTime(duration)
 
   override val image: Int
     get() =
-      when (isAudio) {
-        true -> R.drawable.music_note_40px
-        false -> R.drawable.movie_40px
-      }
+      if(selected)
+        R.drawable.check_circle_40px
+      else
+        when (isAudio) {
+          true -> R.drawable.music_note_40px
+          false -> R.drawable.movie_40px
+        }
 }

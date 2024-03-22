@@ -68,7 +68,7 @@ object PlayerUtil {
       PlayerData.setCurrent(collectionId, playList)
     }
     controller.setPlaybackSpeed(file.playBackSpeed)
-    controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
+//    controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
     //        controller.shuffleModeEnabled = Files.getFolder(file.folderId).playBackShuffle
     controller.prepare()
     controller.play()

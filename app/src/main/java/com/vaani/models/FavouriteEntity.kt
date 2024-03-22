@@ -5,6 +5,7 @@ import com.vaani.ui.util.UiUtil
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.annotation.Unique
+import io.objectbox.annotation.Transient
 
 @Entity
 data class FavouriteEntity(
@@ -14,7 +15,9 @@ data class FavouriteEntity(
   var isAudio: Boolean = false,
   var duration: Long = 0,
   override var rank: Int = 0,
-) : UiItem() {
+  @Transient
+  override var selected: Boolean = false,
+) : UiItem {
   constructor(
     mediaEntity: MediaEntity,
     rank: Int
@@ -25,8 +28,11 @@ data class FavouriteEntity(
 
   override val image: Int
     get() =
-      when (isAudio) {
-        true -> R.drawable.music_note_40px
-        false -> R.drawable.movie_40px
-      }
+      if(selected)
+        R.drawable.check_circle_40px
+      else
+        when (isAudio) {
+          true -> R.drawable.music_note_40px
+          false -> R.drawable.movie_40px
+        }
 }

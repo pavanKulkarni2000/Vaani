@@ -1,3 +1,3 @@
-package com.vaani.ui.util.listUtil
+package com.vaani.list
 
 open class ListAction(var enabled: Boolean)

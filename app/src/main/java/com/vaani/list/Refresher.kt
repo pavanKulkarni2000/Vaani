@@ -1,4 +1,4 @@
-package com.vaani.ui.util.listUtil
+package com.vaani.list
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
