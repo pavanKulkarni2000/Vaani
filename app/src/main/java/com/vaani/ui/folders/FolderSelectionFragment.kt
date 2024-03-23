@@ -1,6 +1,5 @@
 package com.vaani.ui.folders
 
-import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.util.UnstableApi
@@ -8,14 +7,10 @@ import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.models.FolderEntity
 import com.vaani.ui.MainActivity
-import com.vaani.ui.common.GeneralListFragment
-import com.vaani.ui.common.MyAdapter
-import com.vaani.list.Selector
-import com.vaani.ui.common.SelectionListFragment
-import com.vaani.ui.common.UiItemViewHolder
+import com.vaani.ui.common.MySelectionListFragment
 
 @UnstableApi
-object FolderSelectionFragment : SelectionListFragment<FolderEntity>(Files.folders,) {
+object FolderSelectionFragment : MySelectionListFragment<FolderEntity>(Files.folders,) {
 
   override val menuGroup: Int = R.menu.fol_selected_options
   override var subtitle = "folder"

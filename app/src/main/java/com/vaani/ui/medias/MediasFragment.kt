@@ -13,17 +13,15 @@ import com.vaani.models.FolderEntity
 import com.vaani.models.MediaEntity
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.folders.FolderFragment
-import com.vaani.ui.common.MyAdapter
-import com.vaani.ui.common.GeneralListFragment
+import com.vaani.ui.common.MyGeneralListFragment
 import com.vaani.list.Refresher
-import com.vaani.ui.common.UiItemViewHolder
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @UnstableApi
-object MediasFragment : GeneralListFragment<MediaEntity>(listOf(),) {
+object MediasFragment : MyGeneralListFragment<MediaEntity>(listOf(),) {
   override val menuGroup = R.menu.media_general_options
   override var subtitle = ""
   var currentFolder: FolderEntity = FolderEntity()

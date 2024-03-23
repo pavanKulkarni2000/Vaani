@@ -10,13 +10,13 @@ import com.vaani.data.PlayerData
 import com.vaani.models.FavouriteEntity
 import com.vaani.models.MediaEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.common.GeneralListFragment
+import com.vaani.ui.common.MyGeneralListFragment
 import com.vaani.list.Mover
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : GeneralListFragment<FavouriteEntity>(Files.favourites,) {
+object FavouriteFragment : MyGeneralListFragment<FavouriteEntity>(Files.favourites,) {
 
   private lateinit var mover: Mover<FavouriteEntity>
   override val menuGroup = R.id.favourites_group

@@ -2,25 +2,22 @@ package com.vaani.ui.folders
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.models.FolderEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.common.GeneralListFragment
+import com.vaani.ui.common.MyGeneralListFragment
 import com.vaani.list.Refresher
 import com.vaani.ui.medias.MediasFragment
-import com.vaani.ui.common.MyAdapter
-import com.vaani.ui.common.UiItemViewHolder
 import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @UnstableApi
-object FolderFragment : GeneralListFragment<FolderEntity>(Files.folders) {
+object FolderFragment : MyGeneralListFragment<FolderEntity>(Files.folders) {
 
   override val menuGroup: Int = R.id.folders_group
   override var subtitle = "folder"

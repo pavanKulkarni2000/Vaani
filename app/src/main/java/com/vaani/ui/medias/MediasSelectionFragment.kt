@@ -1,7 +1,6 @@
 package com.vaani.ui.medias
 
 import android.net.Uri
-import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
@@ -9,14 +8,10 @@ import androidx.media3.common.util.UnstableApi
 import com.vaani.ui.MainActivity
 import com.vaani.R
 import com.vaani.models.MediaEntity
-import com.vaani.ui.common.MyAdapter
-import com.vaani.ui.common.GeneralListFragment
-import com.vaani.list.Selector
-import com.vaani.ui.common.SelectionListFragment
-import com.vaani.ui.common.UiItemViewHolder
+import com.vaani.ui.common.MySelectionListFragment
 
 @UnstableApi
-object MediasSelectionFragment : SelectionListFragment<MediaEntity>(listOf(),) {
+object MediasSelectionFragment : MySelectionListFragment<MediaEntity>(listOf(),) {
   override val menuGroup = R.menu.media_selected_options
   override var subtitle = ""
   private lateinit var moveLauncher: ActivityResultLauncher<Uri?>
