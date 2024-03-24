@@ -14,7 +14,7 @@ import com.vaani.util.TAG
 @UnstableApi
 class HomePagerFragment : Fragment(R.layout.home_pager_layout) {
   private lateinit var viewPager: ViewPager2
-  private val tabNames = arrayOf("folders with media", "favourites")
+  private val tabNames = arrayOf("Folders", "Favourites")
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     if (!this::viewPager.isInitialized) {
@@ -25,15 +25,5 @@ class HomePagerFragment : Fragment(R.layout.home_pager_layout) {
       TabLayoutMediator(tabLayout, viewPager) { tab, position -> tab.text = tabNames[position] }
         .attach()
     }
-  }
-
-  override fun onPause() {
-    super.onPause()
-    Log.d(TAG, "onPause: paused")
-  }
-
-  override fun onResume() {
-    super.onResume()
-    Log.d(TAG, "onResume: resumed")
   }
 }
