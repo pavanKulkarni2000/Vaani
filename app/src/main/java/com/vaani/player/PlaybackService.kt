@@ -166,31 +166,31 @@ class PlaybackService : MediaSessionService() {
           if (reason == MEDIA_ITEM_TRANSITION_REASON_AUTO) {
             PlayerUtil.saveProgress(player.previousMediaItemIndex, 0)
           }
-          Files.updateLastPlayedItem(
+          Files.updateLastPlayedItems(
             PlayerData.currentCollection,
             PlayerData.currentPlayList[player.currentMediaItemIndex].id
           )
           player.seekTo(
             PlayerUtil.getMediaProgressMs(PlayerData.currentPlayList[player.currentMediaItemIndex])
           )
-          player.playbackParameters.withSpeed(
-            PlayerData.currentPlayList[player.currentMediaItemIndex].playBackSpeed
-          )
+//          player.playbackParameters.withSpeed(
+//            PlayerData.currentPlayList[player.currentMediaItemIndex].playBackSpeed
+//          )
         }
         MEDIA_ITEM_TRANSITION_REASON_REPEAT -> {}
       }
     }
 
-    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-      if (playbackParameters.speed > 0) {
-        Files.update(
-          PlayerData.currentPlayList[player.currentMediaItemIndex].apply {
-            playbackParameters.speed
-          }
-        )
-      }
-      super.onPlaybackParametersChanged(playbackParameters)
-    }
+//    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+//      if (playbackParameters.speed > 0) {
+//        Files.saveProgress(
+//          PlayerData.currentPlayList[player.currentMediaItemIndex].apply {
+//            playbackParameters.speed
+//          }
+//        )
+//      }
+//      super.onPlaybackParametersChanged(playbackParameters)
+//    }
   }
 
   private fun appIntent(): PendingIntent {

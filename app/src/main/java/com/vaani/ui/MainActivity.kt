@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import androidx.annotation.MenuRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
@@ -32,9 +33,6 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     val contentResolver: ContentResolver
       get() = instance.contentResolver
 
-    val menuGroupActiveMap = mutableMapOf(R.id.sort_rank_group to false)
-
-    //    lateinit var menuItemAction: MenuItemAction
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,17 +60,17 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     Log.d(TAG, "onCreateOptionsMenu: create called")
     return super.onCreateOptionsMenu(menu)
   }
-
-  override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-    menu?.let {
-      menuGroupActiveMap.forEach { entry ->
-        it.setGroupEnabled(entry.key, entry.value)
-        it.setGroupVisible(entry.key, entry.value)
-      }
-    }
-    Log.d(TAG, "onPrepareOptionsMenu: prepare called")
-    return super.onPrepareOptionsMenu(menu)
-  }
+//
+//  override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+//    menu?.let {
+//      menuGroupActiveMap.forEach { entry ->
+//        it.setGroupEnabled(entry.key, entry.value)
+//        it.setGroupVisible(entry.key, entry.value)
+//      }
+//    }
+//    Log.d(TAG, "onPrepareOptionsMenu: prepare called")
+//    return super.onPrepareOptionsMenu(menu)
+//  }
 
   //  override fun onOptionsItemSelected(item: MenuItem): Boolean {
   //    return menuItemAction.itemAction(item) || super.onOptionsItemSelected(item)

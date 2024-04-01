@@ -14,33 +14,24 @@
  * limitations under the License.
  */
 
-package com.vaani.models
+package com.vaani.db.entity
 
 import com.vaani.R
+import com.vaani.ui.util.UiUtil
+import io.objectbox.annotation.Backlink
 import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Transient
+import io.objectbox.relation.ToOne
 
 @Entity
-data class FolderEntity(
-  var items: Int = 0,
-  var playBackShuffle: Boolean = false,
-  var lastPlayedId: Long = 0,
-) : FileEntity() {
-  override val subTitle: String
-    get() = String.format("%d media files", items)
-
-  override val image: Int
-    get() =
-      if(selected)
-        R.drawable.check_circle_40px
-      else
-        R.drawable.folders_folder_48px
-
-  override fun equals(other: Any?): Boolean {
-    return super.equals(other)
-  }
-
-  override fun hashCode(): Int {
-    return super.hashCode()
-  }
+class MediaEntity(
+  id: Long = 0,
+  name: String = "" ,
+  path: String = "",
+  isUri: Boolean = false,
+  val isAudio: Boolean = false,
+  val duration: Long = 0,
+  var playBackProgress: Float = 0F
+) :  FileEntity(id,name, path,isUri) {
+  @Backlink(to = "medias")
+  lateinit var folder : ToOne<FolderEntity>
 }

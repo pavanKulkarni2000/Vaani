@@ -4,10 +4,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
-import com.vaani.models.UiItem
+import com.vaani.data.model.UiItem
 
 class MyAdapter<T : UiItem>(
-  private val displayList: MutableList<T>,private val clickProvider: ItemClickProvider
+  private val displayList: MutableList<T>,
+  private val clickProvider: ItemClickProvider
 ) : RecyclerView.Adapter<UiItemViewHolder>() {
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UiItemViewHolder {
@@ -20,8 +21,8 @@ class MyAdapter<T : UiItem>(
   override fun onBindViewHolder(holder: UiItemViewHolder, position: Int) {
     displayList[position].let {
       holder.bind(it)
-      holder.itemView.setOnClickListener{clickProvider.onItemClick(position,it)}
-      holder.itemView.setOnLongClickListener{clickProvider.onItemLongClick(position,it)}
+      holder.itemView.setOnClickListener { clickProvider.onItemClick(position, it) }
+      holder.itemView.setOnLongClickListener { clickProvider.onItemLongClick(position, it) }
     }
   }
 }

@@ -14,28 +14,25 @@
  * limitations under the License.
  */
 
-package com.vaani.models
+package com.vaani.db.entity
 
-import io.objectbox.annotation.BaseEntity
-import io.objectbox.annotation.Id
-import io.objectbox.annotation.Transient
+import com.vaani.R
+import io.objectbox.annotation.Backlink
+import io.objectbox.annotation.Entity
+import io.objectbox.annotation.Uid
 import io.objectbox.annotation.Unique
+import io.objectbox.relation.ToMany
+import io.objectbox.relation.ToOne
 
-@BaseEntity
-abstract class FileEntity(
-  @Id override var id: Long = 0,
-  override var name: String = "",
-  @Unique var path: String = "",
-  var isUri: Boolean = false,
-  @Transient
-  override var selected: Boolean = false,
-) : UiItem {
-  override fun toString(): String {
-    return "[name: $name, path: $path]"
-  }
+@Entity
+class FolderEntity(
+ id: Long = 0,
+ name: String = "" ,
+ path: String = "",
+ isUri: Boolean = false,
+) : FileEntity(id,name, path,isUri) {
 
-  override fun equals(other: Any?): Boolean =
-    (this === other) || ((other as FileEntity).path == path)
+ lateinit var medias: ToMany<MediaEntity>
 
-  override fun hashCode(): Int = path.hashCode()
+ var lastPlayedMedia: ToOne<MediaEntity>? = null
 }

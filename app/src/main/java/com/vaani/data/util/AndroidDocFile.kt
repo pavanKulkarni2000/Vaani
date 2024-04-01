@@ -3,9 +3,12 @@ package com.vaani.data.util
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import com.vaani.data.model.FileType
+import com.vaani.data.model.Folder
+import com.vaani.data.model.Media
 import com.vaani.ui.MainActivity
-import com.vaani.models.FolderEntity
-import com.vaani.models.MediaEntity
+import com.vaani.db.entity.FolderEntity
+import com.vaani.db.entity.MediaEntity
 import com.vaani.util.Constants
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
@@ -16,15 +19,16 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     return withContext(Dispatchers.IO) { folder.listFiles().toList() }
   }
 
-  override fun makeFile(androidFile: DocumentFile, isAudio: Boolean): MediaEntity {
-
-    return MediaEntity().apply {
-      this.name = androidFile.name ?: Constants.UNNAMED_FILE
-      this.isAudio = isAudio
-      this.path = androidFile.uri.toString()
-      this.isUri = true
-      this.duration = getDuration(androidFile)
-    }
+  override fun getMedia(androidFile: DocumentFile, isAudio: Boolean): Media {
+    return Media(id=0,
+      name = androidFile.name ?: Constants.UNNAMED_FILE,
+      path = androidFile.uri.toString(),
+      isUri = true,
+      isAudio = isAudio,
+      duration = getDuration(androidFile),
+      playBackProgress = 0f,
+      folderId = 0L
+    )
   }
 
   override fun mimeType(file: DocumentFile): FileType {
@@ -32,13 +36,13 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
     return FileUtil.fileType(file.type)
   }
 
-  override fun makeFolder(file: DocumentFile, count: Int): FolderEntity {
-    return FolderEntity().apply {
-      name = file.name ?: Constants.UNNAMED_FILE
-      path = file.uri.toString()
-      isUri = true
-      items = count
-    }
+  override fun getFolder(file: DocumentFile, count: Int): Folder {
+    return Folder(
+      id=0,
+      name = file.name ?: Constants.UNNAMED_FILE,
+      path = file.uri.toString(),
+      isUri = true,
+    )
   }
 
   override fun getDuration(file: DocumentFile): Long {

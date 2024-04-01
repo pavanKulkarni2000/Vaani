@@ -2,13 +2,16 @@ package com.vaani.db
 
 import android.content.Context
 import android.util.Log
-import com.vaani.models.FavouriteEntity
-import com.vaani.models.FileEntity
-import com.vaani.models.FolderEntity
-import com.vaani.models.FolderEntity_
-import com.vaani.models.MediaEntity
-import com.vaani.models.MediaEntity_
-import com.vaani.models.MyObjectBox
+import com.vaani.data.model.Folder
+import com.vaani.data.model.Media
+import com.vaani.db.entity.FavouriteEntity
+import com.vaani.db.entity.FavouriteEntity_
+import com.vaani.db.entity.FileEntity
+import com.vaani.db.entity.FolderEntity
+import com.vaani.db.entity.FolderEntity_
+import com.vaani.db.entity.MediaEntity
+import com.vaani.db.entity.MediaEntity_
+import com.vaani.db.entity.MyObjectBox
 import com.vaani.util.TAG
 import io.objectbox.Box
 import io.objectbox.BoxStore
@@ -43,7 +46,13 @@ object DB {
     }
   }
 
+  fun isFavourite(mediaId:Long):MediaEntity?{
+    favouriteBox.query().link(FavouriteEntity_.media).apply(MediaEntity_.id.equal(mediaId)).build().use { return it.findFirst() }
+  }
+
   fun getFavourites(): List<FavouriteEntity> = favouriteBox.all
+
+  fun getFavouriteCount() = favouriteBox.count()
 
   fun getFile(fileId: Long): MediaEntity = fileBox[fileId]
 
@@ -69,7 +78,7 @@ object DB {
     folderBox.put(folder)
   }
 
-  fun updateFolderFiles(folderEntity: FolderEntity, exploredFiles: List<MediaEntity>) {
+  fun updateFolderFiles(folderEntity: Folder, exploredFiles: List<Media>) {
     val dbFiles = getFolderFiles(folderEntity.id)
     val deadFiles = dbFiles - exploredFiles.toSet()
     val newFiles = exploredFiles - dbFiles.toSet()
@@ -84,19 +93,21 @@ object DB {
     }
   }
 
-  fun updateFolders(exploredFolders: Set<FolderEntity>) {
+  fun updateFolders(exploredFolders: Set<Folder>) {
     val dbFolders = folderBox.all
     val deadFolders = mutableSetOf<FolderEntity>()
-    val newFolders = exploredFolders.toMutableList()
+    val newFolders = exploredFolders.toMutableSet()
     dbFolders.forEach { file ->
-      exploredFolders.find(file::equals)?.let {
+      newFolders.find{it.path==file.path}?.let {
         // already in DB
         exploredFile ->
         newFolders.remove(exploredFile)
       } ?: deadFolders.add(file)
     }
     folderBox.remove(deadFolders)
-    folderBox.put(newFolders)
+    folderBox.put(newFolders.map{
+      FolderEntity(id=0,name=it.name,path=it.path, isUri = it.isUri)
+    })
     dbFolders.addAll(newFolders)
     val folIds = dbFolders.map(FolderEntity::id)
     fileBox.query(MediaEntity_.folderId.notOneOf(folIds.toLongArray())).build().use {

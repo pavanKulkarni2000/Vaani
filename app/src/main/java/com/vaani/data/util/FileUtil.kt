@@ -4,15 +4,13 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
+import com.vaani.data.model.FileType
+import com.vaani.data.model.Folder
+import com.vaani.data.model.Media
 import com.vaani.ui.MainActivity
-import com.vaani.models.FileEntity
-import com.vaani.models.FolderEntity
-import com.vaani.models.MediaEntity
-import java.io.File
-import java.nio.file.Files
+import com.vaani.db.entity.FileEntity
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import kotlin.io.path.exists
 
 object FileUtil {
@@ -34,24 +32,24 @@ object FileUtil {
     return mutableListOf()
   }
 
-  suspend fun updatePrimaryStorageList(): Map<FolderEntity, List<MediaEntity>> {
+  suspend fun updatePrimaryStorageList(): Map<Folder, List<Media>> {
     return AndroidPath.discoverRecursive(Paths.get(primaryStorageRootPath))
   }
 
-  suspend fun updateSecondaryStorageList(context: Context): Map<FolderEntity, List<MediaEntity>> {
-    val map = mutableMapOf<FolderEntity, List<MediaEntity>>()
+  suspend fun updateSecondaryStorageList(context: Context): Map<Folder, List<Media>> {
+    val map = mutableMapOf<Folder, List<Media>>()
     getSecondaryStorages(context).forEach { path ->
       map += AndroidPath.discoverRecursive(Paths.get(path))
     }
     return map
   }
 
-  suspend fun updateAndroidFolderList(context: Context): Map<FolderEntity, List<MediaEntity>> {
+  suspend fun updateAndroidFolderList(context: Context): Map<Folder, List<Media>> {
     val data = DocumentFile.fromTreeUri(context, Uri.parse(androidFolderTreeUriStr("data")))!!
     return AndroidDocFile.discoverRecursive(data)
   }
 
-  suspend fun getMediaInFolder(context: Context, folderEntity: FolderEntity): List<MediaEntity> {
+  suspend fun getMediaInFolder(context: Context, folderEntity: Folder): List<Media> {
     return if (folderEntity.isUri) {
       AndroidDocFile.listFolderMedia(
         DocumentFile.fromTreeUri(context, Uri.parse(folderEntity.path))!!
@@ -99,46 +97,46 @@ object FileUtil {
     return path
   }
 
-  fun copyFile(sourceFile: MediaEntity, destinationUri: Uri): MediaEntity {
-    val newFile =
-      MediaEntity().apply {
-        name = sourceFile.name
-        isUri = false
-        isAudio = sourceFile.isAudio
-        duration = sourceFile.duration
-      }
-    getPath(destinationUri)?.let { path ->
-      val targetPath = path.resolve(sourceFile.name)
-      if (sourceFile.isUri) {
-        Files.copy(
-          MainActivity.contentResolver.openInputStream(Uri.parse(sourceFile.path)),
-          targetPath,
-          StandardCopyOption.REPLACE_EXISTING
-        )
-      } else {
-        Files.copy(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
-      }
-      newFile.path = targetPath.toString()
-    }
-    return newFile
-  }
+//  fun copyFile(sourceFile: Media, destinationUri: Uri): Media {
+//    val newFile =
+//      Media().apply {
+//        name = sourceFile.name
+//        isUri = false
+//        isAudio = sourceFile.isAudio
+//        duration = sourceFile.duration
+//      }
+//    getPath(destinationUri)?.let { path ->
+//      val targetPath = path.resolve(sourceFile.name)
+//      if (sourceFile.isUri) {
+//        Files.copy(
+//          MainActivity.contentResolver.openInputStream(Uri.parse(sourceFile.path)),
+//          targetPath,
+//          StandardCopyOption.REPLACE_EXISTING
+//        )
+//      } else {
+//        Files.copy(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
+//      }
+//      newFile.path = targetPath.toString()
+//    }
+//    return newFile
+//  }
+//
+//  fun moveFile(sourceFile: Media, destinationUri: Uri) {
+//    getPath(destinationUri)?.let { path ->
+//      val targetPath = path.resolve(sourceFile.name)
+//      Files.move(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
+//      sourceFile.path = targetPath.toString()
+//    }
+//  }
 
-  fun moveFile(sourceFile: MediaEntity, destinationUri: Uri) {
-    getPath(destinationUri)?.let { path ->
-      val targetPath = path.resolve(sourceFile.name)
-      Files.move(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
-      sourceFile.path = targetPath.toString()
-    }
-  }
-
-  fun rename(fileEntity: FileEntity, newName: String) {
-    val newPath = Paths.get(fileEntity.path).parent.resolve(newName)
-    if (!File(fileEntity.path).renameTo(newPath.toFile())) {
-      throw Exception("Rename failed")
-    }
-    fileEntity.name = newName
-    fileEntity.path = newPath.toString()
-  }
+//  fun rename(fileEntity: FileEntity, newName: String) {
+//    val newPath = Paths.get(fileEntity.path).parent.resolve(newName)
+//    if (!File(fileEntity.path).renameTo(newPath.toFile())) {
+//      throw Exception("Rename failed")
+//    }
+//    fileEntity.name = newName
+//    fileEntity.path = newPath.toString()
+//  }
 
   fun delete(file: FileEntity) {
     if (file.isUri) {

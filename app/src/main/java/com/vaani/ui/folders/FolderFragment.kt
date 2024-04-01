@@ -1,15 +1,13 @@
 package com.vaani.ui.folders
 
-import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
 import com.vaani.data.Files
-import com.vaani.models.FolderEntity
+import com.vaani.db.entity.FolderEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.common.MyGeneralListFragment
-import com.vaani.list.Refresher
+import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.ui.medias.MediasFragment
 import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
@@ -17,22 +15,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @UnstableApi
-object FolderFragment : MyGeneralListFragment<FolderEntity>(Files.folders) {
+object FolderFragment : MyBaseListFragment<FolderEntity>() {
 
-  override val menuGroup: Int = R.id.folders_group
-  override var subtitle = "folder"
+  override val data: List<FolderEntity>
+    get() = Files.folders
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    object : Refresher(refreshLayout) {
-      override fun onRefresh() {
-        localScope.launch {
-          Files.exploreFolders()
-          launch(Dispatchers.Main) {
-            listAdapter.notifyDataSetChanged()
-            refreshFinish()
-          }
-        }
+  override fun onRefresh() {
+    localScope.launch {
+      Files.exploreFolders()
+      launch(Dispatchers.Main) {
+        listAdapter.notifyDataSetChanged()
+        stopRefreshLayout()
       }
     }
   }

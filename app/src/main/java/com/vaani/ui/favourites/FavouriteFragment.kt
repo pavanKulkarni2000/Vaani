@@ -4,23 +4,23 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.media3.common.util.UnstableApi
-import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
-import com.vaani.models.FavouriteEntity
-import com.vaani.models.MediaEntity
+import com.vaani.db.entity.FavouriteEntity
+import com.vaani.db.entity.MediaEntity
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.common.MyGeneralListFragment
-import com.vaani.list.Mover
+import com.vaani.ui.util.Mover
+import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : MyGeneralListFragment<FavouriteEntity>(Files.favourites,) {
+object FavouriteFragment : MyBaseListFragment<FavouriteEntity>() {
+
+  override val data: List<FavouriteEntity>
+    get() = Files.favourites
 
   private lateinit var mover: Mover<FavouriteEntity>
-  override val menuGroup = R.id.favourites_group
-  override var subtitle = "fragment"
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)

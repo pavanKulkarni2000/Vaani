@@ -6,8 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player.REPEAT_MODE_OFF
-import androidx.media3.common.Player.REPEAT_MODE_ONE
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaController
@@ -18,7 +16,7 @@ import com.vaani.ui.MainActivity
 import com.vaani.R
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
-import com.vaani.models.MediaEntity
+import com.vaani.data.model.Media
 import com.vaani.ui.player.PlayerActivity
 import com.vaani.util.TAG
 
@@ -48,13 +46,13 @@ object PlayerUtil {
         .buildAsync()
   }
 
-  fun getMediaProgressMs(file: MediaEntity): Long =
+  fun getMediaProgressMs(file: Media): Long =
     (file.duration * file.playBackProgress * 1000).toLong()
 
-  private fun getMediaProgress(file: MediaEntity, position: Long): Float =
+  private fun getMediaProgress(file: Media, position: Long): Float =
     (position.toFloat() / (file.duration * 1000))
 
-  fun play(playList: List<MediaEntity>, position: Int, collectionId: Long) {
+  fun play(playList: List<Media>, position: Int, collectionId: Long) {
     val controller = this.controller ?: return
     val file = playList[position]
     if (PlayerData.currentCollection == collectionId && PlayerData.currentPlayList == playList) {
@@ -67,7 +65,7 @@ object PlayerUtil {
       )
       PlayerData.setCurrent(collectionId, playList)
     }
-    controller.setPlaybackSpeed(file.playBackSpeed)
+//    controller.setPlaybackSpeed(file.playBackSpeed)
 //    controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
     //        controller.shuffleModeEnabled = Files.getFolder(file.folderId).playBackShuffle
     controller.prepare()
@@ -102,7 +100,7 @@ object PlayerUtil {
     try {
       val endMedia = PlayerData.currentPlayList[mediaIndex]
       endMedia.playBackProgress = getMediaProgress(endMedia, position)
-      Files.update(endMedia)
+      Files.saveProgress(endMedia)
     } catch (e: Exception) {
       Log.e(TAG, "saveProgress: error ", e)
     }

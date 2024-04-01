@@ -1,12 +1,9 @@
-package com.vaani.list
+package com.vaani.ui.util
 
 import android.util.Log
-import com.vaani.models.UiItem
-import com.vaani.ui.common.MyAdapter
 import com.vaani.util.TAG
 
-class Searcher<T : UiItem>(private val displayList: MutableList<T>) : ListAction(true) {
-  var adapter: MyAdapter<T>? = null
+class Searcher<T : UiItem>(private val displayList: MutableList<T>) {
   private val displayListBackup = mutableListOf<T>()
   private val searchItems = mutableListOf<T>()
   var searching = false
@@ -19,7 +16,6 @@ class Searcher<T : UiItem>(private val displayList: MutableList<T>) : ListAction
     displayListBackup.clear()
     displayListBackup.addAll(displayList)
     displayList.clear()
-    adapter?.notifyDataSetChanged()
     Log.d(TAG, "startSearch: started search")
   }
 
@@ -30,16 +26,15 @@ class Searcher<T : UiItem>(private val displayList: MutableList<T>) : ListAction
         displayList.addAll(searchItems.filter { it.name.lowercase().contains(query.lowercase()) })
       }
     }
-    adapter?.notifyDataSetChanged()
   }
 
   fun closeSearch() {
+    Log.d(TAG, "closeSearch: closing the search, $displayListBackup")
     displayList.clear()
     displayList.addAll(displayListBackup)
-    adapter?.notifyDataSetChanged()
     searchItems.clear()
     displayListBackup.clear()
     searching = false
-    Log.d(TAG, "closeSearch: closed the search")
+    Log.d(TAG, "closeSearch: closed the search, $displayList")
   }
 }

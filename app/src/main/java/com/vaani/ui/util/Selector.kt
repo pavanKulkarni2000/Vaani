@@ -1,12 +1,9 @@
-package com.vaani.list
+package com.vaani.ui.util
 
 import android.util.Log
-import com.vaani.models.UiItem
-import com.vaani.ui.common.MyAdapter
 import com.vaani.util.TAG
 
-class Selector<T : UiItem>(private val displayList: MutableList<T>) : ListAction(true) {
-  var adapter: MyAdapter<T>? = null
+class Selector<T : UiItem>(private val displayList: MutableList<T>) {
 
   val selection = mutableSetOf<Long>()
 
@@ -32,7 +29,6 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) : ListAction
       }
       selection.add(it.id)
       it.selected = true
-      adapter?.notifyItemChanged(position)
     }
   }
 
@@ -57,7 +53,6 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) : ListAction
         }
       }
       item.selected = false
-      adapter?.notifyItemChanged(position)
     }
   }
 

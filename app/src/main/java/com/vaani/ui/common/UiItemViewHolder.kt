@@ -5,13 +5,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
-import com.vaani.models.UiItem
+import com.vaani.data.model.UiItem
 
 class UiItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
   private val icon = view.findViewById<ImageView>(R.id.item_image)
   private val text = view.findViewById<TextView>(R.id.item_text)
   private val subtext = view.findViewById<TextView>(R.id.item_subtext)
-  fun bind(item:UiItem){
+  fun bind(item: UiItem){
       text.text = item.name
       subtext.text = item.subTitle
       icon.setImageResource(item.image)

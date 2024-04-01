@@ -14,31 +14,22 @@
  * limitations under the License.
  */
 
-package com.vaani.models
+package com.vaani.db.entity
 
-import com.vaani.R
-import com.vaani.ui.util.UiUtil
-import io.objectbox.annotation.Entity
+import io.objectbox.annotation.BaseEntity
+import io.objectbox.annotation.Id
 import io.objectbox.annotation.Transient
+import io.objectbox.annotation.Unique
 
-@Entity
-class MediaEntity(
-  var isAudio: Boolean = false,
-  var duration: Long = 0,
-  var folderId: Long = 0,
-  var playBackProgress: Float = 0F,
-  var playBackSpeed: Float = 1F,
-) : FileEntity() {
-  override val subTitle: String
-    get() = UiUtil.stringToTime(duration)
+@BaseEntity
+open class FileEntity(
+  @Id val id: Long,
+  val name: String,
+  @Unique val path: String,
+  val isUri: Boolean,
+)  {
+  override fun equals(other: Any?): Boolean =
+    (this === other) || ((other as FileEntity).path == path)
 
-  override val image: Int
-    get() =
-      if(selected)
-        R.drawable.check_circle_40px
-      else
-        when (isAudio) {
-          true -> R.drawable.music_note_40px
-          false -> R.drawable.movie_40px
-        }
+  override fun hashCode(): Int = path.hashCode()
 }

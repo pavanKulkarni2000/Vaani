@@ -78,7 +78,7 @@ class PlayerActivity :
     updateMediaMetadataUI()
     controller.addListener(
       object : Player.Listener {
-        //                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        //                override fun onMediaItemTransition(mediaItem: Media?, reason: Int) {
         //                    // not working
         //                    updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
         //                }

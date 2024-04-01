@@ -1,4 +1,4 @@
-package com.vaani.data.util
+package com.vaani.data.model
 
 enum class FileType {
   DIR,

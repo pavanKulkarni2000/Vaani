@@ -2,8 +2,11 @@ package com.vaani.data.util
 
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import com.vaani.models.FolderEntity
-import com.vaani.models.MediaEntity
+import com.vaani.data.model.FileType
+import com.vaani.data.model.Folder
+import com.vaani.data.model.Media
+import com.vaani.db.entity.FolderEntity
+import com.vaani.db.entity.MediaEntity
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,23 +33,26 @@ object AndroidPath : AndroidGenericFileType<Path> {
     return FileUtil.fileType(URLConnection.guessContentTypeFromName(file.name))
   }
 
-  override fun makeFile(androidFile: Path, isAudio: Boolean): MediaEntity {
-    return MediaEntity().apply {
-      this.name = androidFile.fileName.toString()
-      this.isAudio = isAudio
-      this.path = androidFile.toString()
-      this.isUri = false
-      this.duration = getDuration(androidFile)
-    }
+  override fun getMedia(androidFile: Path, isAudio: Boolean): Media {
+    return Media(
+      id=0,
+      name = androidFile.fileName.toString(),
+      isAudio = isAudio,
+      path = androidFile.toString(),
+      isUri = false,
+      duration = getDuration(androidFile),
+      playBackProgress = 0f,
+      folderId = 0L
+    )
   }
 
-  override fun makeFolder(file: Path, count: Int): FolderEntity {
-    return FolderEntity().apply {
-      name = file.fileName.toString()
-      path = file.toString()
-      isUri = false
-      items = count
-    }
+  override fun getFolder(file: Path, count: Int): Folder {
+    return Folder(
+      id=0,
+      name = file.fileName.toString(),
+      path = file.toString(),
+      isUri = false,
+    )
   }
 
   override fun getDuration(file: Path): Long {
