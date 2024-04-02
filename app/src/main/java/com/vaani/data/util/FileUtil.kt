@@ -7,8 +7,8 @@ import androidx.documentfile.provider.DocumentFile
 import com.vaani.data.model.FileType
 import com.vaani.data.model.Folder
 import com.vaani.data.model.Media
-import com.vaani.ui.MainActivity
 import com.vaani.db.entity.FileEntity
+import com.vaani.ui.MainActivity
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.exists

@@ -10,10 +10,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
 import com.vaani.data.model.UiItem
 import com.vaani.ui.util.EmptyItemDecoration
-import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import java.util.concurrent.CancellationException
 
 @UnstableApi
 abstract class MyBaseListFragment<T : UiItem> :

@@ -1,7 +1,6 @@
 package com.vaani.data
 
 import com.vaani.data.model.Media
-import com.vaani.db.entity.MediaEntity
 
 object PlayerData {
 

@@ -5,8 +5,6 @@ import android.util.Log
 import com.vaani.data.model.FileType
 import com.vaani.data.model.Folder
 import com.vaani.data.model.Media
-import com.vaani.db.entity.FolderEntity
-import com.vaani.db.entity.MediaEntity
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

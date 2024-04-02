@@ -1,9 +1,8 @@
 package com.vaani.util
 
 import android.content.Context
-import com.vaani.ui.MainActivity
 import com.vaani.R
-import com.vaani.data.Files
+import com.vaani.ui.MainActivity
 import com.vaani.util.Constants.FAVOURITE_LAST_PLAYED_KEY
 import com.vaani.util.Constants.FOLDER_LAST_PLAYED_KEY
 

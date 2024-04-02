@@ -16,11 +16,8 @@
 
 package com.vaani.db.entity
 
-import com.vaani.R
 import io.objectbox.annotation.Backlink
 import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Uid
-import io.objectbox.annotation.Unique
 import io.objectbox.relation.ToMany
 import io.objectbox.relation.ToOne
 

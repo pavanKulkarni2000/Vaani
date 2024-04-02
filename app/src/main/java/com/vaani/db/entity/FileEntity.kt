@@ -18,12 +18,11 @@ package com.vaani.db.entity
 
 import io.objectbox.annotation.BaseEntity
 import io.objectbox.annotation.Id
-import io.objectbox.annotation.Transient
 import io.objectbox.annotation.Unique
 
 @BaseEntity
 open class FileEntity(
-  @Id val id: Long,
+  @Id var id: Long,
   val name: String,
   @Unique val path: String,
   val isUri: Boolean,

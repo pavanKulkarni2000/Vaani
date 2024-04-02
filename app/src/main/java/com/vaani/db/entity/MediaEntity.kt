@@ -16,9 +16,6 @@
 
 package com.vaani.db.entity
 
-import com.vaani.R
-import com.vaani.ui.util.UiUtil
-import io.objectbox.annotation.Backlink
 import io.objectbox.annotation.Entity
 import io.objectbox.relation.ToOne
 

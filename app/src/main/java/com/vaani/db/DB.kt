@@ -35,9 +35,7 @@ object DB {
   }
 
   fun getFolderFiles(folderId: Long): List<MediaEntity> {
-    fileBox.query(MediaEntity_.folderId.equal(folderId)).build().use {
-      return it.find()
-    }
+    return folderBox[folderId].medias.toList()
   }
 
   fun getFolderWithPath(path: String): FolderEntity? {
@@ -47,7 +45,7 @@ object DB {
   }
 
   fun isFavourite(mediaId:Long):MediaEntity?{
-    favouriteBox.query().link(FavouriteEntity_.media).apply(MediaEntity_.id.equal(mediaId)).build().use { return it.findFirst() }
+    favouriteBox.query(FavouriteEntity_.mediaId.equal(mediaId)).build().use { return it.findFirst()?.media?.target }
   }
 
   fun getFavourites(): List<FavouriteEntity> = favouriteBox.all
@@ -78,18 +76,24 @@ object DB {
     folderBox.put(folder)
   }
 
-  fun updateFolderFiles(folderEntity: Folder, exploredFiles: List<Media>) {
-    val dbFiles = getFolderFiles(folderEntity.id)
-    val deadFiles = dbFiles - exploredFiles.toSet()
-    val newFiles = exploredFiles - dbFiles.toSet()
-    Log.d(TAG, "updateFolderFiles: dead files $deadFiles")
-    fileBox.remove(deadFiles)
-    newFiles.forEach { file -> file.folderId = folderEntity.id }
-    Log.d(TAG, "updateFolderFiles: new files $newFiles")
-    fileBox.put(newFiles)
-    if (folderEntity.items != exploredFiles.size) {
-      folderEntity.items = exploredFiles.size
-      folderBox.put(folderEntity)
+  fun updateFolderFiles(folder: Folder, exploredFiles: List<Media>) {
+    store.runInTx{
+      val folderEntity = folderBox.query(FolderEntity_.path.equal(folder.path)).build().use{it.findFirst()!! }
+      val exploredMediaPaths = exploredFiles.map(Media::path).toSet()
+      folderEntity.medias.forEach{
+        if(!exploredMediaPaths.contains(it.path)){
+          folderEntity.medias.remove(it)
+          fileBox.remove(it)
+        }
+      }
+      val dbMedias = folderEntity.medias.map(MediaEntity::path).toSet()
+      exploredFiles.forEach {
+        if(!dbMedias.contains(it.path)){
+          folderEntity.medias.add(MediaEntity(id=0,name=it.name, path = it.path, isUri = it.isUri,
+          isAudio = it.isAudio, duration = it.duration, playBackProgress = it.playBackProgress))
+        }
+      }
+      folderEntity.medias.applyChangesToDb()
     }
   }
 
@@ -104,19 +108,20 @@ object DB {
         newFolders.remove(exploredFile)
       } ?: deadFolders.add(file)
     }
-    folderBox.remove(deadFolders)
-    folderBox.put(newFolders.map{
+    val newDbFolders = newFolders.map{
       FolderEntity(id=0,name=it.name,path=it.path, isUri = it.isUri)
-    })
-    dbFolders.addAll(newFolders)
-    val folIds = dbFolders.map(FolderEntity::id)
-    fileBox.query(MediaEntity_.folderId.notOneOf(folIds.toLongArray())).build().use {
-      val deadFiles = it.find()
-      Log.d(
-        TAG,
-        "updateFolders: dead files ${deadFiles.size} ${deadFiles.map { FileEntity::name }}"
-      )
-      fileBox.remove(deadFiles)
+    }
+    dbFolders.addAll(newDbFolders)
+    val folIds = dbFolders.map(FolderEntity::id).toLongArray()
+    val deadMedias = fileBox.query(MediaEntity_.folderId.notOneOf(folIds)).build().use {it.find()}
+    Log.d(TAG,
+      "updateFolders: dead files ${deadMedias.size} ${deadMedias.map { FileEntity::name }}"
+    )
+    store.runInTx{
+      folderBox.remove(deadFolders)
+      folderBox.put(newDbFolders)
+      fileBox.remove(deadMedias)
+
     }
   }
 
@@ -132,7 +137,7 @@ object DB {
     folderBox.remove(folder)
   }
 
-  fun deleteFavourite(favourite: FavouriteEntity) {
+  fun deleteFavourite(favourite: Long) {
     favouriteBox.remove(favourite)
   }
 

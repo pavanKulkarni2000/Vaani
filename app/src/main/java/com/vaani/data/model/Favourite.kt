@@ -8,11 +8,8 @@ data class Favourite(
     val fileId: Long,
     override val name: String,
     override val rank: Int,
-    val path: String,
-    val isUri: Boolean,
     val isAudio: Boolean,
     val duration: Long,
-    var playBackProgress: Float,
     override var selected: Boolean = false,
 ) : UiItem {
     override val subTitle: String

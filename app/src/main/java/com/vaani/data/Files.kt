@@ -3,7 +3,6 @@ package com.vaani.data
 import com.vaani.data.model.Favourite
 import com.vaani.data.model.Folder
 import com.vaani.data.model.Media
-import com.vaani.ui.MainActivity
 import com.vaani.data.util.FileUtil
 import com.vaani.data.util.toFavourite
 import com.vaani.data.util.toFolder
@@ -12,6 +11,7 @@ import com.vaani.db.DB
 import com.vaani.db.entity.FavouriteEntity
 import com.vaani.db.entity.FolderEntity
 import com.vaani.db.entity.MediaEntity
+import com.vaani.ui.MainActivity
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.PreferenceUtil
 import kotlinx.coroutines.Dispatchers
@@ -61,8 +61,8 @@ object Files {
     return newFav.toFavourite()
   }
 
-  fun remove(favEntity: FavouriteEntity) {
-    DB.deleteFavourite(favEntity)
+  fun remove(favEntity: Favourite) {
+    DB.deleteFavourite(favEntity.id)
     val deletedRank = favEntity.rank
     val favourites = DB.getFavourites()
     for (fav in favourites) {
@@ -176,7 +176,7 @@ object Files {
 //    DB.deleteFolder(folder)
 //  }
 
-  fun getFiles(fileIds: List<Long>): List<MediaEntity> {
-    return DB.getFiles(fileIds)
+  fun getFiles(fileIds: List<Long>): List<Media> {
+    return DB.getFiles(fileIds).map(MediaEntity::toMedia)
   }
 }

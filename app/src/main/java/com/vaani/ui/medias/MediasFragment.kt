@@ -7,7 +7,6 @@ import com.vaani.data.Files
 import com.vaani.data.PlayerData
 import com.vaani.data.model.Folder
 import com.vaani.data.model.Media
-import com.vaani.db.entity.FolderEntity
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.util.TAG

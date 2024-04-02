@@ -32,10 +32,7 @@ fun FavouriteEntity.toFavourite() = Favourite(
     fileId=media.targetId,
     name=media.target.name,
     rank=rank,
-    path=media.target.path,
-    isUri = media.target.isUri,
     isAudio = media.target.isAudio,
     duration=media.target.duration,
-    playBackProgress=media.target.playBackProgress,
     selected = false
 )

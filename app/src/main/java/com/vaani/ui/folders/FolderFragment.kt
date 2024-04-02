@@ -5,7 +5,7 @@ import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
 import com.vaani.data.Files
-import com.vaani.db.entity.FolderEntity
+import com.vaani.data.model.Folder
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.ui.medias.MediasFragment
@@ -15,9 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @UnstableApi
-object FolderFragment : MyBaseListFragment<FolderEntity>() {
+object FolderFragment : MyBaseListFragment<Folder>() {
 
-  override val data: List<FolderEntity>
+  override val data: List<Folder>
     get() = Files.folders
 
   override fun onRefresh() {

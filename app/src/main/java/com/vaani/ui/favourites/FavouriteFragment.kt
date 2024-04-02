@@ -6,26 +6,27 @@ import android.view.View
 import androidx.media3.common.util.UnstableApi
 import com.vaani.data.Files
 import com.vaani.data.PlayerData
-import com.vaani.db.entity.FavouriteEntity
-import com.vaani.db.entity.MediaEntity
+import com.vaani.data.model.Favourite
+import com.vaani.data.model.Media
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.util.Mover
 import com.vaani.ui.common.MyBaseListFragment
+import com.vaani.ui.util.Mover
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
+import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : MyBaseListFragment<FavouriteEntity>() {
+object FavouriteFragment : MyBaseListFragment<Favourite>() {
 
-  override val data: List<FavouriteEntity>
+  override val data: List<Favourite>
     get() = Files.favourites
 
-  private lateinit var mover: Mover<FavouriteEntity>
+  private lateinit var mover: Mover<Favourite>
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     mover =
-      object : Mover<FavouriteEntity>(displayList, listAdapter, recyclerView) {
+      object : Mover<Favourite>(displayList, listAdapter, recyclerView) {
         override fun move(from: Int, to: Int) {
           Files.moveFavourite(displayList[from].rank, displayList[to].rank)
         }
@@ -52,7 +53,7 @@ object FavouriteFragment : MyBaseListFragment<FavouriteEntity>() {
         PlayerData.currentCollection != FAVOURITE_COLLECTION_ID
     ) {
       val lastPlayedIndex =
-        displayList.indexOfFirst { it.fileId == Files.favouriteFolder.lastPlayedId }
+        displayList.indexOfFirst { it.fileId == PreferenceUtil.lastPlayedFavouriteId }
       if (lastPlayedIndex == -1) {
         onItemClick(lastPlayedIndex, null)
       }
@@ -61,8 +62,8 @@ object FavouriteFragment : MyBaseListFragment<FavouriteEntity>() {
     }
   }
 
-  private fun getDisplayMedias(): List<MediaEntity> {
-    val medFiles = Files.getFiles(displayList.map(FavouriteEntity::fileId))
+  private fun getDisplayMedias(): List<Media> {
+    val medFiles = Files.getFiles(displayList.map(Favourite::fileId))
     Log.d(TAG, "getDisplayMedias: $displayList $medFiles")
     return medFiles
   }

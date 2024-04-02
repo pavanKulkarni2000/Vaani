@@ -1,6 +1,7 @@
 package com.vaani.ui.util
 
 import android.util.Log
+import com.vaani.data.model.UiItem
 import com.vaani.util.TAG
 
 class Searcher<T : UiItem>(private val displayList: MutableList<T>) {
