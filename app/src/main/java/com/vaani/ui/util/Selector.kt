@@ -3,10 +3,11 @@ package com.vaani.ui.util
 import android.util.Log
 import com.vaani.data.model.UiItem
 import com.vaani.util.TAG
+import java.util.LinkedList
 
 class Selector<T : UiItem>(private val displayList: MutableList<T>) {
 
-  val selection = mutableSetOf<Long>()
+  val selection = LinkedList<Long>()
 
   var selecting = false
     private set
