@@ -32,6 +32,5 @@ class MediaEntity(
   val duration: Long = 0,
   var playBackProgress: Float = 0F
 ) :  FileEntity(id,name, path,isUri) {
-  @Backlink(to = "medias")
   lateinit var folder : ToOne<FolderEntity>
 }

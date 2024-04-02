@@ -32,6 +32,7 @@ class FolderEntity(
  isUri: Boolean = false,
 ) : FileEntity(id,name, path,isUri) {
 
+ @Backlink(to = "folder")
  lateinit var medias: ToMany<MediaEntity>
 
  var lastPlayedMedia: ToOne<MediaEntity>? = null
