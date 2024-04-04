@@ -52,28 +52,10 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
     menu?.let {
-      it.clear()
       menuInflater.inflate(R.menu.home_activity_menu, it)
-      //      FolderFragment.createMenu(menu)
     }
-    Log.d(TAG, "onCreateOptionsMenu: create called")
     return super.onCreateOptionsMenu(menu)
   }
-//
-//  override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-//    menu?.let {
-//      menuGroupActiveMap.forEach { entry ->
-//        it.setGroupEnabled(entry.key, entry.value)
-//        it.setGroupVisible(entry.key, entry.value)
-//      }
-//    }
-//    Log.d(TAG, "onPrepareOptionsMenu: prepare called")
-//    return super.onPrepareOptionsMenu(menu)
-//  }
-
-  //  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-  //    return menuItemAction.itemAction(item) || super.onOptionsItemSelected(item)
-  //  }
 
   override fun onResume() {
     super.onResume()

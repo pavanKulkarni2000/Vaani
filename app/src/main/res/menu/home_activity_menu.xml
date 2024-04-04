@@ -6,58 +6,5 @@
         android:icon="@drawable/files_search"
         android:title="@string/search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="collapseActionView|always" />
-    <item
-        android:id="@+id/sort"
-        android:icon="@drawable/sort"
-        android:title="@string/sort"
-        app:showAsAction="ifRoom|collapseActionView">
-        <menu>
-            <item
-                android:id="@+id/sort_asc"
-                android:title="@string/ascending"/>
-            <item
-                android:id="@+id/sort_desc"
-                android:title="@string/descending" />
-            <group
-                android:id="@+id/sort_rank_group"
-                android:visible="false"
-                android:enabled="false">
-                <item
-                    android:id="@+id/sort_rank"
-                    android:title="@string/rank" />
-            </group>
-        </menu>
-    </item>
-
-    <group
-        android:id="@+id/folders_group"
-        android:visible="false"
-        android:enabled="false">
-    </group>
-    <group
-        android:id="@+id/folders_selection_group"
-        android:visible="false"
-        android:enabled="false">
-    </group>
-    <group
-        android:id="@+id/favourites_group"
-        android:visible="false"
-        android:enabled="false">
-    </group>
-    <group
-        android:id="@+id/favourites_selection_group"
-        android:visible="false"
-        android:enabled="false">
-    </group>
-    <group
-        android:id="@+id/medias_group"
-        android:visible="false"
-        android:enabled="false">
-    </group>
-    <group
-        android:id="@+id/medias_selection_group"
-        android:visible="false"
-        android:enabled="false">
-    </group>
+        app:showAsAction="always" />
 </menu>
