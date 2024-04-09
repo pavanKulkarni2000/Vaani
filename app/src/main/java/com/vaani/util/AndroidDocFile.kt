@@ -1,14 +1,12 @@
-package com.vaani.data.util
+package com.vaani.util
 
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import com.vaani.data.model.FileType
-import com.vaani.data.model.Folder
-import com.vaani.data.model.Media
-import com.vaani.ui.MainActivity
-import com.vaani.util.Constants
-import com.vaani.util.TAG
+import com.vaani.MainActivity
+import com.vaani.model.FileType
+import com.vaani.model.Folder
+import com.vaani.model.Media
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -18,14 +16,15 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
   }
 
   override fun getMedia(androidFile: DocumentFile, isAudio: Boolean): Media {
-    return Media(id=0,
+    return Media(
+      id = 0,
       name = androidFile.name ?: Constants.UNNAMED_FILE,
       path = androidFile.uri.toString(),
       isUri = true,
       isAudio = isAudio,
       duration = getDuration(androidFile),
       playBackProgress = 0f,
-      folderId = 0L
+      folderId = 0L,
     )
   }
 
@@ -36,7 +35,7 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
 
   override fun getFolder(file: DocumentFile, count: Int): Folder {
     return Folder(
-      id=0,
+      id = 0,
       name = file.name ?: Constants.UNNAMED_FILE,
       path = file.uri.toString(),
       isUri = true,

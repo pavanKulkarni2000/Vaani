@@ -22,15 +22,10 @@ import io.objectbox.relation.ToMany
 import io.objectbox.relation.ToOne
 
 @Entity
-class FolderEntity(
- id: Long = 0,
- name: String = "" ,
- path: String = "",
- isUri: Boolean = false,
-) : FileEntity(id,name, path,isUri) {
+class FolderEntity(id: Long = 0, name: String = "", path: String = "", isUri: Boolean = false) :
+  FileEntity(id, name, path, isUri) {
 
- @Backlink(to = "folder")
- lateinit var medias: ToMany<MediaEntity>
+  @Backlink(to = "folder") lateinit var medias: ToMany<MediaEntity>
 
- var lastPlayedMedia: ToOne<MediaEntity>? = null
+  var lastPlayedMedia: ToOne<MediaEntity>? = null
 }

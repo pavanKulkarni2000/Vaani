@@ -1,13 +1,10 @@
-package com.vaani.data.util
+package com.vaani.util
 
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import com.vaani.data.model.FileType
-import com.vaani.data.model.Folder
-import com.vaani.data.model.Media
-import com.vaani.util.TAG
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.vaani.model.FileType
+import com.vaani.model.Folder
+import com.vaani.model.Media
 import java.net.URLConnection
 import java.nio.file.AccessDeniedException
 import java.nio.file.Files
@@ -16,6 +13,8 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.name
 import kotlin.streams.toList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object AndroidPath : AndroidGenericFileType<Path> {
   override suspend fun listFolder(folder: Path): List<Path> {
@@ -33,24 +32,19 @@ object AndroidPath : AndroidGenericFileType<Path> {
 
   override fun getMedia(androidFile: Path, isAudio: Boolean): Media {
     return Media(
-      id=0,
+      id = 0,
       name = androidFile.fileName.toString(),
       isAudio = isAudio,
       path = androidFile.toString(),
       isUri = false,
       duration = getDuration(androidFile),
       playBackProgress = 0f,
-      folderId = 0L
+      folderId = 0L,
     )
   }
 
   override fun getFolder(file: Path, count: Int): Folder {
-    return Folder(
-      id=0,
-      name = file.fileName.toString(),
-      path = file.toString(),
-      isUri = false,
-    )
+    return Folder(id = 0, name = file.fileName.toString(), path = file.toString(), isUri = false)
   }
 
   override fun getDuration(file: Path): Long {

@@ -26,7 +26,7 @@ open class FileEntity(
   val name: String,
   @Unique val path: String,
   val isUri: Boolean,
-)  {
+) {
   override fun equals(other: Any?): Boolean =
     (this === other) || ((other as FileEntity).path == path)
 

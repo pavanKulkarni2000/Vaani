@@ -3,10 +3,10 @@ package com.vaani.ui.medias
 import android.util.Log
 import android.view.View
 import androidx.media3.common.util.UnstableApi
-import com.vaani.data.Files
-import com.vaani.data.PlayerData
-import com.vaani.data.model.Folder
-import com.vaani.data.model.Media
+import com.vaani.files.Files
+import com.vaani.model.Folder
+import com.vaani.model.Media
+import com.vaani.player.PlayerData
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.util.TAG
@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 @UnstableApi
 object MediasFragment : MyBaseListFragment<Media>() {
 
-  var currentFolder: Folder = Folder(0,"","",false,0,0,false)
+  var currentFolder: Folder = Folder(0, "", "", false, 0, 0, false)
     set(value) {
       if (field != value) {
         field = value
@@ -27,7 +27,7 @@ object MediasFragment : MyBaseListFragment<Media>() {
   override val data: List<Media>
     get() = Files.getFolderMedias(currentFolder.id)
 
-   override fun onItemClick(position: Int,view: View?) {
+  override fun onItemClick(position: Int, view: View?) {
     PlayerUtil.play(displayList, position, currentFolder.id)
   }
 
@@ -47,20 +47,19 @@ object MediasFragment : MyBaseListFragment<Media>() {
     }
   }
 
-   override fun fabAction(view: View?) {
+  override fun fabAction(view: View?) {
     if (
       PlayerUtil.controller?.isPlaying != true || PlayerData.currentCollection != currentFolder.id
     ) {
       val idx = displayList.indexOfFirst { it.id == currentFolder.lastPlayedId }
       if (idx != -1) {
-        onItemClick(idx,null)
+        onItemClick(idx, null)
       }
     } else {
       Log.d(TAG, "fabAction: already playing")
       PlayerUtil.startPlayerActivity()
     }
   }
-
 
   //  fun onOptions(position: Int, menu: Menu) {
   //    selectedFile = displayList[position]

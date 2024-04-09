@@ -2,13 +2,13 @@ package com.vaani.ui.util
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.vaani.data.model.UiItem
+import com.vaani.model.UiItem
 import com.vaani.ui.common.MyAdapter
 
 abstract class Mover<T : UiItem>(
   displayList: MutableList<T>,
   adapter: MyAdapter<T>,
-  recyclerView: RecyclerView
+  recyclerView: RecyclerView,
 ) {
 
   private val touchHelper =
@@ -16,7 +16,7 @@ abstract class Mover<T : UiItem>(
       override fun onMove(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder,
-        target: RecyclerView.ViewHolder
+        target: RecyclerView.ViewHolder,
       ): Boolean {
         val from = viewHolder.absoluteAdapterPosition
         val to = target.absoluteAdapterPosition

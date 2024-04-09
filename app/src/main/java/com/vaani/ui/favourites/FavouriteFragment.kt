@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.media3.common.util.UnstableApi
-import com.vaani.data.Files
-import com.vaani.data.PlayerData
-import com.vaani.data.model.Favourite
-import com.vaani.data.model.Media
+import com.vaani.files.Files
+import com.vaani.model.Favourite
+import com.vaani.model.Media
+import com.vaani.player.PlayerData
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.ui.util.Mover
@@ -45,7 +45,6 @@ object FavouriteFragment : MyBaseListFragment<Favourite>() {
     // TODO
     return false
   }
-
 
   override fun fabAction(view: View?) {
     if (

@@ -1,10 +1,8 @@
 package com.vaani.ui.util
 
-import com.vaani.data.model.UiItem
+import com.vaani.model.UiItem
 
-class Sorter<T : UiItem>(
-  private val displayList: MutableList<T>
-){
+class Sorter<T : UiItem>(private val displayList: MutableList<T>) {
   private var sortOrder: SortOrder = SortOrder.ASC
 
   fun sort(order: SortOrder) {

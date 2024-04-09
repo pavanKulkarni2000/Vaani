@@ -1,7 +1,7 @@
 package com.vaani.ui.util
 
 import android.util.Log
-import com.vaani.data.model.UiItem
+import com.vaani.model.UiItem
 import com.vaani.util.TAG
 import java.util.LinkedList
 
@@ -19,7 +19,7 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) {
     val idx = displayList.indexOfFirst { it.id == id }
     if (idx < 0) {
       Log.d(TAG, "selectId: id not found")
-    }else{
+    } else {
       selectAt(idx)
     }
   }
@@ -42,13 +42,13 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) {
     val idx = displayList.indexOfFirst { it.id == id }
     if (idx < 0) {
       Log.d(TAG, "selectId: id not found")
-    }else{
+    } else {
       unSelectAt(idx)
     }
   }
+
   fun unSelectAt(position: Int) {
-    displayList[position].let {
-      item->
+    displayList[position].let { item ->
       if (selection.remove(item.id)) {
         if (selection.isEmpty()) {
           selecting = false
@@ -57,5 +57,4 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) {
       item.selected = false
     }
   }
-
 }

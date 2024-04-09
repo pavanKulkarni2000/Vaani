@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
-import com.vaani.data.model.UiItem
+import com.vaani.model.UiItem
 import com.vaani.ui.util.EmptyItemDecoration
+import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import java.util.concurrent.CancellationException
 
 @UnstableApi
 abstract class MyBaseListFragment<T : UiItem> :
@@ -47,11 +47,11 @@ abstract class MyBaseListFragment<T : UiItem> :
     stopRefreshLayout()
   }
 
-  internal fun disableRefreshLayout(){
+  internal fun disableRefreshLayout() {
     refreshLayout.isEnabled = false
   }
 
-  internal fun disableFab(){
+  internal fun disableFab() {
     fab.hide()
   }
 

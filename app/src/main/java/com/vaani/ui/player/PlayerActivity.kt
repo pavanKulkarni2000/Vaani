@@ -20,8 +20,8 @@ import androidx.media3.ui.PlayerView
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.vaani.R
-import com.vaani.data.PlayerData
 import com.vaani.player.PlaybackService
+import com.vaani.player.PlayerData
 import com.vaani.util.TAG
 
 @UnstableApi
@@ -61,7 +61,7 @@ class PlayerActivity :
     controllerFuture =
       MediaController.Builder(
           this,
-          SessionToken(this, ComponentName(this, PlaybackService::class.java))
+          SessionToken(this, ComponentName(this, PlaybackService::class.java)),
         )
         .buildAsync()
     controllerFuture.addListener({ setController() }, MoreExecutors.directExecutor())

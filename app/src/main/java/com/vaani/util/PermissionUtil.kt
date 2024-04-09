@@ -13,8 +13,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.vaani.data.util.FileUtil
-import com.vaani.ui.MainActivity
+import com.vaani.MainActivity
 
 object PermissionUtil {
 
@@ -62,7 +61,7 @@ object PermissionUtil {
             data.data?.let { treeUri ->
               MainActivity.contentResolver.takePersistableUriPermission(
                 treeUri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
               )
             }
           }
@@ -82,7 +81,7 @@ object PermissionUtil {
         if (treeUri != null) {
           MainActivity.contentResolver.takePersistableUriPermission(
             treeUri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
           )
         }
       }

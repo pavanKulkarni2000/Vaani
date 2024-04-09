@@ -22,12 +22,12 @@ import io.objectbox.relation.ToOne
 @Entity
 class MediaEntity(
   id: Long = 0,
-  name: String = "" ,
+  name: String = "",
   path: String = "",
   isUri: Boolean = false,
   val isAudio: Boolean = false,
   val duration: Long = 0,
-  var playBackProgress: Float = 0F
-) :  FileEntity(id,name, path,isUri) {
-  lateinit var folder : ToOne<FolderEntity>
+  var playBackProgress: Float = 0F,
+) : FileEntity(id, name, path, isUri) {
+  lateinit var folder: ToOne<FolderEntity>
 }

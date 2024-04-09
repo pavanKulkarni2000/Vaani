@@ -4,8 +4,8 @@ import android.view.View
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
-import com.vaani.data.Files
-import com.vaani.data.model.Folder
+import com.vaani.files.Files
+import com.vaani.model.Folder
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.ui.medias.MediasFragment
@@ -35,12 +35,11 @@ object FolderFragment : MyBaseListFragment<Folder>() {
     return false
   }
 
-
   override fun fabAction(view: View?) {
     if (PlayerUtil.controller?.isPlaying != true) {
       val idx = displayList.indexOfFirst { it.id == PreferenceUtil.lastPlayedFolderId }
       if (idx != -1) {
-        onItemClick(idx,null)
+        onItemClick(idx, null)
       }
       MediasFragment.fabAction(view)
     } else {
@@ -56,9 +55,9 @@ object FolderFragment : MyBaseListFragment<Folder>() {
     }
   }
 
-//  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-//    return false
-//  }
+  //  override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+  //    return false
+  //  }
 
   //  fun onOptions(position: Int, menu: Menu) {
   //    selectedFolder = displayList[position]

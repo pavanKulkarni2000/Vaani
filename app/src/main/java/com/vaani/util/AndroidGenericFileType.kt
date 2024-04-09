@@ -1,8 +1,8 @@
-package com.vaani.data.util
+package com.vaani.util
 
-import com.vaani.data.model.FileType
-import com.vaani.data.model.Folder
-import com.vaani.data.model.Media
+import com.vaani.model.FileType
+import com.vaani.model.Folder
+import com.vaani.model.Media
 import java.util.*
 
 interface AndroidGenericFileType<T> {

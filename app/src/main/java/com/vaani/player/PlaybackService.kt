@@ -43,11 +43,10 @@ import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.vaani.data.Files
-import com.vaani.data.PlayerData
+import com.vaani.MainActivity
+import com.vaani.files.Files
 import com.vaani.player.PlayerUtil.closeButton
 import com.vaani.player.PlayerUtil.closeCommand
-import com.vaani.ui.MainActivity
 import com.vaani.ui.player.PlayerActivity
 import com.vaani.util.TAG
 
@@ -92,14 +91,14 @@ class PlaybackService : MediaSessionService() {
 
     override fun onConnect(
       session: MediaSession,
-      controller: ControllerInfo
+      controller: ControllerInfo,
     ): MediaSession.ConnectionResult {
       val connectionResult = super.onConnect(session, controller)
       val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
       availableSessionCommands.add(closeCommand)
       return MediaSession.ConnectionResult.accept(
         availableSessionCommands.build(),
-        connectionResult.availablePlayerCommands
+        connectionResult.availablePlayerCommands,
       )
     }
 
@@ -107,12 +106,12 @@ class PlaybackService : MediaSessionService() {
       session: MediaSession,
       controller: ControllerInfo,
       customCommand: SessionCommand,
-      args: Bundle
+      args: Bundle,
     ): ListenableFuture<SessionResult> {
       if (customCommand == closeCommand) {
         PlayerUtil.saveProgress(
           session.player.currentMediaItemIndex,
-          session.player.currentPosition
+          session.player.currentPosition,
         )
         session.player.stop()
       }
@@ -127,7 +126,7 @@ class PlaybackService : MediaSessionService() {
     override fun onAddMediaItems(
       mediaSession: MediaSession,
       controller: ControllerInfo,
-      mediaItems: MutableList<MediaItem>
+      mediaItems: MutableList<MediaItem>,
     ): ListenableFuture<MutableList<MediaItem>> {
       val updatedMediaItems = mediaItems.map { MediaItem.fromUri(it.mediaId) }.toMutableList()
       return Futures.immediateFuture(updatedMediaItems)
@@ -136,7 +135,7 @@ class PlaybackService : MediaSessionService() {
     override fun onPlayerCommandRequest(
       session: MediaSession,
       controller: ControllerInfo,
-      playerCommand: Int
+      playerCommand: Int,
     ): Int {
       Log.d(TAG, "onPlayerCommandRequest: command received $playerCommand")
       when (playerCommand) {
@@ -147,7 +146,7 @@ class PlaybackService : MediaSessionService() {
         COMMAND_STOP ->
           PlayerUtil.saveProgress(
             session.player.currentMediaItemIndex,
-            session.player.currentPosition
+            session.player.currentPosition,
           )
       }
       return super.onPlayerCommandRequest(session, controller, playerCommand)
@@ -167,7 +166,7 @@ class PlaybackService : MediaSessionService() {
           }
           Files.updateLastPlayedItems(
             PlayerData.currentCollection,
-            PlayerData.currentPlayList[player.currentMediaItemIndex].id
+            PlayerData.currentPlayList[player.currentMediaItemIndex].id,
           )
           player.seekTo(
             PlayerUtil.getMediaProgressMs(PlayerData.currentPlayList[player.currentMediaItemIndex])

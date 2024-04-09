@@ -1,12 +1,12 @@
-package com.vaani.data
+package com.vaani.player
 
-import com.vaani.data.model.Media
+import com.vaani.model.Media
 
 object PlayerData {
 
   fun setCurrent(folderId: Long, playList: List<Media>) {
-    this.currentCollection = folderId
-    this.currentPlayList = playList
+    currentCollection = folderId
+    currentPlayList = playList
   }
 
   var currentCollection: Long = 0

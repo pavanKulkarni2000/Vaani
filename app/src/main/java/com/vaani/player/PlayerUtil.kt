@@ -12,11 +12,10 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
+import com.vaani.MainActivity
 import com.vaani.R
-import com.vaani.data.Files
-import com.vaani.data.PlayerData
-import com.vaani.data.model.Media
-import com.vaani.ui.MainActivity
+import com.vaani.files.Files
+import com.vaani.model.Media
 import com.vaani.ui.player.PlayerActivity
 import com.vaani.util.TAG
 
@@ -41,7 +40,7 @@ object PlayerUtil {
     controllerFuture =
       MediaController.Builder(
           context,
-          SessionToken(context, ComponentName(context, PlaybackService::class.java))
+          SessionToken(context, ComponentName(context, PlaybackService::class.java)),
         )
         .buildAsync()
   }
@@ -61,12 +60,12 @@ object PlayerUtil {
       controller.setMediaItems(
         playList.map { MediaItem.Builder().setMediaId(it.path).build() },
         position,
-        getMediaProgressMs(file)
+        getMediaProgressMs(file),
       )
       PlayerData.setCurrent(collectionId, playList)
     }
-//    controller.setPlaybackSpeed(file.playBackSpeed)
-//    controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
+    //    controller.setPlaybackSpeed(file.playBackSpeed)
+    //    controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
     //        controller.shuffleModeEnabled = Files.getFolder(file.folderId).playBackShuffle
     controller.prepare()
     controller.play()

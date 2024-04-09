@@ -1,8 +1,8 @@
 package com.vaani.util
 
 import android.content.Context
+import com.vaani.MainActivity
 import com.vaani.R
-import com.vaani.ui.MainActivity
 import com.vaani.util.Constants.FAVOURITE_LAST_PLAYED_KEY
 import com.vaani.util.Constants.FOLDER_LAST_PLAYED_KEY
 
@@ -21,7 +21,7 @@ object PreferenceUtil {
     val preference =
       MainActivity.context.getSharedPreferences(
         MainActivity.context.getString(R.string.app_key),
-        Context.MODE_PRIVATE
+        Context.MODE_PRIVATE,
       )
     with(preference.edit()) {
       putLong(FOLDER_LAST_PLAYED_KEY, lastPlayedFavouriteId)

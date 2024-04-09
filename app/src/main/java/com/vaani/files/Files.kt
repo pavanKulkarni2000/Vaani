@@ -1,19 +1,19 @@
-package com.vaani.data
+package com.vaani.files
 
-import com.vaani.data.model.Favourite
-import com.vaani.data.model.Folder
-import com.vaani.data.model.Media
-import com.vaani.data.util.FileUtil
-import com.vaani.data.util.toFavourite
-import com.vaani.data.util.toFolder
-import com.vaani.data.util.toMedia
+import com.vaani.MainActivity
 import com.vaani.db.DB
 import com.vaani.db.entity.FavouriteEntity
 import com.vaani.db.entity.FolderEntity
 import com.vaani.db.entity.MediaEntity
-import com.vaani.ui.MainActivity
+import com.vaani.model.Favourite
+import com.vaani.model.Folder
+import com.vaani.model.Media
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
+import com.vaani.util.FileUtil
 import com.vaani.util.PreferenceUtil
+import com.vaani.util.toFavourite
+import com.vaani.util.toFolder
+import com.vaani.util.toMedia
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -25,7 +25,6 @@ object Files {
 
   val favourites: List<Favourite>
     get() = DB.getFavourites().map(FavouriteEntity::toFavourite)
-
 
   fun getFolderMedias(id: Long): List<Media> {
     return DB.getFolderFiles(id).map(MediaEntity::toMedia)
@@ -52,11 +51,11 @@ object Files {
 
   fun addFavourite(media: Media): Favourite {
     val favourites = DB.isFavourite(media.id)
-    if (favourites!=null) {
+    if (favourites != null) {
       throw Exception("File already favorite")
     }
-    val newFav = FavouriteEntity(0,DB.getFavouriteCount().toInt())
-    newFav.media.targetId=media.id
+    val newFav = FavouriteEntity(0, DB.getFavouriteCount().toInt())
+    newFav.media.targetId = media.id
     DB.save(newFav)
     return newFav.toFavourite()
   }
@@ -105,76 +104,76 @@ object Files {
     DB.updateFolderFiles(folder, mediaList)
   }
 
-//  fun moveFile(sourceFile: MediaEntity, destinationUri: Uri): FolderEntity {
-//    FileUtil.moveFile(sourceFile, destinationUri)
-//    val folderPath = Paths.get(sourceFile.path).parent
-//    val folder: FolderEntity =
-//      DB.getFolderWithPath(folderPath.toString())?.also { it.items++ }
-//        ?: FolderEntity().also {
-//          it.name = folderPath.fileName.toString()
-//          it.path = folderPath.toString()
-//          it.isUri = false
-//          it.items = 1
-//        }
-//    DB.save(folder)
-//    sourceFile.folderId = folder.id
-//    DB.saveMedia(sourceFile)
-//    return folder
-//  }
+  //  fun moveFile(sourceFile: MediaEntity, destinationUri: Uri): FolderEntity {
+  //    FileUtil.moveFile(sourceFile, destinationUri)
+  //    val folderPath = Paths.get(sourceFile.path).parent
+  //    val folder: FolderEntity =
+  //      DB.getFolderWithPath(folderPath.toString())?.also { it.items++ }
+  //        ?: FolderEntity().also {
+  //          it.name = folderPath.fileName.toString()
+  //          it.path = folderPath.toString()
+  //          it.isUri = false
+  //          it.items = 1
+  //        }
+  //    DB.save(folder)
+  //    sourceFile.folderId = folder.id
+  //    DB.saveMedia(sourceFile)
+  //    return folder
+  //  }
 
-//  fun copyFile(sourceFile: MediaEntity, destinationUri: Uri): FolderEntity {
-//    val newFile = FileUtil.copyFile(sourceFile, destinationUri)
-//    val folderPath = Paths.get(newFile.path).parent
-//    val folder: FolderEntity =
-//      DB.getFolderWithPath(folderPath.toString())?.also { it.items++ }
-//        ?: FolderEntity().also {
-//          it.name = folderPath.fileName.toString()
-//          it.path = folderPath.toString()
-//          it.isUri = false
-//          it.items = 1
-//        }
-//    DB.save(folder)
-//    newFile.folderId = folder.id
-//    DB.saveMedia(newFile)
-//    return folder
-//  }
+  //  fun copyFile(sourceFile: MediaEntity, destinationUri: Uri): FolderEntity {
+  //    val newFile = FileUtil.copyFile(sourceFile, destinationUri)
+  //    val folderPath = Paths.get(newFile.path).parent
+  //    val folder: FolderEntity =
+  //      DB.getFolderWithPath(folderPath.toString())?.also { it.items++ }
+  //        ?: FolderEntity().also {
+  //          it.name = folderPath.fileName.toString()
+  //          it.path = folderPath.toString()
+  //          it.isUri = false
+  //          it.items = 1
+  //        }
+  //    DB.save(folder)
+  //    newFile.folderId = folder.id
+  //    DB.saveMedia(newFile)
+  //    return folder
+  //  }
 
-//  fun renameFile(mediaEntity: MediaEntity, newName: String) {
-//    FileUtil.rename(mediaEntity, newName)
-//    DB.saveMedia(mediaEntity)
-//  }
+  //  fun renameFile(mediaEntity: MediaEntity, newName: String) {
+  //    FileUtil.rename(mediaEntity, newName)
+  //    DB.saveMedia(mediaEntity)
+  //  }
 
-//  fun deleteMedia(file: MediaEntity) {
-//    FileUtil.delete(file)
-//    DB.deleteMedia(file)
-//    DB.getFolder(file.folderId).let { folder ->
-//      folder.items--
-//      if (folder.items == 0) {
-//        DB.deleteFolder(folder)
-//      } else {
-//        DB.save(folder)
-//      }
-//    }
-//    DB.getFavourites().find { fav -> fav.fileId == file.id }?.let { DB.deleteFavourite(it) }
-//  }
+  //  fun deleteMedia(file: MediaEntity) {
+  //    FileUtil.delete(file)
+  //    DB.deleteMedia(file)
+  //    DB.getFolder(file.folderId).let { folder ->
+  //      folder.items--
+  //      if (folder.items == 0) {
+  //        DB.deleteFolder(folder)
+  //      } else {
+  //        DB.save(folder)
+  //      }
+  //    }
+  //    DB.getFavourites().find { fav -> fav.fileId == file.id }?.let { DB.deleteFavourite(it) }
+  //  }
 
-//  fun renameFolder(folder: FolderEntity, newName: String) {
-//    FileUtil.rename(folder, newName)
-//    DB.save(folder)
-//  }
+  //  fun renameFolder(folder: FolderEntity, newName: String) {
+  //    FileUtil.rename(folder, newName)
+  //    DB.save(folder)
+  //  }
 
-//  fun deleteFolder(folder: FolderEntity) {
-//    FileUtil.delete(folder)
-//    val medias = DB.getFolderFiles(folder.id)
-//    DB.deleteMedias(medias)
-//    val mediaIds = medias.map(MediaEntity::id).toSet()
-//    DB.getFavourites().forEach {
-//      if (mediaIds.contains(it.fileId)) {
-//        DB.deleteFavourite(it)
-//      }
-//    }
-//    DB.deleteFolder(folder)
-//  }
+  //  fun deleteFolder(folder: FolderEntity) {
+  //    FileUtil.delete(folder)
+  //    val medias = DB.getFolderFiles(folder.id)
+  //    DB.deleteMedias(medias)
+  //    val mediaIds = medias.map(MediaEntity::id).toSet()
+  //    DB.getFavourites().forEach {
+  //      if (mediaIds.contains(it.fileId)) {
+  //        DB.deleteFavourite(it)
+  //      }
+  //    }
+  //    DB.deleteFolder(folder)
+  //  }
 
   fun getFiles(fileIds: List<Long>): List<Media> {
     return DB.getFiles(fileIds).map(MediaEntity::toMedia)
