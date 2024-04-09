@@ -1,4 +1,4 @@
-package com.vaani.util
+package com.vaani.files
 
 import com.vaani.model.FileType
 import com.vaani.model.Folder

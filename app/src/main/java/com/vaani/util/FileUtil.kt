@@ -6,6 +6,8 @@ import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
 import com.vaani.MainActivity
 import com.vaani.db.entity.FileEntity
+import com.vaani.files.AndroidDocFile
+import com.vaani.files.AndroidPath
 import com.vaani.model.FileType
 import com.vaani.model.Folder
 import com.vaani.model.Media
