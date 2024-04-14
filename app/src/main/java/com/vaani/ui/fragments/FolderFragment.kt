@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
 @UnstableApi
 object FolderFragment : BaseFragment<Folder>() {
 
+  override val menuRes: Int = R.menu.fol_general_options
+
   override val data: List<Folder>
     get() = Files.folders
 

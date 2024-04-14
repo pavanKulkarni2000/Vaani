@@ -26,7 +26,7 @@ import com.vaani.util.TAG
 
 @UnstableApi
 class PlayerActivity :
-  AppCompatActivity(R.layout.player_activity), PlayerView.ControllerVisibilityListener {
+  AppCompatActivity(R.layout.activity_player), PlayerView.ControllerVisibilityListener {
   private lateinit var controllerFuture: ListenableFuture<MediaController>
   private val controller: MediaController?
     get() = if (controllerFuture.isDone) controllerFuture.get() else null

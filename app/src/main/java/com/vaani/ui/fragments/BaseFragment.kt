@@ -1,11 +1,14 @@
 package com.vaani.ui.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.vaani.R
 import com.vaani.model.UiItem
@@ -14,12 +17,13 @@ import com.vaani.ui.adapter.ItemClickProvider
 import com.vaani.ui.util.EmptyItemDecoration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.ensureActive
 import java.util.concurrent.CancellationException
 
 @UnstableApi
-open class BaseFragment<T : UiItem> :
-  Fragment(R.layout.base_fragment), ItemClickProvider, SwipeRefreshLayout.OnRefreshListener {
+abstract class BaseFragment<T : UiItem> :
+  Fragment(), ItemClickProvider, SwipeRefreshLayout.OnRefreshListener {
 
   internal val localScope = CoroutineScope(Dispatchers.Default)
   internal lateinit var recyclerView: RecyclerView
@@ -27,9 +31,13 @@ open class BaseFragment<T : UiItem> :
   internal val adapter = Adapter(displayList, this)
   internal lateinit var refreshLayout: SwipeRefreshLayout
   internal lateinit var fab: FloatingActionButton
-  open val data: List<T>
-    get() = listOf()
+  abstract val data: List<T>
+  abstract val fragmentRes: Int
 
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+     super.onCreateView(inflater, container, savedInstanceState)
+    return inflater.inflate(fragmentRes,container)
+  }
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     resetData()
@@ -41,6 +49,7 @@ open class BaseFragment<T : UiItem> :
     refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
     refreshLayout.setOnRefreshListener(this)
     stopRefreshLayout()
+    localScope.ensureActive()
   }
 
   open fun fabAction(view: View?) {
@@ -71,7 +80,7 @@ open class BaseFragment<T : UiItem> :
 
   override fun onDestroy() {
     super.onDestroy()
-    localScope.cancel(CancellationException("List View destroyed"))
+    localScope.coroutineContext.cancelChildren(CancellationException("List View destroyed"))
   }
 
   override fun onItemClick(position: Int, view: View?) {

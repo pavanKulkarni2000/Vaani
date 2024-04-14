@@ -14,7 +14,7 @@ import com.vaani.util.PermissionUtil
 import com.vaani.util.PreferenceUtil
 
 @UnstableApi
-class MainActivity : AppCompatActivity(R.layout.main_activity) {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
   companion object {
     private lateinit var instance: FragmentActivity

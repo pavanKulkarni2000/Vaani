@@ -12,7 +12,7 @@ class Adapter<T : UiItem>(
 ) : RecyclerView.Adapter<UiItemViewHolder>() {
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UiItemViewHolder {
-    val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_layout, parent, false)
+    val view = LayoutInflater.from(parent.context).inflate(R.layout.layout_list_item, parent, false)
     return UiItemViewHolder(view)
   }
 
