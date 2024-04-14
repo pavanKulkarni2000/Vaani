@@ -3,14 +3,13 @@ package com.vaani
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
 import com.vaani.db.DB
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.home.HomePagerFragment
+import com.vaani.ui.fragments.HomeFragment
 import com.vaani.util.PermissionUtil
 import com.vaani.util.PreferenceUtil
 
@@ -37,19 +36,17 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     PermissionUtil.managePermissions(this)
     DB.init(this)
     PreferenceUtil.init(this)
-    if (supportFragmentManager.findFragmentById(R.id.fragment_container_view) == null) {
-      supportFragmentManager.commit {
-        setReorderingAllowed(true)
-        add(R.id.fragment_container_view, HomePagerFragment())
-      }
+    supportFragmentManager.commit {
+      setReorderingAllowed(true)
+      add(R.id.main_activity_fragment_container_view, HomeFragment())
     }
     //    menuItemAction = FolderFragment
   }
 
-  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menu?.let { menuInflater.inflate(R.menu.home_activity_menu, it) }
-    return super.onCreateOptionsMenu(menu)
-  }
+  //  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+  //    menu?.let { menuInflater.inflate(R.menu.home_activity_menu, it) }
+  //    return super.onCreateOptionsMenu(menu)
+  //  }
 
   override fun onResume() {
     super.onResume()

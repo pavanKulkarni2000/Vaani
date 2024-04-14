@@ -1,4 +1,4 @@
-package com.vaani.ui.common
+package com.vaani.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
 import com.vaani.model.UiItem
 
-class MyAdapter<T : UiItem>(
+class Adapter<T : UiItem>(
   private val displayList: MutableList<T>,
   private val clickProvider: ItemClickProvider,
 ) : RecyclerView.Adapter<UiItemViewHolder>() {

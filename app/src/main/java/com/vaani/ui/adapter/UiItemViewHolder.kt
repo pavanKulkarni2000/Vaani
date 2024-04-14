@@ -1,4 +1,4 @@
-package com.vaani.ui.common
+package com.vaani.ui.adapter
 
 import android.view.View
 import android.widget.ImageView

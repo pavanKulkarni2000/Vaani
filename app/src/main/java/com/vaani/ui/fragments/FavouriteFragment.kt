@@ -1,4 +1,4 @@
-package com.vaani.ui.favourites
+package com.vaani.ui.fragments
 
 import android.os.Bundle
 import android.util.Log
@@ -9,14 +9,13 @@ import com.vaani.model.Favourite
 import com.vaani.model.Media
 import com.vaani.player.PlayerData
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.ui.util.Mover
 import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
 import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : MyBaseListFragment<Favourite>() {
+object FavouriteFragment : BaseFragment<Favourite>() {
 
   override val data: List<Favourite>
     get() = Files.favourites
@@ -26,7 +25,7 @@ object FavouriteFragment : MyBaseListFragment<Favourite>() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     mover =
-      object : Mover<Favourite>(displayList, listAdapter, recyclerView) {
+      object : Mover<Favourite>(displayList, adapter, recyclerView) {
         override fun move(from: Int, to: Int) {
           Files.moveFavourite(displayList[from].rank, displayList[to].rank)
         }

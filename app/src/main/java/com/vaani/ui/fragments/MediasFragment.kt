@@ -1,4 +1,4 @@
-package com.vaani.ui.medias
+package com.vaani.ui.fragments
 
 import android.util.Log
 import android.view.View
@@ -8,14 +8,13 @@ import com.vaani.model.Folder
 import com.vaani.model.Media
 import com.vaani.player.PlayerData
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.common.MyBaseListFragment
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @UnstableApi
-object MediasFragment : MyBaseListFragment<Media>() {
+object MediasFragment : BaseFragment<Media>() {
 
   var currentFolder: Folder = Folder(0, "", "", false, 0, 0, false)
     set(value) {
@@ -41,7 +40,7 @@ object MediasFragment : MyBaseListFragment<Media>() {
       Files.exploreFolder(currentFolder)
       resetData()
       withContext(Dispatchers.Main) {
-        listAdapter.notifyDataSetChanged()
+        adapter.notifyDataSetChanged()
         stopRefreshLayout()
       }
     }
@@ -66,7 +65,7 @@ object MediasFragment : MyBaseListFragment<Media>() {
   //    menu.findItem(R.id.file_list_option_add_fav).setOnMenuItemClickListener {
   //      val newFav = Files.addFavourite(selectedFile)
   //      FavouriteFragment.displayList.add(newFav)
-  //      FavouriteFragment.listAdapter.notifyItemInserted(FavouriteFragment.displayList.size - 1)
+  //      FavouriteFragment.adapter.notifyItemInserted(FavouriteFragment.displayList.size - 1)
   //      true
   //    }
   //    menu.findItem(R.id.file_list_option_copy).apply {
@@ -115,9 +114,9 @@ object MediasFragment : MyBaseListFragment<Media>() {
   //          withContext(Dispatchers.Main) {
   //            if (it == -1) {
   //              FolderFragment.displayList.add(folder)
-  //              FolderFragment.listAdapter.notifyItemInserted(FolderFragment.displayList.size - 1)
+  //              FolderFragment.adapter.notifyItemInserted(FolderFragment.displayList.size - 1)
   //            } else {
-  //              FolderFragment.listAdapter.notifyItemChanged(it)
+  //              FolderFragment.adapter.notifyItemChanged(it)
   //            }
   //          }
   //        }
@@ -133,9 +132,9 @@ object MediasFragment : MyBaseListFragment<Media>() {
   //          withContext(Dispatchers.Main) {
   //            if (it == -1) {
   //              FolderFragment.displayList.add(folder)
-  //              FolderFragment.listAdapter.notifyItemInserted(FolderFragment.displayList.size - 1)
+  //              FolderFragment.adapter.notifyItemInserted(FolderFragment.displayList.size - 1)
   //            } else {
-  //              FolderFragment.listAdapter.notifyItemChanged(it)
+  //              FolderFragment.adapter.notifyItemChanged(it)
   //            }
   //          }
   //        }
@@ -161,7 +160,7 @@ object MediasFragment : MyBaseListFragment<Media>() {
   //          try {
   //            Files.rename(selectedFile, newName)
   //            withContext(Dispatchers.Main) {
-  //              listAdapter.notifyItemChanged(displayList.indexOf(selectedFile))
+  //              adapter.notifyItemChanged(displayList.indexOf(selectedFile))
   //            }
   //          } catch (e: Exception) {
   //            Log.e(TAG, "renameFile: error", e)
@@ -186,22 +185,22 @@ object MediasFragment : MyBaseListFragment<Media>() {
   //            withContext(Dispatchers.Main) {
   //              displayList.indexOf(selectedFile).let { idx ->
   //                displayList.removeAt(idx)
-  //                listAdapter.notifyItemRemoved(idx)
+  //                adapter.notifyItemRemoved(idx)
   //              }
   //              FavouriteFragment.displayList
   //                .indexOfFirst { fav -> fav.fileId == selectedFile.id }
   //                .let { idx ->
   //                  if (idx != -1) {
   //                    FavouriteFragment.displayList.removeAt(idx)
-  //                    FavouriteFragment.listAdapter.notifyItemRemoved(idx)
+  //                    FavouriteFragment.adapter.notifyItemRemoved(idx)
   //                  }
   //                }
   //              FolderFragment.displayList.indexOf(currentFolder).let { idx ->
   //                if (currentFolder.items == 0) {
   //                  FolderFragment.displayList.removeAt(idx)
-  //                  FolderFragment.listAdapter.notifyItemRemoved(idx)
+  //                  FolderFragment.adapter.notifyItemRemoved(idx)
   //                } else {
-  //                  FolderFragment.listAdapter.notifyItemChanged(idx)
+  //                  FolderFragment.adapter.notifyItemChanged(idx)
   //                }
   //              }
   //            }

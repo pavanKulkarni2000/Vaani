@@ -3,11 +3,11 @@ package com.vaani.ui.util
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.model.UiItem
-import com.vaani.ui.common.MyAdapter
+import com.vaani.ui.adapter.Adapter
 
 abstract class Mover<T : UiItem>(
   displayList: MutableList<T>,
-  adapter: MyAdapter<T>,
+  adapter: Adapter<T>,
   recyclerView: RecyclerView,
 ) {
 

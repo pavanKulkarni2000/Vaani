@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/folders"
+        android:icon="@drawable/folders_folder_48px"
+        android:title="@string/folders"/>
+    <item
+        android:id="@+id/favorites"
+        android:icon="@drawable/foldermedia_favorite_filled_24px"
+        android:title="@string/favorites" />
+</menu>

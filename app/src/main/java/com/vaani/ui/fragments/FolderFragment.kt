@@ -1,4 +1,4 @@
-package com.vaani.ui.folders
+package com.vaani.ui.fragments
 
 import android.view.View
 import androidx.fragment.app.commit
@@ -7,15 +7,13 @@ import com.vaani.R
 import com.vaani.files.Files
 import com.vaani.model.Folder
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.common.MyBaseListFragment
-import com.vaani.ui.medias.MediasFragment
 import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @UnstableApi
-object FolderFragment : MyBaseListFragment<Folder>() {
+object FolderFragment : BaseFragment<Folder>() {
 
   override val data: List<Folder>
     get() = Files.folders
@@ -24,7 +22,7 @@ object FolderFragment : MyBaseListFragment<Folder>() {
     localScope.launch {
       Files.exploreFolders()
       launch(Dispatchers.Main) {
-        listAdapter.notifyDataSetChanged()
+        adapter.notifyDataSetChanged()
         stopRefreshLayout()
       }
     }
@@ -50,7 +48,7 @@ object FolderFragment : MyBaseListFragment<Folder>() {
   override fun onItemClick(position: Int, view: View?) {
     MediasFragment.currentFolder = displayList[position]
     requireActivity().supportFragmentManager.commit {
-      add(R.id.fragment_container_view, MediasFragment)
+      add(R.id.main_activity_fragment_container_view, MediasFragment)
       addToBackStack(MediasFragment.TAG)
     }
   }
@@ -92,7 +90,7 @@ object FolderFragment : MyBaseListFragment<Folder>() {
   //          try {
   //            Files.rename(selectedFolder, editTextView?.text.toString())
   //            withContext(Dispatchers.Main) {
-  //              listAdapter.notifyItemChanged(displayList.indexOf(selectedFolder))
+  //              adapter.notifyItemChanged(displayList.indexOf(selectedFolder))
   //            }
   //          } catch (e: Exception) {
   //            Log.e(TAG, "rename folder: error", e)
@@ -117,10 +115,10 @@ object FolderFragment : MyBaseListFragment<Folder>() {
   //            withContext(Dispatchers.Main) {
   //              displayList.indexOf(selectedFolder).let { idx ->
   //                displayList.removeAt(idx)
-  //                listAdapter.notifyItemRemoved(idx)
+  //                adapter.notifyItemRemoved(idx)
   //              }
   //              FavouriteFragment.resetData(Files.favourites)
-  //              FavouriteFragment.listAdapter.notifyDataSetChanged()
+  //              FavouriteFragment.adapter.notifyDataSetChanged()
   //            }
   //          }
   //        } catch (e: Exception) {
