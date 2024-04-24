@@ -1,5 +1,6 @@
 package com.vaani.ui.fragments
 
+import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.media3.common.util.UnstableApi
@@ -25,6 +26,13 @@ object MediasFragment : BaseFragment<Media>() {
 
   override val data: List<Media>
     get() = Files.getFolderMedias(currentFolder.id)
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    toolbar.setTitle(currentFolder.name)
+    toolbar.setSubtitle(currentFolder.subTitle)
+    toolbar.isTitleCentered = false
+  }
 
   override fun onItemClick(position: Int, view: View?) {
     PlayerUtil.play(displayList, position, currentFolder.id)

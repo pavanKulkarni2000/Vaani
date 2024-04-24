@@ -34,6 +34,9 @@ object FavouriteFragment : BaseFragment<Favourite>() {
           Files.remove(displayList[pos])
         }
       }
+    super.onViewCreated(view, savedInstanceState)
+    toolbar.setTitle("Favorites")
+    toolbar.isTitleCentered = true
   }
 
   override fun onItemClick(position: Int, view: View?) {

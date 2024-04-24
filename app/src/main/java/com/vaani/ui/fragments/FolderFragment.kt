@@ -1,5 +1,6 @@
 package com.vaani.ui.fragments
 
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
@@ -20,6 +21,11 @@ object FolderFragment : BaseFragment<Folder>() {
   override val data: List<Folder>
     get() = Files.folders
 
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    toolbar.setTitle("Folders")
+    toolbar.isTitleCentered = true
+  }
   override fun onRefresh() {
     localScope.launch {
       Files.exploreFolders()

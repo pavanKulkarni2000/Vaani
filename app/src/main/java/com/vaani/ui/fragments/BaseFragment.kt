@@ -1,9 +1,7 @@
 package com.vaani.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
@@ -22,8 +20,8 @@ import kotlinx.coroutines.ensureActive
 import java.util.concurrent.CancellationException
 
 @UnstableApi
-abstract class BaseFragment<T : UiItem> :
-  Fragment(), ItemClickProvider, SwipeRefreshLayout.OnRefreshListener {
+open class BaseFragment<T : UiItem> :
+  Fragment(R.layout.fragment_base), ItemClickProvider, SwipeRefreshLayout.OnRefreshListener {
 
   internal val localScope = CoroutineScope(Dispatchers.Default)
   internal lateinit var recyclerView: RecyclerView
@@ -31,13 +29,12 @@ abstract class BaseFragment<T : UiItem> :
   internal val adapter = Adapter(displayList, this)
   internal lateinit var refreshLayout: SwipeRefreshLayout
   internal lateinit var fab: FloatingActionButton
-  abstract val data: List<T>
-  abstract val fragmentRes: Int
+  internal lateinit var toolbar: MaterialToolbar
+  open val data: List<T>
+    get() = listOf()
+  open val menuRes: Int = R.menu.empty_menu
 
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-     super.onCreateView(inflater, container, savedInstanceState)
-    return inflater.inflate(fragmentRes,container)
-  }
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     resetData()
@@ -49,6 +46,8 @@ abstract class BaseFragment<T : UiItem> :
     refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
     refreshLayout.setOnRefreshListener(this)
     stopRefreshLayout()
+    toolbar = view.findViewById(R.id.fragment_base_toolbar)
+    toolbar.inflateMenu(menuRes)
     localScope.ensureActive()
   }
 
