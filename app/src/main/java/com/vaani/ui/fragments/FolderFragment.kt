@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @UnstableApi
-object FolderFragment : BaseFragment<Folder>() {
+object FolderFragment : BaseFragment<Folder>(R.layout.fragment_base) {
 
   override val menuRes: Int = R.menu.fol_general_options
 

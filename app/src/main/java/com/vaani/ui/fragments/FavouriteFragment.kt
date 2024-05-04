@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.media3.common.util.UnstableApi
+import com.vaani.R
 import com.vaani.files.Files
 import com.vaani.model.Favourite
 import com.vaani.model.Media
@@ -15,7 +16,7 @@ import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : BaseFragment<Favourite>() {
+object FavouriteFragment : BaseFragment<Favourite>(R.layout.fragment_base) {
 
   override val data: List<Favourite>
     get() = Files.favourites

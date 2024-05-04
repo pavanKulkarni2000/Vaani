@@ -9,6 +9,7 @@ import androidx.media3.common.util.UnstableApi
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams
 import com.google.android.material.appbar.MaterialToolbar
+import com.vaani.R
 import com.vaani.files.Files
 import com.vaani.model.Folder
 import com.vaani.model.Media
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @UnstableApi
-object MediasFragment : BaseFragment<Media>() {
+object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
 
   var currentFolder: Folder = Folder(0, "", "", false, 0, 0, false)
     set(value) {
@@ -36,10 +37,6 @@ object MediasFragment : BaseFragment<Media>() {
     super.onViewCreated(view, savedInstanceState)
     toolbar.setTitle(currentFolder.name)
     toolbar.setSubtitle(currentFolder.subTitle)
-    toolbar.isTitleCentered = false
-    val updatedParams = toolbar.layoutParams
-    (updatedParams as LayoutParams).scrollFlags = LayoutParams.SCROLL_FLAG_NO_SCROLL
-    toolbar.layoutParams = updatedParams
   }
 
   override fun onItemClick(position: Int, view: View?) {

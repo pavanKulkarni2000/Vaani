@@ -20,8 +20,8 @@ import kotlinx.coroutines.ensureActive
 import java.util.concurrent.CancellationException
 
 @UnstableApi
-open class BaseFragment<T : UiItem> :
-  Fragment(R.layout.fragment_base), ItemClickProvider, SwipeRefreshLayout.OnRefreshListener {
+open class BaseFragment<T : UiItem>(layout: Int) :
+  Fragment(layout), ItemClickProvider, SwipeRefreshLayout.OnRefreshListener {
 
   internal val localScope = CoroutineScope(Dispatchers.Default)
   internal lateinit var recyclerView: RecyclerView
