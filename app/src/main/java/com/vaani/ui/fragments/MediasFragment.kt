@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams
@@ -23,6 +24,8 @@ import kotlinx.coroutines.withContext
 @UnstableApi
 object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
 
+  override val menuRes = R.menu.media_general_options
+
   var currentFolder: Folder = Folder(0, "", "", false, 0, 0, false)
     set(value) {
       if (field != value) {
@@ -37,6 +40,9 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
     super.onViewCreated(view, savedInstanceState)
     toolbar.setTitle(currentFolder.name)
     toolbar.setSubtitle(currentFolder.subTitle)
+    toolbar.setNavigationOnClickListener {
+      requireActivity().supportFragmentManager.popBackStackImmediate()
+    }
   }
 
   override fun onItemClick(position: Int, view: View?) {
