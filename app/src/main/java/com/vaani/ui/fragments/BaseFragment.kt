@@ -84,7 +84,8 @@ open class BaseFragment<T : UiItem>(layout: Int) :
 
   fun resetData(newList: List<T> = data) {
     displayList.clear()
-    displayList.addAll(newList)
+    //default sort - sorted by name in asc by
+    displayList.addAll(newList.sortedBy { it.name.lowercase() })
   }
 
   override fun onDestroy() {
