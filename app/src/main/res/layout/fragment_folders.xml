@@ -11,15 +11,12 @@
         android:id="@+id/fragment_base_app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <com.google.android.material.appbar.MaterialToolbar
+        <com.google.android.material.search.SearchBar
             android:id="@+id/fragment_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:navigationIcon="@drawable/arrow_back_24px"
-            app:layout_scrollFlags="noScroll"
-            app:menu="@menu/media_general_options"
-            app:title="Medias"
-            app:titleCentered="false"/>
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            android:hint="@string/search_hint"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

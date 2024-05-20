@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.vaani.R
 import com.vaani.model.UiItem
@@ -35,8 +36,7 @@ open class BaseFragment<T : UiItem>(layout: Int) :
   internal lateinit var recyclerView: RecyclerView
   internal lateinit var refreshLayout: SwipeRefreshLayout
   internal lateinit var fab: FloatingActionButton
-  internal lateinit var toolbar: MaterialToolbar
-  internal lateinit var searchView: SearchView
+  internal lateinit var toolbar: Toolbar
   internal lateinit var searchRecyclerView: RecyclerView
   open val data: List<T>
     get() = listOf()
@@ -55,9 +55,7 @@ open class BaseFragment<T : UiItem>(layout: Int) :
     refreshLayout.setOnRefreshListener(this)
     stopRefreshLayout()
     toolbar = view.findViewById(R.id.fragment_toolbar)
-    toolbar.inflateMenu(menuRes)
     toolbar.setOnMenuItemClickListener(this)
-    searchView = view.findViewById(R.id.fragment_searchview)
     localScope.ensureActive()
   }
 
@@ -103,12 +101,6 @@ open class BaseFragment<T : UiItem>(layout: Int) :
   }
 
   override fun onMenuItemClick(item: MenuItem?): Boolean {
-    return when (item?.itemId) {
-      R.id.search -> {
-        searchView.show()
-        true
-      }
-      else -> false
-    }
+    return false
   }
 }

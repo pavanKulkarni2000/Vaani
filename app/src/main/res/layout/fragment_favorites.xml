@@ -15,7 +15,9 @@
             android:id="@+id/fragment_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways|snap"/>
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:menu="@menu/fav_general_options"
+            app:title="Favorites"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -31,19 +33,6 @@
             tools:listitem="@layout/layout_list_item"
             app:layoutManager="LinearLayoutManager" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-    <com.google.android.material.search.SearchView
-        android:id="@+id/fragment_searchview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:hint="@string/search_hint"
-        app:layout_anchor="@id/fragment_toolbar">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/search_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/layout_list_item"
-            app:layoutManager="LinearLayoutManager" />
-    </com.google.android.material.search.SearchView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/play_fab"

@@ -14,18 +14,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @UnstableApi
-object FolderFragment :  BaseFragment<Folder>(R.layout.fragment_base) {
+object FolderFragment :  BaseFragment<Folder>(R.layout.fragment_folders) {
 
   override val menuRes: Int = R.menu.fol_general_options
 
   override val data: List<Folder>
     get() = Files.folders
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    toolbar.setTitle("Folders")
-    toolbar.isTitleCentered = true
-  }
   override fun onRefresh() {
     localScope.launch {
       Files.exploreFolders()

@@ -16,7 +16,7 @@ import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : BaseFragment<Favourite>(R.layout.fragment_base) {
+object FavouriteFragment : BaseFragment<Favourite>(R.layout.fragment_favorites) {
 
   override val data: List<Favourite>
     get() = Files.favourites
@@ -36,8 +36,6 @@ object FavouriteFragment : BaseFragment<Favourite>(R.layout.fragment_base) {
         }
       }
     super.onViewCreated(view, savedInstanceState)
-    toolbar.setTitle("Favorites")
-    toolbar.isTitleCentered = true
   }
 
   override fun onItemClick(position: Int, view: View?) {
