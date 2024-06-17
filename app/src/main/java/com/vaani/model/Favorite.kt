@@ -3,7 +3,7 @@ package com.vaani.model
 import com.vaani.R
 import com.vaani.ui.util.UiUtil
 
-data class Favourite(
+data class Favorite(
   override val id: Long,
   val fileId: Long,
   override val name: String,

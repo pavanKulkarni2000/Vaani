@@ -44,7 +44,8 @@ import androidx.media3.session.SessionResult
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.vaani.MainActivity
-import com.vaani.files.Files
+import com.vaani.dal.Files
+import com.vaani.dal.Medias
 import com.vaani.player.PlayerUtil.closeButton
 import com.vaani.player.PlayerUtil.closeCommand
 import com.vaani.ui.player.PlayerActivity
@@ -164,7 +165,7 @@ class PlaybackService : MediaSessionService() {
           if (reason == MEDIA_ITEM_TRANSITION_REASON_AUTO) {
             PlayerUtil.saveProgress(player.previousMediaItemIndex, 0)
           }
-          Files.updateLastPlayedItems(
+          Medias.updateLastPlayedItems(
             PlayerData.currentCollection,
             PlayerData.currentPlayList[player.currentMediaItemIndex].id,
           )

@@ -1,25 +1,39 @@
 package com.vaani.ui.fragments
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
+import android.widget.TextView
+import android.widget.TextView.OnEditorActionListener
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.search.SearchView
+import com.google.android.material.search.SearchView.TransitionState
 import com.vaani.R
-import com.vaani.files.Files
+import com.vaani.dal.Files
 import com.vaani.model.Folder
 import com.vaani.player.PlayerUtil
+import com.vaani.ui.adapter.ItemClickProvider
+import com.vaani.ui.util.GlobalMediaSearcher
 import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@UnstableApi
-object FolderFragment :  BaseFragment<Folder>(R.layout.fragment_folders) {
 
-  override val menuRes: Int = R.menu.fol_general_options
+@UnstableApi
+object FolderFragment : BaseFragment<Folder>(R.layout.fragment_folders) {
 
   override val data: List<Folder>
     get() = Files.folders
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    val searchView: SearchView = view.findViewById(R.id.fragment_searchview)
+    val searchContent: RecyclerView = view.findViewById(R.id.search_view_contents)
+    GlobalMediaSearcher.setUp(searchView,searchContent)
+  }
 
   override fun onRefresh() {
     localScope.launch {
@@ -120,8 +134,8 @@ object FolderFragment :  BaseFragment<Folder>(R.layout.fragment_folders) {
   //                displayList.removeAt(idx)
   //                adapter.notifyItemRemoved(idx)
   //              }
-  //              FavouriteFragment.resetData(Files.favourites)
-  //              FavouriteFragment.adapter.notifyDataSetChanged()
+  //              FavoriteFragment.resetData(Files.favourites)
+  //              FavoriteFragment.adapter.notifyDataSetChanged()
   //            }
   //          }
   //        } catch (e: Exception) {

@@ -14,7 +14,8 @@ import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.vaani.MainActivity
 import com.vaani.R
-import com.vaani.files.Files
+import com.vaani.dal.Files
+import com.vaani.dal.Medias
 import com.vaani.model.Media
 import com.vaani.ui.player.PlayerActivity
 import com.vaani.util.TAG
@@ -99,7 +100,7 @@ object PlayerUtil {
     try {
       val endMedia = PlayerData.currentPlayList[mediaIndex]
       endMedia.playBackProgress = getMediaProgress(endMedia, position)
-      Files.saveProgress(endMedia)
+      Medias.saveProgress(endMedia)
     } catch (e: Exception) {
       Log.e(TAG, "saveProgress: error ", e)
     }

@@ -3,15 +3,10 @@ package com.vaani.ui.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
-import androidx.core.view.updateLayoutParams
-import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.AppBarLayout.LayoutParams
-import com.google.android.material.appbar.MaterialToolbar
 import com.vaani.R
-import com.vaani.files.Files
+import com.vaani.dal.Files
+import com.vaani.dal.Medias
 import com.vaani.model.Folder
 import com.vaani.model.Media
 import com.vaani.player.PlayerData
@@ -23,9 +18,6 @@ import kotlinx.coroutines.withContext
 
 @UnstableApi
 object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
-
-  override val menuRes = R.menu.media_general_options
-
   var currentFolder: Folder = Folder(0, "", "", false, 0, 0, false)
     set(value) {
       if (field != value) {
@@ -34,7 +26,7 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
     }
 
   override val data: List<Media>
-    get() = Files.getFolderMedias(currentFolder.id)
+    get() = Medias.getFolderMedias(currentFolder.id)
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -83,8 +75,8 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
   //    selectedFile = displayList[position]
   //    menu.findItem(R.id.file_list_option_add_fav).setOnMenuItemClickListener {
   //      val newFav = Files.addFavourite(selectedFile)
-  //      FavouriteFragment.displayList.add(newFav)
-  //      FavouriteFragment.adapter.notifyItemInserted(FavouriteFragment.displayList.size - 1)
+  //      FavoriteFragment.displayList.add(newFav)
+  //      FavoriteFragment.adapter.notifyItemInserted(FavoriteFragment.displayList.size - 1)
   //      true
   //    }
   //    menu.findItem(R.id.file_list_option_copy).apply {
@@ -206,12 +198,12 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
   //                displayList.removeAt(idx)
   //                adapter.notifyItemRemoved(idx)
   //              }
-  //              FavouriteFragment.displayList
+  //              FavoriteFragment.displayList
   //                .indexOfFirst { fav -> fav.fileId == selectedFile.id }
   //                .let { idx ->
   //                  if (idx != -1) {
-  //                    FavouriteFragment.displayList.removeAt(idx)
-  //                    FavouriteFragment.adapter.notifyItemRemoved(idx)
+  //                    FavoriteFragment.displayList.removeAt(idx)
+  //                    FavoriteFragment.adapter.notifyItemRemoved(idx)
   //                  }
   //                }
   //              FolderFragment.displayList.indexOf(currentFolder).let { idx ->

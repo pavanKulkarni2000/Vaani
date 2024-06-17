@@ -42,4 +42,5 @@
     <string name="search_hint">Search Media</string>
     <string name="folders">Folders</string>
     <string name="favorites">Favorites</string>
+    <string name="play_button">Play button</string>
 </resources>

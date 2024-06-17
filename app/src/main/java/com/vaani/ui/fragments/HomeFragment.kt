@@ -16,15 +16,15 @@ class HomeFragment : Fragment(R.layout.fragment_home_nav) {
     childFragmentManager.commit {
       setReorderingAllowed(true)
       add(R.id.home_fragment_fragment_container_view, FolderFragment)
-      add(R.id.home_fragment_fragment_container_view, FavouriteFragment)
-      hide(FavouriteFragment)
+      add(R.id.home_fragment_fragment_container_view, FavoriteFragment)
+      hide(FavoriteFragment)
     }
     val bottomNav = view.findViewById<BottomNavigationView>(R.id.bottom_navigation)
     bottomNav.setOnItemSelectedListener { item ->
       when (item.itemId) {
         R.id.folders -> {
           childFragmentManager.commit {
-            hide(FavouriteFragment)
+            hide(FavoriteFragment)
             show(FolderFragment)
           }
           true
@@ -32,7 +32,7 @@ class HomeFragment : Fragment(R.layout.fragment_home_nav) {
         R.id.favorites -> {
           childFragmentManager.commit {
             hide(FolderFragment)
-            show(FavouriteFragment)
+            show(FavoriteFragment)
           }
           true
         }

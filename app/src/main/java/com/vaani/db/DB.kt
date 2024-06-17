@@ -15,6 +15,7 @@ import com.vaani.model.Media
 import com.vaani.util.TAG
 import io.objectbox.Box
 import io.objectbox.BoxStore
+import io.objectbox.query.QueryBuilder
 
 object DB {
 
@@ -165,4 +166,7 @@ object DB {
   }
 
   fun getFolder(id: Long): FolderEntity = folderBox[id]
+  fun searchFolders(query: String): List<FolderEntity> {
+    folderBox.query(FolderEntity_.name.contains(query,QueryBuilder.StringOrder.CASE_INSENSITIVE)).build().use { return it.find() }
+  }
 }

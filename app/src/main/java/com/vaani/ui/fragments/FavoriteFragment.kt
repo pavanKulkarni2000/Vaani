@@ -5,8 +5,9 @@ import android.util.Log
 import android.view.View
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
-import com.vaani.files.Files
-import com.vaani.model.Favourite
+import com.vaani.dal.Favorites
+import com.vaani.dal.Files
+import com.vaani.model.Favorite
 import com.vaani.model.Media
 import com.vaani.player.PlayerData
 import com.vaani.player.PlayerUtil
@@ -16,23 +17,23 @@ import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
 
 @UnstableApi
-object FavouriteFragment : BaseFragment<Favourite>(R.layout.fragment_favorites) {
+object FavoriteFragment : BaseFragment<Favorite>(R.layout.fragment_favorites) {
 
-  override val data: List<Favourite>
-    get() = Files.favourites
+  override val data: List<Favorite>
+    get() = Favorites.all
 
-  private lateinit var mover: Mover<Favourite>
+  private lateinit var mover: Mover<Favorite>
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     mover =
-      object : Mover<Favourite>(displayList, adapter, recyclerView) {
+      object : Mover<Favorite>(displayList, adapter, recyclerView) {
         override fun move(from: Int, to: Int) {
-          Files.moveFavourite(displayList[from].rank, displayList[to].rank)
+          Favorites.move(displayList[from].rank, displayList[to].rank)
         }
 
         override fun remove(pos: Int) {
-          Files.remove(displayList[pos])
+          Favorites.remove(displayList[pos])
         }
       }
     super.onViewCreated(view, savedInstanceState)
@@ -63,7 +64,7 @@ object FavouriteFragment : BaseFragment<Favourite>(R.layout.fragment_favorites) 
   }
 
   private fun getDisplayMedias(): List<Media> {
-    val medFiles = Files.getFiles(displayList.map(Favourite::fileId))
+    val medFiles = Files.getMedias(displayList.map(Favorite::fileId))
     Log.d(TAG, "getDisplayMedias: $displayList $medFiles")
     return medFiles
   }

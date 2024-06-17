@@ -3,9 +3,11 @@ package com.vaani.util
 import com.vaani.db.entity.FavouriteEntity
 import com.vaani.db.entity.FolderEntity
 import com.vaani.db.entity.MediaEntity
-import com.vaani.model.Favourite
+import com.vaani.model.Favorite
 import com.vaani.model.Folder
+import com.vaani.model.ItemType
 import com.vaani.model.Media
+import com.vaani.model.Search
 
 fun FolderEntity.toFolder() =
   Folder(
@@ -32,7 +34,7 @@ fun MediaEntity.toMedia() =
   )
 
 fun FavouriteEntity.toFavourite() =
-  Favourite(
+  Favorite(
     id = id,
     fileId = media.targetId,
     name = media.target.name,
@@ -41,3 +43,5 @@ fun FavouriteEntity.toFavourite() =
     duration = media.target.duration,
     selected = false,
   )
+
+fun FolderEntity.toSearch() = Search(id=id,name=name,type=ItemType.FOLDER)

@@ -1,19 +1,16 @@
-package com.vaani.files
+package com.vaani.dal
 
 import com.vaani.MainActivity
 import com.vaani.db.DB
-import com.vaani.db.entity.FavouriteEntity
 import com.vaani.db.entity.FolderEntity
 import com.vaani.db.entity.MediaEntity
-import com.vaani.model.Favourite
 import com.vaani.model.Folder
 import com.vaani.model.Media
-import com.vaani.util.Constants.FAVOURITE_COLLECTION_ID
+import com.vaani.model.Search
 import com.vaani.util.FileUtil
-import com.vaani.util.PreferenceUtil
-import com.vaani.util.toFavourite
 import com.vaani.util.toFolder
 import com.vaani.util.toMedia
+import com.vaani.util.toSearch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -23,69 +20,7 @@ object Files {
   val folders: List<Folder>
     get() = DB.getFolders().map(FolderEntity::toFolder)
 
-  val favourites: List<Favourite>
-    get() = DB.getFavourites().map(FavouriteEntity::toFavourite)
-
-  fun getFolderMedias(id: Long): List<Media> {
-    return DB.getFolderFiles(id).map(MediaEntity::toMedia)
-  }
-
-  fun updateLastPlayedItems(folderId: Long, lastPlayedId: Long) {
-    when (folderId) {
-      FAVOURITE_COLLECTION_ID -> PreferenceUtil.lastPlayedFavouriteId = lastPlayedId
-      else -> {
-        DB.getFolder(folderId).let {
-          it.lastPlayedMedia?.targetId = lastPlayedId
-          DB.save(it)
-        }
-      }
-    }
-    PreferenceUtil.lastPlayedFolderId = folderId
-  }
-
-  fun saveProgress(media: Media) {
-    val dbMedia = DB.getFile(media.id)
-    dbMedia.playBackProgress = media.playBackProgress
-    DB.saveMedia(dbMedia)
-  }
-
-  fun addFavourite(media: Media): Favourite {
-    val favourites = DB.isFavourite(media.id)
-    if (favourites != null) {
-      throw Exception("File already favorite")
-    }
-    val newFav = FavouriteEntity(0, DB.getFavouriteCount().toInt())
-    newFav.media.targetId = media.id
-    DB.save(newFav)
-    return newFav.toFavourite()
-  }
-
-  fun remove(favEntity: Favourite) {
-    DB.deleteFavourite(favEntity.id)
-    val deletedRank = favEntity.rank
-    val favourites = DB.getFavourites()
-    for (fav in favourites) {
-      if (fav.rank > deletedRank) {
-        fav.rank--
-      }
-    }
-    DB.saveFavourites(favourites)
-  }
-
-  fun moveFavourite(rankFrom: Int, rankTo: Int) {
-    val favourites = DB.getFavourites().sortedBy(FavouriteEntity::rank)
-    if (rankFrom < rankTo) {
-      for (i in rankFrom until rankTo) {
-        favourites[i + 1].rank = i
-      }
-    } else {
-      for (i in rankTo until rankFrom) {
-        favourites[i].rank = i + 1
-      }
-    }
-    favourites[rankFrom].rank = rankTo
-    DB.saveFavourites(favourites)
-  }
+  fun searchFolders(query:String) : List<Search> = DB.searchFolders(query).map(FolderEntity::toSearch)
 
   suspend fun exploreFolders() {
     coroutineScope {
@@ -175,7 +110,7 @@ object Files {
   //    DB.deleteFolder(folder)
   //  }
 
-  fun getFiles(fileIds: List<Long>): List<Media> {
+  fun getMedias(fileIds: List<Long>): List<Media> {
     return DB.getFiles(fileIds).map(MediaEntity::toMedia)
   }
 }
