@@ -7,7 +7,7 @@ import java.util.LinkedList
 
 class Selector<T : UiItem>(private val displayList: MutableList<T>) {
 
-  val selection = LinkedList<Long>()
+  val selection = HashSet<Long>()
 
   var selecting = false
     private set
@@ -21,6 +21,16 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) {
       Log.d(TAG, "selectId: id not found")
     } else {
       selectAt(idx)
+    }
+  }
+
+  fun flipSelectionAt(position: Int){
+    displayList[position].let {
+      if(isIdSelected(it.id)){
+        unSelectAt(position)
+      }else{
+        selectAt(position)
+      }
     }
   }
 

@@ -2,6 +2,9 @@ package com.vaani.ui.fragments
 
 import android.os.Bundle
 import android.util.Log
+import android.view.ActionMode
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
@@ -11,6 +14,7 @@ import com.vaani.model.Folder
 import com.vaani.model.Media
 import com.vaani.player.PlayerData
 import com.vaani.player.PlayerUtil
+import com.vaani.ui.util.Selector
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,6 +29,9 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
       }
     }
 
+  private val selector = Selector(displayList)
+  private var actionMode: ActionMode? = null
+
   override val data: List<Media>
     get() = Medias.getFolderMedias(currentFolder.id)
 
@@ -38,11 +45,28 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
   }
 
   override fun onItemClick(position: Int, view: View?) {
-    PlayerUtil.play(displayList, position, currentFolder.id)
+    if (selector.selecting) {
+      selector.flipSelectionAt(position)
+      adapter.notifyItemChanged(position)
+      if (selector.selecting) {
+        actionMode?.title = "${selector.selectionCount} selected"
+      }else{
+        actionMode?.finish()
+        actionMode = null
+      }
+    } else {
+      PlayerUtil.play(displayList, position, currentFolder.id)
+    }
   }
 
   override fun onItemLongClick(position: Int, view: View?): Boolean {
-    // TODO
+    if (!selector.selecting) {
+      actionMode = toolbar.startActionMode(callback)
+      selector.selectAt(position)
+      adapter.notifyItemChanged(position)
+      actionMode?.title = "1 selected"
+      return true
+    }
     return false
   }
 
@@ -70,6 +94,28 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
       PlayerUtil.startPlayerActivity()
     }
   }
+
+  private val callback =
+    object : ActionMode.Callback {
+
+      override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        requireActivity().menuInflater.inflate(R.menu.medias_action_mode_menu, menu)
+        return true
+      }
+
+      override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        return false
+      }
+
+      override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+          //        R.id.share ->
+          else -> false
+        }
+      }
+
+      override fun onDestroyActionMode(mode: ActionMode?) {}
+    }
 
   //  fun onOptions(position: Int, menu: Menu) {
   //    selectedFile = displayList[position]

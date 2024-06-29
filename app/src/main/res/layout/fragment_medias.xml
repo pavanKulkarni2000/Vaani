@@ -17,7 +17,7 @@
             android:layout_height="?actionBarSize"
             app:navigationIcon="@drawable/arrow_back_24px"
             app:layout_scrollFlags="noScroll"
-            app:menu="@menu/media_general_options"
+            app:menu="@menu/medias_menu"
             app:title="Medias"
             app:titleCentered="false"/>
     </com.google.android.material.appbar.AppBarLayout>
