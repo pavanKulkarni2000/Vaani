@@ -1,20 +1,15 @@
 package com.vaani.ui.fragments
 
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
-import android.widget.TextView
-import android.widget.TextView.OnEditorActionListener
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.search.SearchView
-import com.google.android.material.search.SearchView.TransitionState
 import com.vaani.R
 import com.vaani.dal.Files
 import com.vaani.model.Folder
 import com.vaani.player.PlayerUtil
-import com.vaani.ui.adapter.ItemClickProvider
 import com.vaani.ui.util.GlobalMediaSearcher
 import com.vaani.util.PreferenceUtil
 import com.vaani.util.TAG
@@ -54,19 +49,19 @@ object FolderFragment : BaseFragment<Folder>(R.layout.fragment_folders) {
     if (PlayerUtil.controller?.isPlaying != true) {
       val idx = displayList.indexOfFirst { it.id == PreferenceUtil.lastPlayedFolderId }
       if (idx != -1) {
-        onItemClick(idx, null)
+        openFolder(MediasFragment(displayList[idx],true))
       }
-      MediasFragment.fabAction(view)
     } else {
       PlayerUtil.startPlayerActivity()
     }
   }
 
-  override fun onItemClick(position: Int, view: View?) {
-    MediasFragment.currentFolder = displayList[position]
+  override fun onItemClick(position: Int, view: View?) = openFolder( MediasFragment(displayList[position],false))
+
+  private fun openFolder(fragment: MediasFragment)  {
     requireActivity().supportFragmentManager.commit {
-      add(R.id.main_activity_fragment_container_view, MediasFragment)
-      addToBackStack(MediasFragment.TAG)
+      add(R.id.main_activity_fragment_container_view, fragment)
+      addToBackStack(fragment.TAG)
     }
   }
 

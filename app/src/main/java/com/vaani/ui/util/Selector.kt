@@ -3,17 +3,34 @@ package com.vaani.ui.util
 import android.util.Log
 import com.vaani.model.UiItem
 import com.vaani.util.TAG
-import java.util.LinkedList
 
-class Selector<T : UiItem>(private val displayList: MutableList<T>) {
+class Selector<T : UiItem>(
+  private val displayList: MutableList<T>,
+  private val selectionChangeListener: OnSelectionChangedListener,
+) {
 
-  val selection = HashSet<Long>()
+  val selection = mutableListOf<Long>()
 
   var selecting = false
     private set
 
   val selectionCount: Int
     get() = selection.size
+
+  constructor(
+    displayList: MutableList<T>
+  ) : this(
+    displayList,
+    object : OnSelectionChangedListener {
+      override fun selectingChanged(selecting: Boolean) {
+        // empty
+      }
+
+      override fun selectionChanged(count: Int) {
+        // empty
+      }
+    },
+  )
 
   fun selectId(id: Long) {
     val idx = displayList.indexOfFirst { it.id == id }
@@ -24,11 +41,11 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) {
     }
   }
 
-  fun flipSelectionAt(position: Int){
+  fun flipSelectionAt(position: Int) {
     displayList[position].let {
-      if(isIdSelected(it.id)){
+      if (isIdSelected(it.id)) {
         unSelectAt(position)
-      }else{
+      } else {
         selectAt(position)
       }
     }
@@ -38,6 +55,7 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) {
     displayList[position].let {
       if (!selecting) {
         selecting = true
+        selectionChangeListener.selectingChanged(true)
       }
       selection.add(it.id)
       it.selected = true
@@ -62,9 +80,24 @@ class Selector<T : UiItem>(private val displayList: MutableList<T>) {
       if (selection.remove(item.id)) {
         if (selection.isEmpty()) {
           selecting = false
+          selectionChangeListener.selectingChanged(false)
         }
       }
       item.selected = false
     }
+  }
+
+  fun unselectAll(){
+    if(selecting){
+      displayList.forEach{it.selected=false}
+      selection.clear()
+      selecting=false
+      selectionChangeListener.selectingChanged(false)
+    }
+  }
+
+  interface OnSelectionChangedListener {
+    fun selectingChanged(selecting: Boolean)
+    fun selectionChanged(count: Int)
   }
 }

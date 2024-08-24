@@ -10,6 +10,19 @@ object Favorites {
 
     val all: List<Favorite>
         get() = DB.getFavourites().map(FavouriteEntity::toFavourite)
+
+    fun addFavorites(mediaIds:List<Long>){
+        val filteredIds = mutableListOf<Long>()
+        val existingFavs = all.map(Favorite::id)
+        mediaIds.forEach{
+            id->if(!existingFavs.contains(id)){
+                filteredIds.add(id)
+            }
+        }
+        var favRankStart = DB.getFavouriteCount().toInt()
+        val favs = filteredIds.map { fileId -> FavouriteEntity().apply { rank = favRankStart++; media.targetId = fileId } }
+        DB.saveFavourites(favs)
+    }
     fun addFavourite(media: Media): Favorite {
         val favourites = DB.isFavourite(media.id)
         if (favourites != null) {

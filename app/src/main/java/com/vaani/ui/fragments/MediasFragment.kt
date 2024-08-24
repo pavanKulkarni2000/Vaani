@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
+import com.vaani.dal.Favorites
 import com.vaani.dal.Files
 import com.vaani.dal.Medias
 import com.vaani.model.Folder
@@ -21,15 +22,25 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @UnstableApi
-object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
-  var currentFolder: Folder = Folder(0, "", "", false, 0, 0, false)
-    set(value) {
-      if (field != value) {
-        field = value
+class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boolean) :
+  BaseFragment<Media>(R.layout.fragment_medias) {
+  private val myListener =
+    object : Selector.OnSelectionChangedListener {
+      override fun selectingChanged(selecting: Boolean) {
+        if (selecting) {
+          toolbar.visibility = View.GONE
+        } else {
+          actionMode?.finish()
+          actionMode = null
+          toolbar.visibility = View.VISIBLE
+        }
+      }
+
+      override fun selectionChanged(count: Int) {
+        TODO("Not yet implemented")
       }
     }
-
-  private val selector = Selector(displayList)
+  private val selector = Selector(displayList, myListener)
   private var actionMode: ActionMode? = null
 
   override val data: List<Media>
@@ -42,18 +53,14 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
     toolbar.setNavigationOnClickListener {
       requireActivity().supportFragmentManager.popBackStackImmediate()
     }
+    if (startLastPlayed) {
+      playLastPlayed()
+    }
   }
 
   override fun onItemClick(position: Int, view: View?) {
     if (selector.selecting) {
       selector.flipSelectionAt(position)
-      adapter.notifyItemChanged(position)
-      if (selector.selecting) {
-        actionMode?.title = "${selector.selectionCount} selected"
-      }else{
-        actionMode?.finish()
-        actionMode = null
-      }
     } else {
       PlayerUtil.play(displayList, position, currentFolder.id)
     }
@@ -85,13 +92,17 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
     if (
       PlayerUtil.controller?.isPlaying != true || PlayerData.currentCollection != currentFolder.id
     ) {
-      val idx = displayList.indexOfFirst { it.id == currentFolder.lastPlayedId }
-      if (idx != -1) {
-        onItemClick(idx, null)
-      }
+      playLastPlayed()
     } else {
       Log.d(TAG, "fabAction: already playing")
       PlayerUtil.startPlayerActivity()
+    }
+  }
+
+  private fun playLastPlayed() {
+    val idx = displayList.indexOfFirst { it.id == currentFolder.lastPlayedId }
+    if (idx != -1) {
+      onItemClick(idx, null)
     }
   }
 
@@ -109,13 +120,26 @@ object MediasFragment : BaseFragment<Media>(R.layout.fragment_medias) {
 
       override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         return when (item?.itemId) {
-          //        R.id.share ->
+          R.id.medias_action_mode_add_fav -> {
+            Favorites.addFavorites(selector.selection)
+            selector.unselectAll()
+            adapter.notifyDataSetChanged()
+            FavoriteFragment.resetData()
+            true
+          }
           else -> false
         }
       }
 
       override fun onDestroyActionMode(mode: ActionMode?) {}
     }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    if (selector.selecting) {
+      selector.unselectAll()
+    }
+  }
 
   //  fun onOptions(position: Int, menu: Menu) {
   //    selectedFile = displayList[position]
