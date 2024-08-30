@@ -24,11 +24,11 @@ import kotlinx.coroutines.withContext
 @UnstableApi
 class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boolean) :
   BaseFragment<Media>(R.layout.fragment_medias) {
-  private val myListener =
-    object : Selector.OnSelectionChangedListener {
+    private val selectorListener : Selector.OnSelectionChangedListener =object : Selector.OnSelectionChangedListener {
       override fun selectingChanged(selecting: Boolean) {
         if (selecting) {
           toolbar.visibility = View.GONE
+          actionMode = toolbar.startActionMode(callback)
         } else {
           actionMode?.finish()
           actionMode = null
@@ -37,10 +37,10 @@ class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boo
       }
 
       override fun selectionChanged(count: Int) {
-        TODO("Not yet implemented")
+        actionMode?.title = "$count selected"
       }
     }
-  private val selector = Selector(displayList, myListener)
+  private val selector:Selector<Media> = Selector(displayList,selectorListener)
   private var actionMode: ActionMode? = null
 
   override val data: List<Media>
@@ -48,6 +48,7 @@ class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boo
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    selector.unselectAll()
     toolbar.setTitle(currentFolder.name)
     toolbar.setSubtitle(currentFolder.subTitle)
     toolbar.setNavigationOnClickListener {
@@ -68,10 +69,8 @@ class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boo
 
   override fun onItemLongClick(position: Int, view: View?): Boolean {
     if (!selector.selecting) {
-      actionMode = toolbar.startActionMode(callback)
       selector.selectAt(position)
       adapter.notifyItemChanged(position)
-      actionMode?.title = "1 selected"
       return true
     }
     return false
