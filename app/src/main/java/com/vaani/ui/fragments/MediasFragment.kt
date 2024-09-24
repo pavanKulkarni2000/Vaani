@@ -6,6 +6,7 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.media3.common.util.UnstableApi
 import com.vaani.R
 import com.vaani.dal.Favorites
@@ -27,12 +28,10 @@ class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boo
     private val selectorListener : Selector.OnSelectionChangedListener =object : Selector.OnSelectionChangedListener {
       override fun selectingChanged(selecting: Boolean) {
         if (selecting) {
-          toolbar.visibility = View.GONE
+          //start action mode overlapping on toolbar
           actionMode = toolbar.startActionMode(callback)
         } else {
           actionMode?.finish()
-          actionMode = null
-          toolbar.visibility = View.VISIBLE
         }
       }
 
@@ -114,23 +113,29 @@ class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boo
       }
 
       override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        toolbar.visibility = View.GONE
         return false
       }
 
       override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
-        return when (item?.itemId) {
+         when (item?.itemId) {
           R.id.medias_action_mode_add_fav -> {
             Favorites.addFavorites(selector.selection)
-            selector.unselectAll()
-            adapter.notifyDataSetChanged()
             FavoriteFragment.resetData()
-            true
+            Toast.makeText(requireContext(), "Added to favorites", Toast.LENGTH_SHORT).show()
           }
-          else -> false
+          else -> return false
         }
+        mode?.finish()
+        return true
       }
 
-      override fun onDestroyActionMode(mode: ActionMode?) {}
+      override fun onDestroyActionMode(mode: ActionMode?) {
+        selector.unselectAll()
+        adapter.notifyDataSetChanged()
+        actionMode = null
+        toolbar.visibility = View.VISIBLE
+      }
     }
 
   override fun onDestroy() {
