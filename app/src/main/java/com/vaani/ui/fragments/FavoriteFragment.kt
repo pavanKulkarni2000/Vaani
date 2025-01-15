@@ -3,7 +3,10 @@ package com.vaani.ui.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.media3.common.util.UnstableApi
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.vaani.R
 import com.vaani.dal.Favorites
 import com.vaani.dal.Files
@@ -22,20 +25,44 @@ object FavoriteFragment : BaseFragment<Favorite>(R.layout.fragment_favorites) {
   override val data: List<Favorite>
     get() = Favorites.all
 
-  private lateinit var mover: Mover<Favorite>
+  private val touchHelper = ItemTouchHelper(object: ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+    override fun onMove(
+      recyclerView: RecyclerView,
+      viewHolder: RecyclerView.ViewHolder,
+      target: RecyclerView.ViewHolder
+    ): Boolean {
+      val from = viewHolder.absoluteAdapterPosition
+      val to = target.absoluteAdapterPosition
+      Favorites.move(displayList[from].rank, displayList[to].rank)
+      val movedItem = displayList.removeAt(from)
+      displayList.add(to, movedItem)
+      adapter.notifyItemMoved(from, to)
+      return true
+    }
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        Favorites.remove(displayList[viewHolder.absoluteAdapterPosition])
+        displayList.removeAt(viewHolder.absoluteAdapterPosition)
+        adapter.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
+      // add toast
+      Toast.makeText(requireContext(), "Removed from Favorites", Toast.LENGTH_SHORT).show()
+    }
+  })
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    mover =
-      object : Mover<Favorite>(displayList, adapter, recyclerView) {
-        override fun move(from: Int, to: Int) {
-          Favorites.move(displayList[from].rank, displayList[to].rank)
-        }
-
-        override fun remove(pos: Int) {
-          Favorites.remove(displayList[pos])
-        }
-      }
+//    mover =
+//      object : Mover<Favorite>(displayList, adapter, recyclerView) {
+//        override fun move(from: Int, to: Int) {
+//          Favorites.move(displayList[from].rank, displayList[to].rank)
+//        }
+//
+//        override fun remove(pos: Int) {
+//          Favorites.remove(displayList[pos])
+//        }
+//      }
+//    mover.enableMove()
+//    mover.enableRemove()
+    touchHelper.attachToRecyclerView(recyclerView)
     super.onViewCreated(view, savedInstanceState)
   }
 

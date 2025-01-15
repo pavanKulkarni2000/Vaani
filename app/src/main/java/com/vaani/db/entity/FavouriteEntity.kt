@@ -6,6 +6,6 @@ import io.objectbox.annotation.Unique
 import io.objectbox.relation.ToOne
 
 @Entity
-data class FavouriteEntity(@Id var id: Long = 0, @Unique var rank: Int = 0) {
+data class FavouriteEntity(@Id var id: Long = 0, var rank: Int = 0) {
   lateinit var media: ToOne<MediaEntity>
 }

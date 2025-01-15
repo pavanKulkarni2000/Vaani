@@ -1,9 +1,11 @@
 package com.vaani.ui.util
 
+import android.util.Log
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.vaani.model.UiItem
 import com.vaani.ui.adapter.Adapter
+import com.vaani.util.TAG
 
 abstract class Mover<T : UiItem>(
   displayList: MutableList<T>,
@@ -28,6 +30,7 @@ abstract class Mover<T : UiItem>(
       }
 
       override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        Log.d(TAG, "onSwiped: tried swiping")
         if (direction == ItemTouchHelper.END) {
           remove(viewHolder.absoluteAdapterPosition)
           displayList.removeAt(viewHolder.absoluteAdapterPosition)
@@ -37,6 +40,7 @@ abstract class Mover<T : UiItem>(
     }
 
   init {
+    Log.d(TAG, "Attached move helper to view of size ${recyclerView.adapter?.itemCount}")
     ItemTouchHelper(touchHelper).attachToRecyclerView(recyclerView)
   }
 
