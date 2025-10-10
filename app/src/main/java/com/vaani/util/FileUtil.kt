@@ -8,11 +8,14 @@ import com.vaani.MainActivity
 import com.vaani.db.entity.FileEntity
 import com.vaani.files.AndroidDocFile
 import com.vaani.files.AndroidPath
+import com.vaani.model.File
 import com.vaani.model.FileType
 import com.vaani.model.Folder
 import com.vaani.model.Media
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import kotlin.io.path.exists
 
 object FileUtil {
@@ -77,13 +80,13 @@ object FileUtil {
     return "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2F$folder"
   }
 
-  fun getPath(uri: Uri): Path? {
+  fun getPath(uri: Uri, context: Context): Path? {
     var path: Path? = null
     uri.path?.let { _path ->
       if (_path.contains("/tree/primary:")) {
         path = Paths.get(_path.replace("/tree/primary:", primaryStorageRootPath))
       } else {
-        val externalPaths = getSecondaryStorages(MainActivity.context)
+        val externalPaths = getSecondaryStorages(context)
         for (externalPath in externalPaths) {
           val sdCardName = externalPath.removePrefix("/storage/").removeSuffix("/")
           if (_path.contains(sdCardName)) {
@@ -99,29 +102,22 @@ object FileUtil {
     return path
   }
 
-  //  fun copyFile(sourceFile: Media, destinationUri: Uri): Media {
-  //    val newFile =
-  //      Media().apply {
-  //        name = sourceFile.name
-  //        isUri = false
-  //        isAudio = sourceFile.isAudio
-  //        duration = sourceFile.duration
-  //      }
-  //    getPath(destinationUri)?.let { path ->
-  //      val targetPath = path.resolve(sourceFile.name)
-  //      if (sourceFile.isUri) {
-  //        Files.copy(
-  //          MainActivity.contentResolver.openInputStream(Uri.parse(sourceFile.path)),
-  //          targetPath,
-  //          StandardCopyOption.REPLACE_EXISTING
-  //        )
-  //      } else {
-  //        Files.copy(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
-  //      }
-  //      newFile.path = targetPath.toString()
-  //    }
-  //    return newFile
-  //  }
+    fun copyFile(sourceFile: File, destinationUri: Uri, context: Context): File {
+      return getPath(destinationUri, context)?.let { path ->
+        val targetPath = path.resolve(sourceFile.name)
+        if (sourceFile.isUri) {
+          Files.copy(
+            context.contentResolver.openInputStream(Uri.parse(sourceFile.path)),
+            targetPath,
+            StandardCopyOption.REPLACE_EXISTING
+          )
+        } else {
+          Files.copy(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
+        }
+        File(sourceFile.name,targetPath.toString(),sourceFile.isUri)
+      } ?: throw Exception("Couldn't find the file")
+    }
+
   //
   //  fun moveFile(sourceFile: Media, destinationUri: Uri) {
   //    getPath(destinationUri)?.let { path ->

@@ -17,6 +17,7 @@ import com.vaani.model.Media
 import com.vaani.player.PlayerData
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.util.Selector
+import com.vaani.ui.util.UiUtil
 import com.vaani.util.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,6 +125,12 @@ class MediasFragment(private val currentFolder: Folder, val startLastPlayed: Boo
             FavoriteFragment.resetData()
             Toast.makeText(requireContext(), "Added to favorites", Toast.LENGTH_SHORT).show()
           }
+           R.id.medias_action_mode_copy -> {
+             val destFolder = UiUtil.folderSelector()
+             Files.copyFiles(selector.selection)
+             FavoriteFragment.resetData()
+             Toast.makeText(requireContext(), "Copied to ", Toast.LENGTH_SHORT).show()
+           }
           else -> return false
         }
         mode?.finish()

@@ -6,14 +6,14 @@ import com.vaani.ui.util.UiUtil
 data class Media(
   override val id: Long,
   override val name: String,
-  val path: String,
-  val isUri: Boolean,
+  override val path: String,
+  override val isUri: Boolean,
   val isAudio: Boolean,
   val duration: Long,
   val folderId: Long,
   var playBackProgress: Float,
   override var selected: Boolean = false,
-) : UiItem {
+) : UiItem , File(name,path,isUri) {
   override val subTitle: String
     get() = UiUtil.stringToTime(duration)
 

@@ -5,12 +5,12 @@ import com.vaani.R
 data class Folder(
   override val id: Long,
   override val name: String,
-  val path: String,
-  val isUri: Boolean,
+  override val path: String,
+  override val isUri: Boolean,
   var mediaCount: Int = 0,
   var lastPlayedId: Long = 0,
   override var selected: Boolean = false,
-) : UiItem {
+) : UiItem , File(name,path,isUri) {
   override val subTitle: String
     get() = String.format("%d media files", mediaCount)
 

@@ -1,9 +1,12 @@
 package com.vaani.dal
 
+import android.content.Context
+import android.net.Uri
 import com.vaani.MainActivity
 import com.vaani.db.DB
 import com.vaani.db.entity.FolderEntity
 import com.vaani.db.entity.MediaEntity
+import com.vaani.model.File
 import com.vaani.model.Folder
 import com.vaani.model.Media
 import com.vaani.model.Search
@@ -15,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import java.nio.file.Paths
 
 object Files {
   val folders: List<Folder>
@@ -56,22 +60,26 @@ object Files {
   //    return folder
   //  }
 
-  //  fun copyFile(sourceFile: MediaEntity, destinationUri: Uri): FolderEntity {
-  //    val newFile = FileUtil.copyFile(sourceFile, destinationUri)
-  //    val folderPath = Paths.get(newFile.path).parent
-  //    val folder: FolderEntity =
-  //      DB.getFolderWithPath(folderPath.toString())?.also { it.items++ }
-  //        ?: FolderEntity().also {
-  //          it.name = folderPath.fileName.toString()
-  //          it.path = folderPath.toString()
-  //          it.isUri = false
-  //          it.items = 1
-  //        }
-  //    DB.save(folder)
-  //    newFile.folderId = folder.id
-  //    DB.saveMedia(newFile)
-  //    return folder
-  //  }
+  fun copyFiles(selection: MutableList<Long>) {
+
+  }
+
+//    fun copyMediaFile(sourceFile: File, destinationUri: Uri, context: Context): FolderEntity {
+//      val newFile = FileUtil.copyFile(sourceFile, destinationUri, context)
+//      val folderPath = Paths.get(newFile.path).parent
+//      val folder: FolderEntity =
+//        DB.getFolderWithPath(folderPath.toString())?.also { it.items++ }
+//          ?: FolderEntity().also {
+//            it.name = folderPath.fileName.toString()
+//            it.path = folderPath.toString()
+//            it.isUri = false
+//            it.items = 1
+//          }
+//      DB.save(folder)
+//      newFile.folderId = folder.id
+//      DB.saveMedia(newFile)
+//      return folder
+//    }
 
   //  fun renameFile(mediaEntity: MediaEntity, newName: String) {
   //    FileUtil.rename(mediaEntity, newName)
