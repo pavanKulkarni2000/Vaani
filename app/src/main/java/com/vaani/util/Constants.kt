@@ -14,6 +14,8 @@ object Constants {
 
   const val UNNAMED_FILE = "Unnamed File"
 
+  const val COLLECTION_ID_KEY = "collection_id"
+
   const val FAVOURITE_COLLECTION_ID = -1L
 
   const val FAVOURITE_LAST_PLAYED_KEY = "favourite.last.played"

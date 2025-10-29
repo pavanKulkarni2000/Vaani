@@ -1,0 +1,146 @@
+package com.vaani.util
+
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
+import androidx.documentfile.provider.DocumentFile
+import com.vaani.MainActivity
+import com.vaani.db.entity.FileEntity
+import com.vaani.files.AndroidDocFile
+import com.vaani.files.AndroidPath
+import com.vaani.model.File
+import com.vaani.model.FileType
+import com.vaani.model.Folder
+import com.vaani.model.Media
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.exists
+
+object FileUtil {
+
+  private const val primaryStorageRootPath = "/storage/emulated/0/"
+
+  private fun getSecondaryStorages(context: Context): List<String> {
+    try {
+      val externalCacheDirs: Array<java.io.File> = context.getExternalFilesDirs(null)
+      val list = mutableListOf<String>()
+      for (file in externalCacheDirs) {
+        if (Environment.isExternalStorageRemovable(file)) {
+          val path = file.path.split("Android").toTypedArray()[0]
+          list.add(path)
+        }
+      }
+      return list
+    } catch (_: Exception) {}
+    return mutableListOf()
+  }
+
+  suspend fun updatePrimaryStorageList(): Map<Folder, List<Media>> {
+    return AndroidPath.discoverRecursive(Paths.get(primaryStorageRootPath))
+  }
+
+  suspend fun updateSecondaryStorageList(context: Context): Map<Folder, List<Media>> {
+    val map = mutableMapOf<Folder, List<Media>>()
+    getSecondaryStorages(context).forEach { path ->
+      map += AndroidPath.discoverRecursive(Paths.get(path))
+    }
+    return map
+  }
+
+  suspend fun updateAndroidFolderList(context: Context): Map<Folder, List<Media>> {
+    val data = DocumentFile.fromTreeUri(context, Uri.parse(androidFolderTreeUriStr("data")))!!
+    return AndroidDocFile.discoverRecursive(data)
+  }
+
+  suspend fun getMediaInFolder(context: Context, folderEntity: Folder): List<Media> {
+    return if (folderEntity.isUri) {
+      AndroidDocFile.listFolderMedia(
+        DocumentFile.fromTreeUri(context, Uri.parse(folderEntity.path))!!
+      )
+    } else {
+      AndroidPath.listFolderMedia(Paths.get(folderEntity.path))
+    }
+  }
+
+  fun isVideoAudio(type: FileType): Boolean = type == FileType.AUDIO || type == FileType.VIDEO
+
+  fun fileType(mimeType: String?): FileType {
+    return mimeType?.let {
+      try {
+        FileType.valueOf(it.split("/")[0].uppercase())
+      } catch (e: Exception) {
+        FileType.OTHER
+      }
+    } ?: FileType.OTHER
+  }
+
+  fun androidFolderTreeUriStr(folder: String): String {
+    return "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2F$folder"
+  }
+
+  fun getPath(uri: Uri, context: Context): Path? {
+    var path: Path? = null
+    uri.path?.let { _path ->
+      if (_path.contains("/tree/primary:")) {
+        path = Paths.get(_path.replace("/tree/primary:", primaryStorageRootPath))
+      } else {
+        val externalPaths = getSecondaryStorages(context)
+        for (externalPath in externalPaths) {
+          val sdCardName = externalPath.removePrefix("/storage/").removeSuffix("/")
+          if (_path.contains(sdCardName)) {
+            path = Paths.get(_path.replace("/tree/${sdCardName}:", externalPath))
+            break
+          }
+        }
+      }
+    }
+    if (path?.exists() != true) {
+      path = null
+    }
+    return path
+  }
+
+    fun copyFile(sourceFile: File, destinationUri: Uri, context: Context): File {
+      return getPath(destinationUri, context)?.let { path ->
+        val targetPath = path.resolve(sourceFile.name)
+        if (sourceFile.isUri) {
+          Files.copy(
+            context.contentResolver.openInputStream(Uri.parse(sourceFile.path)),
+            targetPath,
+            StandardCopyOption.REPLACE_EXISTING
+          )
+        } else {
+          Files.copy(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
+        }
+        File(sourceFile.name,targetPath.toString(),sourceFile.isUri)
+      } ?: throw Exception("Couldn't find the file")
+    }
+
+  //
+  //  fun moveFile(sourceFile: Media, destinationUri: Uri) {
+  //    getPath(destinationUri)?.let { path ->
+  //      val targetPath = path.resolve(sourceFile.name)
+  //      Files.move(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
+  //      sourceFile.path = targetPath.toString()
+  //    }
+  //  }
+
+  //  fun rename(fileEntity: FileEntity, newName: String) {
+  //    val newPath = Paths.get(fileEntity.path).parent.resolve(newName)
+  //    if (!File(fileEntity.path).renameTo(newPath.toFile())) {
+  //      throw Exception("Rename failed")
+  //    }
+  //    fileEntity.name = newName
+  //    fileEntity.path = newPath.toString()
+  //  }
+
+  fun delete(file: FileEntity) {
+    if (file.isUri) {
+      AndroidDocFile.delete(DocumentFile.fromTreeUri(MainActivity.context, Uri.parse(file.path))!!)
+    } else {
+      AndroidPath.delete(Paths.get(file.path))
+    }
+  }
+}

@@ -6,19 +6,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player.REPEAT_MODE_OFF
-import androidx.media3.common.Player.REPEAT_MODE_ONE
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
-import com.vaani.ui.MainActivity
+import com.vaani.MainActivity
 import com.vaani.R
-import com.vaani.data.Files
-import com.vaani.data.PlayerData
-import com.vaani.models.MediaEntity
+import com.vaani.dal.Files
+import com.vaani.dal.Medias
+import com.vaani.model.Media
 import com.vaani.ui.player.PlayerActivity
 import com.vaani.util.TAG
 
@@ -43,18 +41,18 @@ object PlayerUtil {
     controllerFuture =
       MediaController.Builder(
           context,
-          SessionToken(context, ComponentName(context, PlaybackService::class.java))
+          SessionToken(context, ComponentName(context, PlaybackService::class.java)),
         )
         .buildAsync()
   }
 
-  fun getMediaProgressMs(file: MediaEntity): Long =
+  fun getMediaProgressMs(file: Media): Long =
     (file.duration * file.playBackProgress * 1000).toLong()
 
-  private fun getMediaProgress(file: MediaEntity, position: Long): Float =
+  private fun getMediaProgress(file: Media, position: Long): Float =
     (position.toFloat() / (file.duration * 1000))
 
-  fun play(playList: List<MediaEntity>, position: Int, collectionId: Long) {
+  fun play(playList: List<Media>, position: Int, collectionId: Long) {
     val controller = this.controller ?: return
     val file = playList[position]
     if (PlayerData.currentCollection == collectionId && PlayerData.currentPlayList == playList) {
@@ -63,12 +61,12 @@ object PlayerUtil {
       controller.setMediaItems(
         playList.map { MediaItem.Builder().setMediaId(it.path).build() },
         position,
-        getMediaProgressMs(file)
+        getMediaProgressMs(file),
       )
       PlayerData.setCurrent(collectionId, playList)
     }
-    controller.setPlaybackSpeed(file.playBackSpeed)
-//    controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
+    //    controller.setPlaybackSpeed(file.playBackSpeed)
+    //    controller.repeatMode = if (file.playBackLoop) REPEAT_MODE_ONE else REPEAT_MODE_OFF
     //        controller.shuffleModeEnabled = Files.getFolder(file.folderId).playBackShuffle
     controller.prepare()
     controller.play()
@@ -102,7 +100,7 @@ object PlayerUtil {
     try {
       val endMedia = PlayerData.currentPlayList[mediaIndex]
       endMedia.playBackProgress = getMediaProgress(endMedia, position)
-      Files.update(endMedia)
+      Medias.saveProgress(endMedia)
     } catch (e: Exception) {
       Log.e(TAG, "saveProgress: error ", e)
     }

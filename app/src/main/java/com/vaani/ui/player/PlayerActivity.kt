@@ -20,13 +20,13 @@ import androidx.media3.ui.PlayerView
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.vaani.R
-import com.vaani.data.PlayerData
 import com.vaani.player.PlaybackService
+import com.vaani.player.PlayerData
 import com.vaani.util.TAG
 
 @UnstableApi
 class PlayerActivity :
-  AppCompatActivity(R.layout.player_activity), PlayerView.ControllerVisibilityListener {
+  AppCompatActivity(R.layout.activity_player), PlayerView.ControllerVisibilityListener {
   private lateinit var controllerFuture: ListenableFuture<MediaController>
   private val controller: MediaController?
     get() = if (controllerFuture.isDone) controllerFuture.get() else null
@@ -61,7 +61,7 @@ class PlayerActivity :
     controllerFuture =
       MediaController.Builder(
           this,
-          SessionToken(this, ComponentName(this, PlaybackService::class.java))
+          SessionToken(this, ComponentName(this, PlaybackService::class.java)),
         )
         .buildAsync()
     controllerFuture.addListener({ setController() }, MoreExecutors.directExecutor())
@@ -78,7 +78,7 @@ class PlayerActivity :
     updateMediaMetadataUI()
     controller.addListener(
       object : Player.Listener {
-        //                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        //                override fun onMediaItemTransition(mediaItem: Media?, reason: Int) {
         //                    // not working
         //                    updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
         //                }

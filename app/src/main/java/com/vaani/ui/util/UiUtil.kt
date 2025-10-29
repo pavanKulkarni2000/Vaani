@@ -1,5 +1,6 @@
 package com.vaani.ui.util
 
+import android.net.Uri
 import java.util.*
 import kotlin.random.Random
 
@@ -28,5 +29,9 @@ object UiUtil {
     } else {
       mFormatter.format("%02d:%02d", minutes, seconds).toString()
     }
+  }
+
+  fun folderSelector(): Uri {
+    TODO("Not yet implemented")
   }
 }

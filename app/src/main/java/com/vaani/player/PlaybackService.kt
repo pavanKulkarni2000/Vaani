@@ -24,7 +24,6 @@ import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
-import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS
 import androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM
@@ -44,9 +43,9 @@ import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.vaani.ui.MainActivity
-import com.vaani.data.Files
-import com.vaani.data.PlayerData
+import com.vaani.MainActivity
+import com.vaani.dal.Files
+import com.vaani.dal.Medias
 import com.vaani.player.PlayerUtil.closeButton
 import com.vaani.player.PlayerUtil.closeCommand
 import com.vaani.ui.player.PlayerActivity
@@ -93,14 +92,14 @@ class PlaybackService : MediaSessionService() {
 
     override fun onConnect(
       session: MediaSession,
-      controller: ControllerInfo
+      controller: ControllerInfo,
     ): MediaSession.ConnectionResult {
       val connectionResult = super.onConnect(session, controller)
       val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
       availableSessionCommands.add(closeCommand)
       return MediaSession.ConnectionResult.accept(
         availableSessionCommands.build(),
-        connectionResult.availablePlayerCommands
+        connectionResult.availablePlayerCommands,
       )
     }
 
@@ -108,12 +107,12 @@ class PlaybackService : MediaSessionService() {
       session: MediaSession,
       controller: ControllerInfo,
       customCommand: SessionCommand,
-      args: Bundle
+      args: Bundle,
     ): ListenableFuture<SessionResult> {
       if (customCommand == closeCommand) {
         PlayerUtil.saveProgress(
           session.player.currentMediaItemIndex,
-          session.player.currentPosition
+          session.player.currentPosition,
         )
         session.player.stop()
       }
@@ -128,7 +127,7 @@ class PlaybackService : MediaSessionService() {
     override fun onAddMediaItems(
       mediaSession: MediaSession,
       controller: ControllerInfo,
-      mediaItems: MutableList<MediaItem>
+      mediaItems: MutableList<MediaItem>,
     ): ListenableFuture<MutableList<MediaItem>> {
       val updatedMediaItems = mediaItems.map { MediaItem.fromUri(it.mediaId) }.toMutableList()
       return Futures.immediateFuture(updatedMediaItems)
@@ -137,7 +136,7 @@ class PlaybackService : MediaSessionService() {
     override fun onPlayerCommandRequest(
       session: MediaSession,
       controller: ControllerInfo,
-      playerCommand: Int
+      playerCommand: Int,
     ): Int {
       Log.d(TAG, "onPlayerCommandRequest: command received $playerCommand")
       when (playerCommand) {
@@ -148,7 +147,7 @@ class PlaybackService : MediaSessionService() {
         COMMAND_STOP ->
           PlayerUtil.saveProgress(
             session.player.currentMediaItemIndex,
-            session.player.currentPosition
+            session.player.currentPosition,
           )
       }
       return super.onPlayerCommandRequest(session, controller, playerCommand)
@@ -166,30 +165,16 @@ class PlaybackService : MediaSessionService() {
           if (reason == MEDIA_ITEM_TRANSITION_REASON_AUTO) {
             PlayerUtil.saveProgress(player.previousMediaItemIndex, 0)
           }
-          Files.updateLastPlayedItem(
+          Medias.updateLastPlayedItems(
             PlayerData.currentCollection,
-            PlayerData.currentPlayList[player.currentMediaItemIndex].id
+            PlayerData.currentPlayList[player.currentMediaItemIndex].id,
           )
           player.seekTo(
             PlayerUtil.getMediaProgressMs(PlayerData.currentPlayList[player.currentMediaItemIndex])
           )
-          player.playbackParameters.withSpeed(
-            PlayerData.currentPlayList[player.currentMediaItemIndex].playBackSpeed
-          )
         }
         MEDIA_ITEM_TRANSITION_REASON_REPEAT -> {}
       }
-    }
-
-    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-      if (playbackParameters.speed > 0) {
-        Files.update(
-          PlayerData.currentPlayList[player.currentMediaItemIndex].apply {
-            playbackParameters.speed
-          }
-        )
-      }
-      super.onPlaybackParametersChanged(playbackParameters)
     }
   }
 
