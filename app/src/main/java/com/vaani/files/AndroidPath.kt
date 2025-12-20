@@ -11,17 +11,17 @@ import java.net.URLConnection
 import java.nio.file.AccessDeniedException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Collectors
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.name
-import kotlin.streams.toList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object AndroidPath : AndroidGenericFileType<Path> {
   override suspend fun listFolder(folder: Path): List<Path> {
     return try {
-      withContext(Dispatchers.IO) { Files.list(folder).toList() }
+      withContext(Dispatchers.IO) { Files.list(folder).collect(Collectors.toList()) }
     } catch (e: AccessDeniedException) {
       emptyList()
     }
@@ -46,7 +46,13 @@ object AndroidPath : AndroidGenericFileType<Path> {
   }
 
   override fun getFolder(file: Path, count: Int): Folder {
-    return Folder(id = 0, name = file.fileName.toString(), path = file.toString(), isUri = false)
+    return Folder(
+      id = 0,
+      name = file.fileName.toString(),
+      path = file.toString(),
+      isUri = false,
+      mediaCount = count
+    )
   }
 
   override fun getDuration(file: Path): Long {
