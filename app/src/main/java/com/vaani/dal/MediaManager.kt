@@ -19,20 +19,9 @@ class MediaManager(
     suspend fun updateLastPlayedItems(folderId: Long, lastPlayedId: Long) = withContext(Dispatchers.IO) {
         when (folderId) {
             Constants.FAVOURITE_COLLECTION_ID -> PreferenceUtil.lastPlayedFavouriteId = lastPlayedId
-            else -> {
-                folderRepository.getFolder(folderId)?.let {
-                    it.lastPlayedMediaId = lastPlayedId
-                    folderRepository.save(it)
-                }
-            }
+            else -> folderRepository.updateLastPlayedForFolder(folderId, lastPlayedId)
         }
         PreferenceUtil.lastPlayedFolderId = folderId
     }
 
-    suspend fun saveProgress(media: Media) = withContext(Dispatchers.IO) {
-        mediaRepository.getFile(media.id)?.let {
-            it.playBackProgress = media.playBackProgress
-            mediaRepository.saveMedia(it)
-        }
-    }
 }

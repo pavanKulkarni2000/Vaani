@@ -16,6 +16,9 @@ interface FolderDao {
     @Update
     suspend fun update(folder: FolderEntity)
 
+    @Query("UPDATE folders SET lastPlayedMediaId = :lastPlayedId WHERE id = :folderId")
+    suspend fun updateLastPlayedId(folderId: Long, lastPlayedId: Long)
+
     @Delete
     suspend fun delete(folder: FolderEntity)
 

@@ -19,6 +19,9 @@ interface MediaDao {
     @Update
     suspend fun update(media: MediaEntity)
 
+    @Query("UPDATE media SET playBackProgress = :progress WHERE id = :mediaId")
+    suspend fun updateProgress(mediaId: Long, progress: Float)
+
     @Delete
     suspend fun delete(media: MediaEntity)
     

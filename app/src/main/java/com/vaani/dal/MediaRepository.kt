@@ -77,4 +77,8 @@ class MediaRepository(
     suspend fun deleteMedias(files: List<MediaEntity>) = withContext(Dispatchers.IO) {
         if (files.isNotEmpty()) mediaDao.delete(files.map { it.id })
     }
+
+    suspend fun updateProgress(mediaId: Long, progress: Float) = withContext(Dispatchers.IO) {
+        mediaDao.updateProgress(mediaId, progress)
+    }
 }

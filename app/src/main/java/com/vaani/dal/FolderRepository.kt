@@ -46,6 +46,10 @@ class FolderRepository(private val folderDao: FolderDao) {
         folderDao.getFolder(id)
     }
 
+    suspend fun updateLastPlayedForFolder(folderId: Long, lastPlayedId: Long) = withContext(Dispatchers.IO) {
+        folderDao.updateLastPlayedId(folderId, lastPlayedId)
+    }
+
     suspend fun searchFolders(query: String): List<FolderEntity> = withContext(Dispatchers.IO) {
         folderDao.searchFolders(query)
     }

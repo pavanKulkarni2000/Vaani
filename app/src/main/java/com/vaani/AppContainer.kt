@@ -37,6 +37,6 @@ class AppContainer(context: Context) {
     }
 
     val playerUtil by lazy {
-        PlayerUtil(context, mediaManager, folderRepository)
+        PlayerUtil(context, mediaRepository, folderRepository)
     }
 }

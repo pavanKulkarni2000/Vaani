@@ -16,7 +16,7 @@ import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.vaani.R
 import com.vaani.dal.FolderRepository
-import com.vaani.dal.MediaManager
+import com.vaani.dal.MediaRepository
 import com.vaani.model.Media
 import com.vaani.ui.player.PlayerActivity
 import com.vaani.util.TAG
@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 @UnstableApi
 class PlayerUtil(
     private val context: Context,
-    private val mediaManager: MediaManager,
+    private val mediaRepository: MediaRepository,
     private val folderRepository: FolderRepository
 ) {
 
@@ -107,8 +107,8 @@ class PlayerUtil(
         try {
             if (mediaIndex < 0 || mediaIndex >= PlayerData.currentPlayList.size) return@withContext
             val endMedia = PlayerData.currentPlayList[mediaIndex]
-            endMedia.playBackProgress = getMediaProgress(endMedia, position)
-            mediaManager.saveProgress(endMedia)
+            val progress = getMediaProgress(endMedia, position)
+            mediaRepository.updateProgress(endMedia.id, progress)
         } catch (e: Exception) {
             Log.e(TAG, "saveProgress: error ", e)
         }
