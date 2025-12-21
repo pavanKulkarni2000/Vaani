@@ -59,6 +59,7 @@ class Selector<T : UiItem>(
       }
       selection.add(it.id)
       it.selected = true
+      selectionChangeListener.selectionChanged(selectionCount)
     }
   }
 
@@ -82,6 +83,7 @@ class Selector<T : UiItem>(
           selecting = false
           selectionChangeListener.selectingChanged(false)
         }
+        selectionChangeListener.selectionChanged(selectionCount)
       }
       item.selected = false
     }

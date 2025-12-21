@@ -4,16 +4,17 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
-import com.vaani.db.entity.FolderEntity
-import com.vaani.db.entity.MediaEntity
+import com.vaani.MainActivity
 import com.vaani.files.AndroidDocFile
 import com.vaani.files.AndroidPath
+import com.vaani.model.File
 import com.vaani.model.FileType
 import com.vaani.model.Folder
 import com.vaani.model.Media
-import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import kotlin.io.path.exists
 
 object FileUtil {
@@ -100,25 +101,45 @@ object FileUtil {
         return path
     }
 
-    fun delete(file: MediaEntity) {
-        File(file.path).delete()
+    fun copyFile(sourceFile: File, destinationUri: Uri, context: Context): File {
+        return getPath(destinationUri, context)?.let { path ->
+            val targetPath = path.resolve(sourceFile.name)
+            if (sourceFile.isUri) {
+                Files.copy(
+                    context.contentResolver.openInputStream(Uri.parse(sourceFile.path)),
+                    targetPath,
+                    StandardCopyOption.REPLACE_EXISTING
+                )
+            } else {
+                Files.copy(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
+            }
+            File(sourceFile.name, targetPath.toString(), sourceFile.isUri)
+        } ?: throw Exception("Couldn't find the file")
     }
 
-    fun delete(folder: FolderEntity) {
-        File(folder.path).deleteRecursively()
-    }
+    //
+    //  fun moveFile(sourceFile: Media, destinationUri: Uri) {
+    //    getPath(destinationUri)?.let { path ->
+    //      val targetPath = path.resolve(sourceFile.name)
+    //      Files.move(Paths.get(sourceFile.path), targetPath, StandardCopyOption.REPLACE_EXISTING)
+    //      sourceFile.path = targetPath.toString()
+    //    }
+    //  }
 
-    fun rename(folder: FolderEntity, newName: String) {
-        val newPath = File(folder.path).parent + "/" + newName
-        File(folder.path).renameTo(File(newPath))
-        folder.path = newPath
-        folder.name = newName
-    }
+      fun rename(file: File, newName: String) {
+        val newPath = Paths.get(file.path).parent.resolve(newName)
+        if (!java.io.File(file.path).renameTo(newPath.toFile())) {
+          throw Exception("Rename failed")
+        }
+        file.name = newName
+        file.path = newPath.toString()
+      }
 
-    fun rename(mediaEntity: MediaEntity, newName: String) {
-        val newPath = File(mediaEntity.path).parent + "/" + newName
-        File(mediaEntity.path).renameTo(File(newPath))
-        mediaEntity.path = newPath
-        mediaEntity.name = newName
-    }
+      fun delete(file: File) {
+        if (file.isUri) {
+          AndroidDocFile.delete(DocumentFile.fromTreeUri(MainActivity.context, Uri.parse(file.path))!!)
+        } else {
+          AndroidPath.delete(Paths.get(file.path))
+        }
+      }
 }

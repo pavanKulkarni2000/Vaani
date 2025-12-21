@@ -5,17 +5,21 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.search.SearchView
-import com.vaani.dal.Files
+import com.vaani.dal.FileManager
 import com.vaani.model.Search
 import com.vaani.ui.adapter.Adapter
 import com.vaani.ui.adapter.ItemClickProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-object GlobalMediaSearcher : ItemClickProvider {
-    val displayList = mutableListOf<Search>()
-    val adapter = Adapter(displayList,this)
+class GlobalMediaSearcher(private val fileManager: FileManager) : ItemClickProvider {
+    private val searchScope = CoroutineScope(Dispatchers.Main)
+    private val displayList = mutableListOf<Search>()
+    private val adapter = Adapter(displayList, this)
 
-    fun setUp(searchView: SearchView,recyclerView: RecyclerView){
-        searchView.addTransitionListener { _: SearchView?, previousState: SearchView.TransitionState?, newState: SearchView.TransitionState ->
+    fun setUp(searchView: SearchView, recyclerView: RecyclerView) {
+        searchView.addTransitionListener { _: SearchView?, _: SearchView.TransitionState?, newState: SearchView.TransitionState ->
             if (newState == SearchView.TransitionState.SHOWING) {
                 recyclerView.adapter = adapter
                 start()
@@ -25,7 +29,7 @@ object GlobalMediaSearcher : ItemClickProvider {
             object : TextView.OnEditorActionListener {
                 override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
                     v?.text?.let {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             searchPrediction(it.toString())
                             return true
                         }
@@ -34,29 +38,35 @@ object GlobalMediaSearcher : ItemClickProvider {
                 }
             }
         )
-        searchView.addTransitionListener { _: SearchView?, previousState: SearchView.TransitionState?, newState: SearchView.TransitionState ->
+        searchView.addTransitionListener { _: SearchView?, _: SearchView.TransitionState?, newState: SearchView.TransitionState ->
             if (newState == SearchView.TransitionState.HIDDEN) {
                 close()
             }
         }
     }
-    fun start(){
+
+    fun start() {
         displayList.clear()
-    }
-    fun searchPrediction(query:String){
-        search(query)
-    }
-    fun searchSubmit(query:String){
-        search(query)
-    }
-    private fun search(query:String) {
-        displayList.clear()
-        val folders = Files.searchFolders(query)
-        displayList.addAll(folders.sortedBy { it.name.lowercase() })
-        adapter.notifyDataSetChanged()
     }
 
-    fun close(){
+    fun searchPrediction(query: String) {
+        search(query)
+    }
+
+    fun searchSubmit(query: String) {
+        search(query)
+    }
+
+    private fun search(query: String) {
+        searchScope.launch {
+            displayList.clear()
+            val folders = fileManager.searchFolders(query)
+            displayList.addAll(folders.sortedBy { it.name.lowercase() })
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+    fun close() {
         displayList.clear()
     }
 
