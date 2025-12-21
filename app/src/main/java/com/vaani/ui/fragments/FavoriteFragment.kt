@@ -87,7 +87,7 @@ class FavoriteFragment : BaseFragment<Favorite>(R.layout.fragment_favorites) {
     }
 
     override fun onItemLongClick(position: Int, view: View?): Boolean {
-        // TODO
+        // no action
         return false
     }
 

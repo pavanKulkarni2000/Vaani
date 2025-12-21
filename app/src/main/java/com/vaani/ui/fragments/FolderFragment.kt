@@ -47,7 +47,7 @@ class FolderFragment : BaseFragment<Folder>(R.layout.fragment_folders) {
     }
 
     override fun onItemLongClick(position: Int, view: View?): Boolean {
-        // TODO
+        // no action
         return false
     }
 
