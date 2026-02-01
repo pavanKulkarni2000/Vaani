@@ -43,4 +43,9 @@
     <string name="folders">Folders</string>
     <string name="favorites">Favorites</string>
     <string name="play_button">Play button</string>
+    <string name="already_in_favorites">Already in favorites</string>
+    <plurals name="favorites_added">
+        <item quantity="one">%d item added to favorites</item>
+        <item quantity="other">%d items added to favorites</item>
+    </plurals>
 </resources>

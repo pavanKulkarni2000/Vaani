@@ -1,11 +1,24 @@
 package com.vaani.db.entity
 
-import io.objectbox.annotation.Entity
-import io.objectbox.annotation.Id
-import io.objectbox.annotation.Unique
-import io.objectbox.relation.ToOne
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
-@Entity
-data class FavouriteEntity(@Id var id: Long = 0, var rank: Int = 0) {
-  lateinit var media: ToOne<MediaEntity>
-}
+@Entity(
+    tableName = "favourites",
+    foreignKeys = [
+        ForeignKey(
+            entity = MediaEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["mediaId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["mediaId"])]
+)
+data class   FavouriteEntity(
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
+    var rank: Int = 0,
+    val mediaId: Long
+)

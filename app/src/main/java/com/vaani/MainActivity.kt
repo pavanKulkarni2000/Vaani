@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import androidx.media3.common.util.UnstableApi
-import com.vaani.db.DB
 import com.vaani.player.PlayerUtil
 import com.vaani.ui.fragments.HomeFragment
 import com.vaani.util.PermissionUtil
@@ -15,6 +14,8 @@ import com.vaani.util.PreferenceUtil
 
 @UnstableApi
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+  private lateinit var playerUtil: PlayerUtil
 
   companion object {
     private lateinit var instance: FragmentActivity
@@ -32,32 +33,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     instance = this
-    PlayerUtil.init(this)
+    playerUtil = (application as VaaniApplication).container.playerUtil
+    playerUtil.init()
     PermissionUtil.managePermissions(this)
-    DB.init(this)
     PreferenceUtil.init(this)
     supportFragmentManager.commit {
       setReorderingAllowed(true)
       add(R.id.main_activity_fragment_container_view, HomeFragment())
     }
-    //    menuItemAction = FolderFragment
   }
-
-  //  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-  //    menu?.let { menuInflater.inflate(R.menu.home_activity_menu, it) }
-  //    return super.onCreateOptionsMenu(menu)
-  //  }
 
   override fun onResume() {
     super.onResume()
-    DB.resume(this)
-    PlayerUtil.resume(this)
+    playerUtil.resume()
   }
 
   override fun onDestroy() {
     super.onDestroy()
-    DB.close()
     PreferenceUtil.close()
-    PlayerUtil.close()
+    playerUtil.close()
   }
 }

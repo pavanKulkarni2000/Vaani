@@ -11,33 +11,36 @@ import com.vaani.R
 @UnstableApi
 class HomeFragment : Fragment(R.layout.fragment_home_nav) {
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    childFragmentManager.commit {
-      setReorderingAllowed(true)
-      add(R.id.home_fragment_fragment_container_view, FolderFragment)
-      add(R.id.home_fragment_fragment_container_view, FavoriteFragment)
-      hide(FavoriteFragment)
-    }
-    val bottomNav = view.findViewById<BottomNavigationView>(R.id.bottom_navigation)
-    bottomNav.setOnItemSelectedListener { item ->
-      when (item.itemId) {
-        R.id.folders -> {
-          childFragmentManager.commit {
-            hide(FavoriteFragment)
-            show(FolderFragment)
-          }
-          true
+    private val folderFragment = FolderFragment.newInstance()
+    private val favoriteFragment = FavoriteFragment.newInstance()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        childFragmentManager.commit {
+            setReorderingAllowed(true)
+            add(R.id.home_fragment_fragment_container_view, folderFragment)
+            add(R.id.home_fragment_fragment_container_view, favoriteFragment)
+            hide(favoriteFragment)
         }
-        R.id.favorites -> {
-          childFragmentManager.commit {
-            hide(FolderFragment)
-            show(FavoriteFragment)
-          }
-          true
+        val bottomNav = view.findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.folders -> {
+                    childFragmentManager.commit {
+                        hide(favoriteFragment)
+                        show(folderFragment)
+                    }
+                    true
+                }
+                R.id.favorites -> {
+                    childFragmentManager.commit {
+                        hide(folderFragment)
+                        show(favoriteFragment)
+                    }
+                    true
+                }
+                else -> false
+            }
         }
-        else -> false
-      }
     }
-  }
 }

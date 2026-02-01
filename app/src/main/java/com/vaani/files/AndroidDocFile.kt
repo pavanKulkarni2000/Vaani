@@ -42,6 +42,7 @@ object AndroidDocFile : AndroidGenericFileType<DocumentFile> {
       name = file.name ?: Constants.UNNAMED_FILE,
       path = file.uri.toString(),
       isUri = true,
+      mediaCount = count
     )
   }
 
